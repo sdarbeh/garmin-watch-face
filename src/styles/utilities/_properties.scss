@@ -1,0 +1,301 @@
+@use "./mixins" as *;
+
+$utility-properties: (
+  (
+    property: display,
+    classes: (
+      (
+        classname: u-block,
+        value: block,
+      ),
+      (
+        classname: u-flex,
+        value: flex,
+      ),
+      (
+        classname: u-inline-flex,
+        value: inline-flex,
+      ),
+      (
+        classname: u-grid,
+        value: grid,
+      ),
+      (
+        classname: u-hidden,
+        value: none,
+      ),
+    ),
+  ),
+  (
+    property: flex,
+    classes: (
+      (
+        classname: u-flex-1,
+        value: 1 1 0%,
+      ),
+      (
+        classname: u-flex-none,
+        value: 0 0 auto,
+      ),
+    ),
+  ),
+  (
+    property: flex-direction,
+    classes: (
+      (
+        classname: u-flex-row,
+        value: row,
+      ),
+      (
+        classname: u-flex-column,
+        value: column,
+      ),
+    ),
+  ),
+  (
+    property: flex-wrap,
+    classes: (
+      (
+        classname: u-flex-wrap,
+        value: wrap,
+      ),
+      (
+        classname: u-flex-nowrap,
+        value: nowrap,
+      ),
+    ),
+  ),
+  (
+    property: align-items,
+    classes: (
+      (
+        classname: u-items-start,
+        value: flex-start,
+      ),
+      (
+        classname: u-items-center,
+        value: center,
+      ),
+      (
+        classname: u-items-end,
+        value: flex-end,
+      ),
+      (
+        classname: u-items-baseline,
+        value: baseline,
+      ),
+    ),
+  ),
+  (
+    property: justify-content,
+    classes: (
+      (
+        classname: u-justify-start,
+        value: flex-start,
+      ),
+      (
+        classname: u-justify-center,
+        value: center,
+      ),
+      (
+        classname: u-justify-end,
+        value: flex-end,
+      ),
+      (
+        classname: u-justify-between,
+        value: space-between,
+      ),
+    ),
+  ),
+  (
+    property: justify-items,
+    classes: (
+      (
+        classname: u-justify-items-start,
+        value: start,
+      ),
+      (
+        classname: u-justify-items-center,
+        value: center,
+      ),
+      (
+        classname: u-justify-items-end,
+        value: end,
+      ),
+    ),
+  ),
+  (
+    property: justify-self,
+    classes: (
+      (
+        classname: u-justify-self-start,
+        value: start,
+      )
+    ),
+  ),
+  (
+    property: align-self,
+    classes: (
+      (
+        classname: u-self-end,
+        value: end,
+      )
+    ),
+  ),
+  (
+    property: text-align,
+    classes: (
+      (
+        classname: u-text-left,
+        value: left,
+      ),
+      (
+        classname: u-text-center,
+        value: center,
+      ),
+      (
+        classname: u-text-right,
+        value: right,
+      ),
+    ),
+  ),
+  (
+    property: text-decoration-line,
+    classes: (
+      (
+        classname: u-underline,
+        value: underline,
+      )
+    ),
+  ),
+  (
+    property: text-transform,
+    classes: (
+      (
+        classname: u-uppercase,
+        value: uppercase,
+      ),
+      (
+        classname: u-normal-case,
+        value: none,
+      ),
+    ),
+  ),
+  (
+    property: width,
+    classes: (
+      (
+        classname: u-w-full,
+        value: 100%,
+      )
+    ),
+  ),
+  (
+    property: max-width,
+    classes: (
+      (
+        classname: u-max-w-reading,
+        value: var(--app-content-reading),
+      )
+    ),
+  ),
+  (
+    property: min-width,
+    classes: (
+      (
+        classname: u-min-w-0,
+        value: 0,
+      )
+    ),
+  ),
+  (
+    property: border-radius,
+    classes: (
+      (
+        classname: u-circle,
+        value: 50%,
+      ),
+      (
+        classname: u-radius-xsmall,
+        value: var(--app-radius-xsmall),
+      ),
+      (
+        classname: u-radius-small,
+        value: var(--app-radius-small),
+      ),
+      (
+        classname: u-radius-medium,
+        value: var(--app-radius-medium),
+      ),
+      (
+        classname: u-radius-large,
+        value: var(--app-radius-large),
+      ),
+      (
+        classname: u-radius-pill,
+        value: var(--app-radius-pill),
+      ),
+    ),
+  ),
+  (
+    property: object-fit,
+    classes: (
+      (
+        classname: u-object-cover,
+        value: cover,
+      )
+    ),
+  ),
+  (
+    property: box-shadow,
+    classes: (
+      (
+        classname: u-ring,
+        value: 0 0 0 1px var(--app-color-border),
+      )
+    ),
+  )
+);
+
+@include generate-base-classes-from-property-list($utility-properties);
+
+.u-icon-xs {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.u-icon-sm {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.u-icon-md {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.u-icon-lg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (min-width: 48rem) {
+  .u-md-flex {
+    display: flex;
+  }
+  .u-md-grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

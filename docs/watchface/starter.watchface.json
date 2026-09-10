@@ -1,0 +1,73 @@
+{
+  "format": "watchface-project",
+  "version": 1,
+  "device": "fr970",
+  "name": "Daily rhythm",
+  "background": "#000000",
+  "elements": [
+    {
+      "id": "battery",
+      "type": "battery",
+      "visible": true,
+      "locked": false,
+      "text": "",
+      "x": 227,
+      "y": 340,
+      "color": "#AAAAAA",
+      "size": 40,
+      "family": "garmin",
+      "weight": 400,
+      "alignment": "center",
+      "opacity": 100,
+      "timeFormat": "12"
+    },
+    {
+      "id": "steps",
+      "type": "steps",
+      "visible": true,
+      "locked": false,
+      "text": "",
+      "x": 227,
+      "y": 288,
+      "color": "#CCCCCC",
+      "size": 40,
+      "family": "garmin",
+      "weight": 400,
+      "alignment": "center",
+      "opacity": 100,
+      "timeFormat": "12"
+    },
+    {
+      "id": "time",
+      "type": "time",
+      "visible": true,
+      "locked": false,
+      "text": "",
+      "x": 227,
+      "y": 197,
+      "color": "#FFFFFF",
+      "size": 120,
+      "family": "garmin",
+      "weight": 400,
+      "alignment": "center",
+      "opacity": 100,
+      "timeFormat": "12"
+    },
+    {
+      "id": "date",
+      "type": "date",
+      "visible": true,
+      "locked": false,
+      "text": "",
+      "x": 227,
+      "y": 115,
+      "color": "#FFAA00",
+      "size": 40,
+      "family": "garmin",
+      "weight": 400,
+      "alignment": "center",
+      "opacity": 100,
+      "timeFormat": "12"
+    }
+  ]
+}

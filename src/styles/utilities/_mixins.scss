@@ -1,0 +1,23 @@
+@use "sass:map";
+@use "sass:meta";
+
+@mixin generate-base-class($property, $class) {
+  .#{map.get($class, classname)} {
+    #{$property}: map.get($class, value);
+  }
+}
+
+@mixin generate-base-classes-from-property-list($property-list) {
+  @each $group in $property-list {
+    $property: map.get($group, property);
+    $classes: map.get($group, classes);
+
+    @if meta.type-of($classes) == "map" and map.has-key($classes, classname) {
+      @include generate-base-class($property, $classes);
+    } @else {
+      @each $class in $classes {
+        @include generate-base-class($property, $class);
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+.u-js-only {
+  display: contents;
+}
+
+.u-no-js-only {
+  display: none;
+}
+
+@media (scripting: none) {
+  .u-js-only {
+    display: none;
+  }
+
+  .u-no-js-only {
+    display: contents;
+  }
+}

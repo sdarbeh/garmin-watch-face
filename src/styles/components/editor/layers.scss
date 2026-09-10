@@ -1,0 +1,83 @@
+@use "../../tokens";
+
+.watchface-layers {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: var(--app-gap-4);
+  border-right: var(--app-border-width) solid var(--app-color-border);
+}
+.watchface-layer-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: var(--app-gap-1);
+  margin-bottom: var(--app-gap-4);
+  border-radius: var(--app-radius-small);
+  background: var(--app-color-fill-subtle);
+}
+.watchface-layer-tabs .ui-button[data-active="true"] {
+  border-color: transparent;
+}
+.watchface-layer-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.watchface-layer,
+.watchface-layer-row {
+  min-height: var(--app-control-md);
+  width: 100%;
+}
+.watchface-layer {
+  justify-content: flex-start;
+  text-align: left;
+  gap: var(--app-gap-3);
+  padding: var(--app-gap-2);
+}
+.watchface-layer-row {
+  display: flex;
+  align-items: center;
+  border: var(--app-border-width) solid transparent;
+  padding-inline: var(--app-gap-1);
+}
+.watchface-layer-row[data-selected="true"],
+.watchface-layer[aria-pressed="true"] {
+  border: var(--app-border-width) solid var(--app-color-primary);
+  border-radius: var(--app-radius-small);
+  background: color-mix(in srgb, var(--app-color-primary) 12%, transparent);
+}
+.watchface-layer-select {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  padding-inline: var(--app-gap-1);
+  text-align: left;
+}
+.watchface-layer-select span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.watchface-layer-select svg,
+.watchface-layer svg {
+  flex-shrink: 0;
+}
+.watchface-add-element {
+  width: 100%;
+  margin-top: var(--app-gap-5);
+}
+@media (max-width: tokens.$breakpoint-md) {
+  .watchface-layers {
+    border-right: 0;
+    border-bottom: var(--app-border-width) solid var(--app-color-border);
+  }
+  .watchface-layer-list {
+    max-height: var(--app-panel-width-compact);
+  }
+}
+
+.watchface-layer-divider {
+  height: var(--app-border-width);
+  margin: var(--app-gap-1) var(--app-gap-2);
+  background: var(--app-color-border);
+}

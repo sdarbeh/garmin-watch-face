@@ -1,0 +1,101 @@
+.ui-field {
+  min-width: 0;
+}
+.ui-field select,
+.ui-field input:not([type="range"]),
+.watchface-project-name input {
+  width: 100%;
+  min-width: 0;
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-small);
+  padding: var(--app-gap-2) var(--app-gap-3);
+  color: var(--app-color-text);
+  background: var(--app-color-surface);
+}
+.ui-field input[type="range"] {
+  width: 100%;
+  margin: 0;
+  height: var(--app-gap-6);
+  accent-color: var(--app-color-primary);
+}
+.ui-field:has(input:disabled),
+.ui-field:has(select:disabled) {
+  opacity: 0.5;
+}
+.ui-color-swatches {
+  border: 0;
+  padding: 0;
+  margin-inline: 0;
+  min-width: 0;
+}
+.ui-color-swatches__option {
+  min-height: 0;
+  padding: 0;
+  width: var(--app-swatch-size);
+  height: var(--app-swatch-size);
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  cursor: pointer;
+  color: var(--app-color-on-light);
+  transition: transform var(--app-transition-fast);
+}
+.ui-color-swatches__option:hover {
+  color: var(--app-color-on-light);
+}
+.ui-color-swatches__option--dark,
+.ui-color-swatches__option--dark:hover {
+  color: var(--app-color-on-dark);
+}
+.ui-color-swatches__option[aria-pressed="true"] {
+  outline: var(--app-border-width) solid var(--app-color-text);
+  outline-offset: var(--app-focus-offset);
+}
+.ui-color-swatches__option:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+.ui-color-swatches__option:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.ui-notice {
+  padding: var(--app-gap-3) var(--app-gap-4);
+  border: var(--app-border-width) solid var(--app-color-border);
+  border-radius: var(--app-radius-small);
+  white-space: pre-line;
+}
+
+.ui-search {
+  display: flex;
+  align-items: center;
+  gap: var(--app-gap-3);
+  height: var(--app-control-md);
+  min-width: 0;
+  background: var(--app-color-surface);
+  padding-inline: var(--app-gap-3);
+  border: var(--app-border-width) solid var(--app-color-border);
+  border-radius: var(--app-radius-small);
+  color: var(--app-color-text-muted);
+}
+.ui-search:focus-within {
+  border-color: var(--app-color-primary);
+}
+.ui-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--app-color-text);
+  font-size: var(--app-font-size-sm);
+}
+
+.ui-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-gap-2);
+  cursor: pointer;
+}
+.ui-checkbox-label input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+}

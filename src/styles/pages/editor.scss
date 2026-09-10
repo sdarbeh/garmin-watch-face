@@ -1,0 +1,41 @@
+@use "../tokens";
+
+.watchface-studio {
+  --app-editor-columns: var(--app-layers-width) minmax(0, 1fr)
+    var(--app-inspector-width);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--app-color-text);
+  background: var(--app-color-background);
+}
+.watchface-workspace {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--app-editor-columns);
+}
+.watchface-workspace[data-preview="true"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.watchface-editor-notice {
+  border-bottom: var(--app-border-width) solid var(--app-color-border);
+  background: var(--app-color-surface);
+}
+@media (max-width: tokens.$breakpoint-lg) {
+  .watchface-studio {
+    --app-editor-columns: var(--app-layers-width-compact) minmax(0, 1fr)
+      var(--app-panel-width-compact);
+  }
+}
+@media (max-width: tokens.$breakpoint-md) {
+  .watchface-studio {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .watchface-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

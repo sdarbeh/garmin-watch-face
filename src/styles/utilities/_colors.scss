@@ -1,0 +1,30 @@
+.u-text-primary {
+  color: var(--app-color-text);
+}
+.u-text-secondary {
+  color: var(--app-color-text-muted);
+}
+.u-text-subtle {
+  color: var(--app-color-text-subtle);
+}
+.u-text-success {
+  color: var(--app-color-success);
+}
+.u-text-warn {
+  color: var(--app-color-warn);
+}
+.u-text-error {
+  color: var(--app-color-error);
+}
+.u-bg-background {
+  background: var(--app-color-background);
+}
+.u-bg-surface {
+  background: var(--app-color-surface);
+}
+.u-bg-subtle {
+  background: var(--app-color-fill-subtle);
+}
+.u-bg-code-surface {
+  background: var(--app-color-code-surface);
+}

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "../../.watchface-service",
+    "rootDir": "../.."
+  },
+  "include": [
+    "*.ts",
+    "../../src/watchface/schema.ts",
+    "../../src/watchface/render-model.ts",
+    "../../src/watchface/generator.ts"
+  ]
+}

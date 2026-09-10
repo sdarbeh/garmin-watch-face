@@ -1,0 +1,112 @@
+.watchface-export {
+  padding: var(--app-gap-5);
+  width: min(var(--app-export-width), calc(100vw - var(--app-gap-6)));
+  height: min(var(--app-export-height), calc(100dvh - var(--app-gap-6)));
+  max-height: calc(100dvh - var(--app-gap-6));
+  overflow: hidden;
+  margin: auto;
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-medium);
+  background: var(--app-color-surface);
+  color: var(--app-color-text);
+}
+.watchface-export[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-gap-3);
+}
+.watchface-export__walkthrough {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-gap-3);
+  flex: 1;
+  min-height: 0;
+}
+.watchface-export__previews {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--app-gap-2);
+  flex-shrink: 0;
+}
+.watchface-export__preview {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--app-gap-2);
+  margin: 0;
+  width: calc(var(--app-export-face-size) * 0.75);
+  min-width: 0;
+  font-size: var(--app-font-size-xs);
+  color: var(--app-color-text-muted);
+}
+.watchface-export__preview svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.watchface-export__preview[data-primary="true"] {
+  z-index: 1;
+  width: var(--app-export-face-size);
+  margin-inline: calc(-1 * var(--app-export-face-overlap));
+  color: var(--app-color-text);
+  font-weight: var(--app-font-weight-semibold);
+}
+.watchface-export__walkthrough > .workflow-steps {
+  width: min(100%, var(--app-export-progress-width));
+  align-self: center;
+}
+.watchface-export::backdrop {
+  background: var(--app-color-overlay);
+}
+.watchface-export__content {
+  padding-block: var(--app-gap-2);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  outline: none;
+}
+.watchface-export__navigation {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-gap-3);
+}
+.watchface-export__instructions {
+  display: grid;
+  gap: var(--app-gap-4);
+  padding-left: var(--app-gap-5);
+  margin: 0;
+  font-size: var(--app-font-size-sm);
+  line-height: var(--app-line-height-body);
+}
+.watchface-export__computers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--app-gap-4);
+}
+.watchface-export__computer {
+  position: relative;
+  flex-direction: column;
+  gap: var(--app-gap-4);
+  min-height: var(--app-export-computer-height);
+  padding: var(--app-gap-5);
+  font-size: var(--app-font-size-md);
+  border-radius: var(--app-radius-medium);
+}
+.watchface-export__computer[aria-pressed="true"] {
+  border-color: var(--app-color-primary);
+  color: var(--app-color-primary);
+}
+.watchface-export__computer-icon {
+  width: var(--app-export-computer-icon);
+  height: var(--app-export-computer-icon);
+}
+.watchface-export__computer-check {
+  position: absolute;
+  top: var(--app-gap-3);
+  right: var(--app-gap-3);
+}

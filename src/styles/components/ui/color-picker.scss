@@ -1,0 +1,97 @@
+.ui-color-picker {
+  padding: var(--app-gap-5);
+  width: min(var(--app-color-picker-width), calc(100vw - var(--app-gap-6)));
+  max-height: calc(100dvh - var(--app-gap-7));
+  overflow-y: auto;
+  margin: auto;
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-medium);
+  background: var(--app-color-surface);
+  color: var(--app-color-text);
+}
+.ui-color-picker::backdrop {
+  background: var(--app-color-overlay);
+}
+.ui-color-field {
+  justify-content: flex-start;
+  padding: 0;
+  font-size: var(--app-font-size-sm);
+}
+.ui-color-field__swatch {
+  width: var(--app-control-xs);
+  height: var(--app-control-xs);
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-pill);
+}
+
+.ui-color-picker__spectrum {
+  position: relative;
+  height: var(--app-color-picker-height);
+  border-radius: var(--app-radius-medium);
+  background: var(--app-color-picker-wash), var(--app-color-picker-rainbow);
+  cursor: crosshair;
+  touch-action: none;
+  margin-bottom: var(--app-gap-5);
+}
+.ui-color-picker__cursor {
+  position: absolute;
+  width: var(--app-control-xs);
+  height: var(--app-control-xs);
+  border: var(--app-border-width) solid var(--app-color-on-dark);
+  border-radius: var(--app-radius-pill);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.ui-color-picker__range {
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: var(--app-color-picker-track);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: var(--app-radius-pill);
+  cursor: pointer;
+}
+.ui-color-picker__range::-webkit-slider-thumb {
+  appearance: none;
+  width: var(--app-color-picker-thumb);
+  height: var(--app-control-sm);
+  border: var(--app-border-width) solid var(--app-color-on-dark);
+  background: var(--app-color-surface);
+  border-radius: 0;
+}
+.ui-color-picker__range::-moz-range-thumb {
+  width: var(--app-color-picker-thumb);
+  height: var(--app-control-sm);
+  border: var(--app-border-width) solid var(--app-color-on-dark);
+  background: var(--app-color-surface);
+  border-radius: 0;
+}
+.ui-color-picker__divider {
+  height: var(--app-border-width);
+  background: var(--app-color-border-strong);
+  margin-block: var(--app-gap-5);
+}
+.ui-color-picker__hex {
+  display: grid;
+  gap: var(--app-gap-2);
+  text-align: center;
+}
+.ui-color-picker__hex input {
+  text-align: center;
+}
+.ui-color-picker__hex-label {
+  font-size: var(--app-font-size-sm);
+  color: var(--app-color-text-muted);
+}
+.ui-color-picker__recents {
+  margin-block: var(--app-gap-4);
+}
+.ui-color-picker__recents .ui-color-swatches {
+  margin: 0;
+}
+.ui-color-picker__recents legend {
+  font-size: var(--app-font-size-xs);
+  color: var(--app-color-text-muted);
+}

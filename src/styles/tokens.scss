@@ -1,0 +1,86 @@
+$breakpoint-xs: 28rem;
+$breakpoint-sm: 32rem;
+$breakpoint-md: 48rem;
+$breakpoint-lg: 64rem;
+$breakpoint-xl: 75rem;
+
+:root {
+  --app-workflow-step-size: var(--app-gap-6);
+  --app-export-height: 42rem;
+  --app-export-width: 35rem;
+  --app-export-face-size: clamp(6rem, 16dvh, 8rem);
+  --app-export-face-overlap: 2.5rem;
+  --app-export-progress-width: 20rem;
+  --app-export-computer-height: 10rem;
+  --app-export-computer-icon: 2.75rem;
+  --app-watch-detail-width: 24rem;
+  --app-empty-faces-width: 28rem;
+  --app-empty-title-size: 1.75rem;
+  --app-empty-side-opacity: 0.65;
+  --app-design-card-min: 15rem;
+  --app-watch-preset-min: 9rem;
+  --app-card-preview-hover-scale: 1.025;
+  --app-preset-detail-title: 2.5rem;
+  --app-preset-detail-face: 20rem;
+  --app-preset-detail-stage: 24rem;
+  --app-selected-watch-size: 6rem;
+  --app-home-title-min: 2.25rem;
+  --app-home-title-fluid: 4.5vw;
+  --app-home-title-max: 4.75rem;
+  --app-home-title-tracking: -0.035em;
+  --app-home-watch-width: 26rem;
+  --app-home-recent-size: 3.5rem;
+  --app-preset-card-min: 12rem;
+  --app-featured-preview-size: 10rem;
+  --app-preset-preview-size: 13rem;
+  --app-hero-watch-width: 22rem;
+  --app-chevron-size: 0.35rem;
+  --app-icon-label-size: 1.25rem;
+  --app-control-xs: 1.75rem;
+  --app-control-sm: 2.125rem;
+  --app-swatch-size: 2.25rem;
+  --app-field-height: 2.5rem;
+  --app-control-md: 2.75rem;
+  --app-search-height: 3.25rem;
+  --app-control-lg: 3.5rem;
+  --app-image-thumbnail-size: 4rem;
+  --app-inspector-label-width: 4.5rem;
+  --app-action-min-width: 7rem;
+  --app-layers-width-compact: 10rem;
+  --app-layers-width: 14rem;
+  --app-panel-width-compact: 16rem;
+  --app-device-card-width: 22rem;
+  --app-device-card-height: 12.5rem;
+  --app-code-max-height: 20rem;
+  --app-inspector-width: 21rem;
+  --app-canvas-mobile-max: 30rem;
+  --app-canvas-max: 38rem;
+  --app-intro-max-width: 42rem;
+  --app-dialog-width: 44rem;
+  --app-confirmation-width: 26rem;
+  --app-color-picker-width: 22rem;
+  --app-color-picker-height: 14rem;
+  --app-color-picker-track: 1.5rem;
+  --app-color-picker-thumb: 0.875rem;
+  --app-color-picker-rainbow: linear-gradient(
+    to right,
+    #ff0000,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  );
+  --app-color-picker-wash: linear-gradient(to bottom, #ffffff, transparent);
+  --app-border-width: 1px;
+  --app-focus-offset: 3px;
+  --app-shadow-menu: 0 8px 24px var(--app-color-border);
+  --app-shadow-product: 0 8px 6px rgba(0, 0, 0, 0.2);
+  --app-shadow-canvas: 0 16px 24px rgba(0, 0, 0, 0.4);
+  --app-shadow-step: 0 0 20px
+    color-mix(in srgb, var(--app-color-primary) 20%, transparent);
+  --app-color-overlay: rgba(0, 0, 0, 0.7);
+  --app-color-on-light: #000000;
+  --app-color-on-dark: #ffffff;
+}

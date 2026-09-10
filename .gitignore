@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.watchface-service/
+.env*
+!.env.example
+*.tsbuildinfo
+*.der
+*.pem
+*.prg
+*.prg.debug.xml
+*.iq
+.DS_Store
+next-env.d.ts

@@ -1,0 +1,30 @@
+.device-filter {
+  position: relative;
+}
+.device-filter__menu {
+  position: absolute;
+  z-index: var(--app-z-menu);
+  top: calc(100% + var(--app-gap-2));
+  right: 0;
+  width: var(--app-layers-width);
+  max-width: calc(100vw - 2 * var(--app-gutter));
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  background: var(--app-color-background);
+  box-shadow: var(--app-shadow-menu);
+}
+.device-filter__option {
+  justify-content: space-between;
+  border: 0;
+  background: transparent;
+  color: var(--app-color-text);
+  font-size: var(--app-font-size-md);
+  text-align: left;
+  cursor: pointer;
+}
+.device-filter__option:hover,
+.device-filter__option:focus-visible {
+  background: var(--app-color-fill-subtle);
+}
+.device-filter__option[aria-checked="true"] {
+  font-weight: var(--app-font-weight-medium);
+}

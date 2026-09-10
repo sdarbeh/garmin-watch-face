@@ -1,0 +1,170 @@
+@mixin app-dark-theme {
+  color-scheme: dark;
+  --app-color-background: #0c0f13;
+  --app-color-surface: #15191f;
+  --app-color-text: #f0f3f8;
+  --app-color-text-muted: #a3b0c3;
+  --app-color-text-subtle: #8290a4;
+  --app-color-border: rgba(255, 255, 255, 0.12);
+  --app-color-border-strong: rgba(255, 255, 255, 0.22);
+  --app-color-fill-subtle: rgba(255, 255, 255, 0.05);
+  --app-color-code-surface: #181e27;
+  --app-color-primary: #087fff;
+  --app-color-on-primary: #ffffff;
+  --app-color-focus: #63b1ff;
+  --app-color-success: #88a27e;
+  --app-color-warn: #c1a564;
+  --app-color-error: #c16e65;
+}
+
+:root {
+  color-scheme: light;
+
+  --app-color-background: #f4f1eb;
+  --app-color-surface: #fbf9f5;
+  --app-color-text: #1c1b19;
+  --app-color-text-muted: #625f59;
+  --app-color-text-subtle: #6f6b64;
+  --app-color-border: rgba(28, 27, 25, 0.12);
+  --app-color-border-strong: rgba(28, 27, 25, 0.22);
+  --app-color-fill-subtle: rgba(28, 27, 25, 0.04);
+  --app-color-code-surface: #e9e4dc;
+  --app-color-primary: #006ce0;
+  --app-color-on-primary: #ffffff;
+  --app-color-focus: #006ce0;
+  --app-color-success: #2f7d32;
+  --app-color-warn: #8a6500;
+  --app-color-error: #b5322a;
+
+  --app-radius-xsmall: 0.125rem;
+  --app-radius-small: 0.75rem;
+  --app-radius-medium: 1.25rem;
+  --app-radius-large: 2rem;
+  --app-radius-pill: 999px;
+
+  --app-content-reading: 46rem;
+  --app-content-studio: 94rem;
+  --app-header-height: 4.25rem;
+  --app-transition-fast: 140ms cubic-bezier(0.22, 1, 0.36, 1);
+  --app-transition-base: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --app-transition-slow: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  // Shared menu and keyboard-navigation layers.
+  --app-z-menu: 90;
+  --app-z-header: 100;
+  --app-z-skip-link: 110;
+}
+
+// The editing workspace uses a consistent dark canvas independently of the home theme.
+.watchface-studio {
+  @include app-dark-theme;
+}
+
+html.dark {
+  @include app-dark-theme;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light) {
+    @include app-dark-theme;
+  }
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  color: var(--app-color-text);
+  background: var(--app-color-background);
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: var(--app-font-size-md);
+  font-kerning: normal;
+  line-height: var(--app-line-height-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: square;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+::selection {
+  color: var(--app-color-on-primary);
+  background: var(--app-color-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--app-color-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

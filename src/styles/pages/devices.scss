@@ -1,0 +1,89 @@
+@use "../tokens";
+
+.device-picker {
+  max-width: var(--app-content-studio);
+  margin-inline: auto;
+  padding: var(--app-gap-5) var(--app-gutter) var(--app-gap-7);
+}
+.device-picker__intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--app-gap-4);
+  margin-bottom: var(--app-gap-4);
+}
+.device-picker__title {
+  font-size: var(--app-font-size-3xl);
+  letter-spacing: -0.045em;
+  font-weight: var(--app-font-weight-semibold);
+  line-height: 1.15;
+}
+.device-picker__description {
+  max-width: var(--app-intro-max-width);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-md);
+}
+.device-picker__controls {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+.device-picker__search input,
+.device-picker__controls > .ui-button,
+.device-picker__controls .device-filter > .ui-button {
+  height: var(--app-control-md);
+  min-height: var(--app-control-md);
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-small);
+  background: var(--app-color-surface);
+  font-size: var(--app-font-size-md);
+}
+.device-picker__search input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0 var(--app-gap-4) 0 var(--app-gap-7);
+  color: var(--app-color-text);
+}
+.device-picker__search input::placeholder {
+  color: var(--app-color-text-muted);
+  opacity: 1;
+}
+.device-picker__controls > .ui-button {
+  width: var(--app-control-md);
+  padding: 0;
+}
+.device-picker__controls .device-filter > .ui-button {
+  padding: 0 var(--app-gap-4);
+}
+.device-picker__search {
+  position: relative;
+}
+.device-picker__search > svg {
+  position: absolute;
+  left: var(--app-gap-4);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--app-color-text-muted);
+}
+.device-picker__grid {
+  grid-template-columns: repeat(
+    auto-fill,
+    min(100%, var(--app-device-card-width))
+  );
+}
+.device-picker__empty {
+  border: var(--app-border-width) dashed var(--app-color-border-strong);
+  border-radius: var(--app-radius-medium);
+}
+@media (max-width: tokens.$breakpoint-xl) {
+  .device-picker__intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--app-gap-5);
+  }
+}
+@media (max-width: tokens.$breakpoint-md) {
+  .device-picker {
+    padding-top: var(--app-gap-4);
+  }
+}

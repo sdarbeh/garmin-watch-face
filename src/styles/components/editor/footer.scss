@@ -1,0 +1,96 @@
+@use "../../tokens";
+
+.watchface-footer {
+  display: grid;
+  grid-template-columns: var(--app-editor-columns);
+  align-items: center;
+  padding: 0;
+  border-top: var(--app-border-width) solid var(--app-color-border);
+  background: var(--app-color-background);
+  flex-shrink: 0;
+}
+.watchface-footer__section {
+  display: flex;
+  align-items: center;
+  gap: var(--app-gap-2);
+  min-width: 0;
+  white-space: nowrap;
+  position: relative;
+  padding: var(--app-gap-3) var(--app-gap-4);
+  height: 100%;
+  flex-wrap: wrap;
+}
+.watchface-footer__simulation {
+  justify-content: center;
+  gap: var(--app-gap-4);
+}
+.watchface-footer__modes {
+  justify-content: center;
+  gap: var(--app-gap-4);
+}
+.watchface-footer__value {
+  display: flex;
+  align-items: center;
+  border: var(--app-border-width) solid var(--app-color-border);
+  border-radius: var(--app-radius-pill);
+  padding: var(--app-gap-1);
+}
+.watchface-footer__value input {
+  width: var(--app-action-min-width);
+  min-width: 0;
+  padding: var(--app-gap-1);
+  border: 0;
+  text-align: center;
+  font-family: inherit;
+  font-size: var(--app-font-size-xs);
+  color: var(--app-color-text);
+  background: transparent;
+}
+.watchface-footer__value input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+.watchface-footer__value .ui-button {
+  border-radius: var(--app-radius-pill);
+}
+.watchface-footer__segments {
+  display: flex;
+  border: var(--app-border-width) solid var(--app-color-border);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-color-fill-subtle);
+}
+.watchface-footer__segments .ui-button {
+  border-radius: var(--app-radius-pill);
+}
+.watchface-footer .ui-button {
+  padding-inline: var(--app-gap-2);
+  font-size: var(--app-font-size-xs);
+}
+@media (max-width: tokens.$breakpoint-lg) {
+  .watchface-footer__section {
+    padding-inline: var(--app-gap-2);
+    gap: var(--app-gap-1);
+  }
+}
+@media (max-width: tokens.$breakpoint-md) {
+  .watchface-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .watchface-footer__section {
+    justify-content: center;
+  }
+  .watchface-footer__section + .watchface-footer__section::before {
+    display: none;
+  }
+}
+.watchface-footer__section:first-child {
+  flex-wrap: nowrap;
+  gap: 0;
+}
+.watchface-footer__section:first-child .ui-button {
+  flex: 1;
+  min-width: 0;
+  padding-inline: var(--app-gap-1);
+  gap: var(--app-gap-1);
+}

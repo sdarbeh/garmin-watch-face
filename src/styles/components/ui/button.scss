@@ -1,0 +1,172 @@
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  gap: var(--app-gap-2);
+  flex-shrink: 0;
+  line-height: 1.25;
+  font-weight: var(--app-font-weight-medium);
+  text-transform: none;
+  transition:
+    color var(--app-transition-fast),
+    background-color var(--app-transition-fast),
+    border-color var(--app-transition-fast),
+    box-shadow var(--app-transition-fast),
+    transform var(--app-transition-fast);
+}
+
+// Radius utilities should override the button default without selector-specific exceptions.
+:where(.ui-button) {
+  border-radius: var(--app-radius-small);
+}
+
+.ui-button--xs {
+  min-height: var(--app-control-xs);
+  padding: 0 var(--app-gap-2);
+  font-size: var(--app-font-size-xs);
+}
+
+.ui-button--sm {
+  min-height: var(--app-control-sm);
+  padding: var(--app-gap-1) var(--app-gap-2);
+  font-size: var(--app-font-size-xs);
+}
+
+.ui-button--md {
+  min-height: var(--app-control-md);
+  padding: var(--app-gap-2) var(--app-gap-3);
+  font-size: var(--app-font-size-md);
+}
+
+.ui-button--lg {
+  min-height: var(--app-control-lg);
+  padding: var(--app-gap-2) var(--app-gap-4);
+  font-size: var(--app-font-size-md);
+}
+
+.ui-button--icon-only {
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+.ui-button--secondary {
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  color: var(--app-color-text);
+  background: var(--app-color-fill-subtle);
+  box-shadow: none;
+}
+
+.ui-button--secondary:hover:not(:disabled) {
+  border-color: var(--app-color-text-subtle);
+  background: var(--app-color-fill-subtle);
+}
+
+.ui-button--secondary:active:not(:disabled),
+.ui-button--secondary[data-active="true"],
+.ui-button--ghost[data-active="true"] {
+  border-color: var(--app-color-primary);
+  color: var(--app-color-text);
+  background: color-mix(in srgb, var(--app-color-primary) 12%, transparent);
+}
+
+.ui-button--primary {
+  border: var(--app-border-width) solid var(--app-color-primary);
+  color: var(--app-color-on-primary);
+  background: var(--app-color-primary);
+  box-shadow: none;
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  border-color: var(--app-color-primary);
+  background: var(--app-color-primary);
+  filter: brightness(1.08);
+}
+
+.ui-button--primary:active:not(:disabled) {
+  box-shadow: none;
+}
+
+.ui-button--ghost {
+  border: var(--app-border-width) solid transparent;
+  color: var(--app-color-text-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
+.ui-button--ghost:hover:not(:disabled),
+.ui-button--ghost:focus-visible {
+  color: var(--app-color-text);
+  background: var(--app-color-fill-subtle);
+}
+
+.ui-button--ghost:active:not(:disabled) {
+  background: var(--app-color-border);
+}
+
+.ui-button:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(var(--app-border-width));
+  transition-duration: 45ms;
+}
+
+.ui-button:disabled,
+.ui-button[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.35;
+}
+
+:where(.ui-button[data-haptic="ripple"]) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.ui-button__feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 32%, transparent);
+  box-shadow: 0 0 0 var(--app-border-width)
+    color-mix(in srgb, currentColor 48%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ui-button__feedback--ripple {
+  transform: translate(-50%, -50%) scale(0.12);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-button__feedback--ripple {
+    animation: ui-button-ripple 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes ui-button-ripple {
+  from {
+    opacity: 0.46;
+  }
+
+  65% {
+    opacity: 0.2;
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.8);
+  }
+}
+
+.ui-button--danger {
+  color: var(--app-color-error);
+  border: var(--app-border-width) solid var(--app-color-error);
+  background: color-mix(in srgb, var(--app-color-error) 10%, transparent);
+}
+.ui-button--danger:hover:not(:disabled),
+.ui-button--danger:focus-visible {
+  background: color-mix(in srgb, var(--app-color-error) 18%, transparent);
+}

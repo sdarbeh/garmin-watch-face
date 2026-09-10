@@ -1,0 +1,64 @@
+:root {
+  --app-font-size-xxs: 0.525rem;
+  --app-font-size-xs: 0.6875rem;
+  --app-font-size-sm: 0.75rem;
+  --app-font-size-md: 0.875rem;
+  --app-font-size-lg: 1rem;
+  --app-font-size-xl: 1.125rem;
+  --app-font-size-2xl: 1.25rem;
+  --app-font-size-3xl: 1.5rem;
+  --app-font-weight-regular: 400;
+  --app-font-weight-medium: 500;
+  --app-font-weight-semibold: 600;
+  --app-font-weight-bold: 700;
+  --app-line-height-tight: 1.15;
+  --app-line-height-body: 1.75;
+}
+
+$font-sizes: (
+  xxs: var(--app-font-size-xxs),
+  xs: var(--app-font-size-xs),
+  sm: var(--app-font-size-sm),
+  md: var(--app-font-size-md),
+  lg: var(--app-font-size-lg),
+  xl: var(--app-font-size-xl),
+  2xl: var(--app-font-size-2xl),
+  3xl: var(--app-font-size-3xl),
+);
+
+@each $name, $value in $font-sizes {
+  .u-font-#{$name} {
+    font-size: $value;
+  }
+}
+
+.u-weight-regular {
+  font-weight: var(--app-font-weight-regular);
+}
+.u-weight-medium {
+  font-weight: var(--app-font-weight-medium);
+}
+.u-weight-semibold {
+  font-weight: var(--app-font-weight-semibold);
+}
+.u-weight-bold {
+  font-weight: var(--app-font-weight-bold);
+}
+.u-italic {
+  font-style: italic;
+}
+.u-not-italic {
+  font-style: normal;
+}
+.u-leading-tight {
+  line-height: var(--app-line-height-tight);
+}
+.u-leading-body {
+  line-height: var(--app-line-height-body);
+}
+.u-text-balance {
+  text-wrap: balance;
+}
+.u-text-pretty {
+  text-wrap: pretty;
+}

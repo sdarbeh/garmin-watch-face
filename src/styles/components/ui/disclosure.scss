@@ -1,0 +1,50 @@
+.ui-disclosure {
+  border-top: var(--app-border-width) solid var(--app-color-border);
+  font-size: var(--app-font-size-sm);
+}
+.ui-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-gap-4);
+  min-height: var(--app-control-md);
+  padding-block: var(--app-gap-3);
+  color: var(--app-color-text);
+  font-weight: var(--app-font-weight-medium);
+}
+.ui-disclosure > summary::after {
+  content: "";
+  width: var(--app-chevron-size);
+  height: var(--app-chevron-size);
+  flex: 0 0 auto;
+  border-right: var(--app-border-width) solid currentColor;
+  border-bottom: var(--app-border-width) solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--app-transition-fast);
+}
+.ui-disclosure[open] > summary::after {
+  transform: rotate(225deg);
+}
+.ui-disclosure > :not(summary) {
+  margin-bottom: var(--app-gap-3);
+}
+.ui-disclosure ol,
+.ui-disclosure ul {
+  padding-left: var(--app-gap-5);
+}
+.ui-disclosure li {
+  margin-block: var(--app-gap-2);
+}
+.ui-disclosure p,
+.ui-disclosure li {
+  color: var(--app-color-text-muted);
+}
+.ui-disclosure pre {
+  max-height: var(--app-code-max-height);
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: var(--app-gap-4);
+  border-radius: var(--app-radius-small);
+  background: var(--app-color-code-surface);
+}
