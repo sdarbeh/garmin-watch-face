@@ -2,11 +2,6 @@
 
 Personal Garmin Forerunner 970 watch-face builder.
 
-```sh
-cd /Users/sdarbeh/Documents/watchface
-npm run dev
-```
-
 Open http://127.0.0.1:3000. Customize → Build → Download .prg → USB transfer. The compiler starts with the app.
 
 See [setup and installation](docs/watchface/README.md) and [validation](docs/watchface/VALIDATION.md).
