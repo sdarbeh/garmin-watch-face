@@ -87,8 +87,11 @@ export function NightSettings({
             </p>
           )}
           <p className="u-font-xs u-text-secondary">
-            Edit layers in Night mode. Schedules use watch time. Always-on and
-            low battery take priority.
+            {settings.trigger === "dnd"
+              ? "When Do Not Disturb is active on the watch, it automatically switches from Normal to this Night layout. Individual layers do not need separate DND rules."
+              : "The watch automatically switches from Normal to this Night layout during the scheduled hours."}{" "}
+            Select Night in the footer to edit this layout. Always-on and low
+            battery take priority.
           </p>
         </>
       )}

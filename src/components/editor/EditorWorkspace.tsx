@@ -155,7 +155,7 @@ export function EditorWorkspace({
         simulation.battery,
         Number(simulation.time.slice(0, 2)) * 60 +
           Number(simulation.time.slice(3, 5)),
-        simulation.dnd,
+        false,
       )
     : displayMode;
   const [exportOpen, setExportOpen] = useState(false);

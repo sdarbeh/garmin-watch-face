@@ -17,7 +17,6 @@ export type Simulation = Record<Metric, number> & {
   goals?: GoalSamples;
   statusValues?: Partial<Record<StatusSource, string>>;
   complicationValues?: ComplicationSamples;
-  dnd?: boolean;
   time: string;
   date: string;
   steps: number;
