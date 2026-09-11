@@ -25,7 +25,7 @@ import { EditorInspector } from "./inspector/EditorInspector";
 import { EditorLayers } from "./EditorLayers";
 import { EditorExport } from "./export/EditorExport";
 import { useDesignHistory } from "./hooks/useDesignHistory";
-import { useEditorShortcuts } from "./hooks/useEditorShortcuts";
+import { useEditorActions } from "./hooks/useEditorActions";
 import { snapPosition } from "./model/geometry";
 import {
   executeEditorCommand,
@@ -33,6 +33,8 @@ import {
   type EditorCommandResult,
 } from "./model/commands";
 import type { EditorSelection } from "./types";
+import { EditorContextMenu } from "./EditorContextMenu";
+import type { EditorContextRequest } from "./model/context-menu";
 
 export function EditorWorkspace({
   project,
@@ -48,7 +50,42 @@ export function EditorWorkspace({
   const [message, setMessage] = useState("");
   const history = useDesignHistory(project.id);
   const setDesign = history.update;
-  const [selection, setSelected] = useState<EditorSelection>("time");
+  const initialSelection =
+    design.elements.find((element) => element.id === "time")?.id ??
+    design.elements.find((element) => element.type === "time")?.id ??
+    design.elements.at(-1)?.id ??
+    "background";
+  const [selection, setSelected] = useState<EditorSelection>(initialSelection);
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    initialSelection === "background" ? [] : [initialSelection],
+  );
+  const [contextMenu, setContextMenu] = useState<EditorContextRequest | null>(
+    null,
+  );
+  const selectLayers = (ids: string[]) => {
+    setContextMenu(null);
+    setSelectedIds(ids);
+    setSelected(ids.at(-1) ?? "background");
+  };
+  const selectLayer = (next: EditorSelection, additive = false) => {
+    setContextMenu(null);
+    if (next === "background") {
+      setSelectedIds([]);
+      setSelected(next);
+      return;
+    }
+    if (additive) {
+      const exists = selectedIds.includes(next);
+      const nextIds = exists
+        ? selectedIds.filter((id) => id !== next)
+        : [...selectedIds, next];
+      setSelectedIds(nextIds);
+      setSelected(nextIds.at(-1) ?? "background");
+      return;
+    }
+    setSelectedIds([next]);
+    setSelected(next);
+  };
 
   const [keyboardGuides, setKeyboardGuides] = useState<
     { axis: "x" | "y"; value: number }[]
@@ -68,6 +105,9 @@ export function EditorWorkspace({
   }, []);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("normal");
   const activeDesign = powerLayout(design, displayMode);
+  const contextMenuTargetExists =
+    contextMenu?.target === "background" ||
+    activeDesign.elements.some((element) => element.id === contextMenu?.target);
   const selected = activeDesign.elements.some(
     (element) => element.id === selection,
   )
@@ -91,7 +131,10 @@ export function EditorWorkspace({
     try {
       const result = executeEditorCommand(current, displayMode, command);
       setDesign(result.design);
-      if (result.selection) setSelected(result.selection);
+      if (result.selections) {
+        setSelectedIds(result.selections);
+        setSelected(result.selections.at(-1) ?? "background");
+      } else if (result.selection) selectLayer(result.selection);
       return result;
     } catch (error) {
       setMessage(
@@ -115,10 +158,11 @@ export function EditorWorkspace({
     : displayMode;
   const [exportOpen, setExportOpen] = useState(false);
   const build = useWatchfaceBuild(design, setMessage);
-  const handleEditorShortcut = useEditorShortcuts({
+  const editorActions = useEditorActions({
     projectId: project.id,
     mode: displayMode,
     selected,
+    selectedIds,
     preview,
     onCommand: dispatchCommand,
     onMessage: setMessage,
@@ -148,7 +192,7 @@ export function EditorWorkspace({
           !ready ||
           exportOpen ||
           (event.target as Element).closest(
-            "input, select, textarea, [contenteditable=true], dialog, footer",
+            "input, select, textarea, [contenteditable=true], dialog, footer, [role=menu]",
           )
         )
           return;
@@ -159,7 +203,7 @@ export function EditorWorkspace({
           else history.undo();
           return;
         }
-        if (handleEditorShortcut(event)) return;
+        if (editorActions.onKeyDown(event)) return;
         if (
           preview ||
           selected === "background" ||
@@ -184,16 +228,35 @@ export function EditorWorkspace({
         const element = current.elements.find((item) => item.id === selected);
         if (!element || element.locked || !element.visible) return;
         if (!event.repeat) history.begin();
-        const result = dispatchCommand({
-          type: "layer.move",
-          id: selected,
-          x: element.x + delta[0] * amount,
-          y: element.y + delta[1] * amount,
-        });
+        const desiredX = element.x + delta[0] * amount;
+        const desiredY = element.y + delta[1] * amount;
+        const snapped = snapPosition(
+          current,
+          selected,
+          desiredX,
+          desiredY,
+          0,
+          simulationValues(simulation, displayMode),
+          selectedIds,
+        );
+        const result =
+          selectedIds.length > 1
+            ? dispatchCommand({
+                type: "layer.move-many",
+                ids: selectedIds,
+                dx: snapped.x - element.x,
+                dy: snapped.y - element.y,
+              })
+            : dispatchCommand({
+                type: "layer.move",
+                id: selected,
+                x: desiredX,
+                y: desiredY,
+              });
         if (!result) return;
         const applied = powerLayout(result.design, displayMode);
         const moved = applied.elements.find((item) => item.id === selected)!;
-        // Exact alignment keeps one-pixel nudges from sticking to nearby targets.
+        // Exact alignment shows guides without making one-pixel nudges sticky.
         setKeyboardGuides(
           snapPosition(
             applied,
@@ -202,21 +265,30 @@ export function EditorWorkspace({
             moved.y,
             0,
             simulationValues(simulation, displayMode),
+            selectedIds,
           ).guides,
         );
       }}
       onKeyUp={(event) => {
         if (
           event.key.startsWith("Arrow") &&
-          !(event.target as Element).closest("input, select, textarea")
+          !(event.target as Element).closest(
+            "input, select, textarea, [role=menu]",
+          )
         )
           history.commit();
       }}
     >
       <EditorToolbar
         {...{ design, ready, saved, setDesign, preview }}
-        onPreview={() => setPreview(!preview)}
-        onExport={() => setExportOpen(true)}
+        onPreview={() => {
+          setContextMenu(null);
+          setPreview(!preview);
+        }}
+        onExport={() => {
+          setContextMenu(null);
+          setExportOpen(true);
+        }}
       />
       {(error || message) && (
         <div
@@ -235,7 +307,9 @@ export function EditorWorkspace({
         {!preview && (
           <EditorLayers
             selected={selected}
-            onSelect={setSelected}
+            selectedIds={selectedIds}
+            onSelect={selectLayer}
+            onOpenContextMenu={setContextMenu}
             key={`layers-${displayMode}`}
             design={activeDesign}
             onCommand={dispatchCommand}
@@ -247,18 +321,28 @@ export function EditorWorkspace({
           design={powerLayout(design, canvasMode)}
           history={activeHistory}
           {...{ selected, preview, ready }}
-          onSelect={setSelected}
+          selectedIds={selectedIds}
+          onSelect={selectLayer}
+          onSelectMany={selectLayers}
+          onOpenContextMenu={setContextMenu}
           keyboardGuides={keyboardGuides}
           simulation={simulation}
           displayMode={canvasMode}
           zoom={zoom}
           onZoomChange={setZoom}
+          onCanvasPoint={editorActions.rememberCanvasPoint}
+          onDuplicateForDrag={(ids) =>
+            ids.length > 1
+              ? dispatchCommand({ type: "layer.duplicate-many", ids })
+              : dispatchCommand({ type: "layer.duplicate", id: ids[0] })
+          }
         />
         {!preview && (
           <EditorInspector
             key={`inspector-${displayMode}`}
             design={activeDesign}
             simulation={simulation}
+            selectionCount={selectedIds.length}
             onSimulationChange={setSimulation}
             setDesign={setActiveDesign}
             onCommand={dispatchCommand}
@@ -297,13 +381,14 @@ export function EditorWorkspace({
         mode={displayMode}
         onModeChange={(mode) => {
           if (mode === displayMode) return;
+          setContextMenu(null);
           history.commit();
           setKeyboardGuides([]);
           const currentElement = activeDesign.elements.find(
             (e) => e.id === selected,
           );
           const next = powerLayout(design, mode);
-          setSelected(
+          selectLayer(
             next.elements.find((e) => e.type === currentElement?.type)?.id ??
               next.elements.at(-1)?.id ??
               "background",
@@ -321,6 +406,16 @@ export function EditorWorkspace({
         message={message}
         controller={build}
       />
+      {contextMenu && contextMenuTargetExists && !preview && !exportOpen && (
+        <EditorContextMenu
+          request={contextMenu}
+          design={activeDesign}
+          canPaste={editorActions.canPaste}
+          selectedIds={selectedIds}
+          onAction={editorActions.run}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </section>
   );
 }

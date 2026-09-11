@@ -3,6 +3,10 @@ import { METRICS, type Metric } from "@/watchface/layer-catalog";
 import type { ElementId, ElementType } from "@/watchface/schema";
 
 export type EditorSelection = ElementId | "background";
+export interface EditorPoint {
+  x: number;
+  y: number;
+}
 export const LAYER_LABELS: Record<ElementType | Metric | "background", string> =
   {
     ...(Object.fromEntries(

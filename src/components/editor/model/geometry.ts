@@ -35,6 +35,47 @@ export function moveElement(
     ),
   };
 }
+
+/** Moves a selection as one group and preserves spacing at canvas edges. */
+export function moveElementsBy(
+  design: Design,
+  ids: ElementId[],
+  dx: number,
+  dy: number,
+): Design {
+  const idsSet = new Set(ids);
+  const requested = design.elements.filter((element) => idsSet.has(element.id));
+  if (requested.some((element) => element.locked)) return design;
+  const selected = design.elements.filter(
+    (element) => idsSet.has(element.id) && !element.locked && element.visible,
+  );
+  if (!selected.length) return design;
+  const requestedX = Math.round(dx);
+  const requestedY = Math.round(dy);
+  const appliedX = Math.max(
+    50 - Math.min(...selected.map((element) => element.x)),
+    Math.min(
+      404 - Math.max(...selected.map((element) => element.x)),
+      requestedX,
+    ),
+  );
+  const appliedY = Math.max(
+    50 - Math.min(...selected.map((element) => element.y)),
+    Math.min(
+      404 - Math.max(...selected.map((element) => element.y)),
+      requestedY,
+    ),
+  );
+  const selectedSet = new Set(selected.map((element) => element.id));
+  return {
+    ...design,
+    elements: design.elements.map((element) =>
+      selectedSet.has(element.id)
+        ? { ...element, x: element.x + appliedX, y: element.y + appliedY }
+        : element,
+    ),
+  };
+}
 export function snapPosition(
   design: Design,
   id: ElementId,
@@ -42,6 +83,7 @@ export function snapPosition(
   y: number,
   threshold: number,
   samples = SAMPLE_DATA,
+  excludedIds: ElementId[] = [id],
 ) {
   const elements = renderModel(design, samples);
   const moving = elements.find((element) => element.id === id);
@@ -52,7 +94,9 @@ export function snapPosition(
   for (const axis of ["x", "y"] as const) {
     const half = (axis === "x" ? bounds.width : bounds.height) / 2;
     const targets = [227];
-    for (const other of elements.filter((element) => element.id !== id)) {
+    for (const other of elements.filter(
+      (element) => !excludedIds.includes(element.id),
+    )) {
       const size = elementBounds(other);
       const extent = (axis === "x" ? size.width : size.height) / 2;
       const center = axis === "x" ? size.centerX : other.y;

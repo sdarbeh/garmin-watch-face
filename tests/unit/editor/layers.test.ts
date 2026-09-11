@@ -13,7 +13,10 @@ import {
   duplicateLayer,
   reorderLayer,
 } from "../../../src/components/editor/model/layers";
-import { moveElement } from "../../../src/components/editor/model/geometry";
+import {
+  moveElement,
+  moveElementsBy,
+} from "../../../src/components/editor/model/geometry";
 
 it("round-trips repeated types, order, visibility, locks and literal text", () => {
   let d = duplicateLayer(defaultDesign(), "time", "second-time");
@@ -46,6 +49,64 @@ it("locking prevents moves, duplication and reordering but still renders", () =>
   expect(duplicateLayer(d, "time", "copy")).toEqual(d);
   expect(reorderLayer(d, "time", 1)).toEqual(d);
   expect(renderModel(d).some((element) => element.id === "time")).toBe(true);
+});
+
+it("offsets duplicates visibly and keeps them inside the editable canvas", () => {
+  const design = defaultDesign();
+  const source = design.elements.find((element) => element.id === "time")!;
+  const duplicated = duplicateLayer(design, source.id, "time-copy");
+  expect(
+    duplicated.elements.find((element) => element.id === "time-copy"),
+  ).toMatchObject({
+    x: source.x + 12,
+    y: source.y + 12,
+  });
+
+  const edgeDesign = {
+    ...design,
+    elements: design.elements.map((element) =>
+      element.id === source.id ? { ...element, x: 404, y: 404 } : element,
+    ),
+  };
+  const edgeCopy = duplicateLayer(edgeDesign, source.id, "edge-copy");
+  expect(
+    edgeCopy.elements.find((element) => element.id === "edge-copy"),
+  ).toMatchObject({
+    x: 392,
+    y: 392,
+  });
+});
+
+it("moves selected layers as a group while preserving their spacing", () => {
+  const design = defaultDesign();
+  const selected = design.elements.slice(0, 2);
+  const moved = moveElementsBy(
+    design,
+    selected.map((element) => element.id),
+    18,
+    -12,
+  );
+  for (const element of selected) {
+    expect(moved.elements.find((item) => item.id === element.id)).toMatchObject(
+      {
+        x: element.x + 18,
+        y: element.y - 12,
+      },
+    );
+  }
+});
+
+it("does not partially move a selection containing a locked layer", () => {
+  const design = defaultDesign();
+  const ids = design.elements.slice(0, 2).map((element) => element.id);
+  const locked = {
+    ...design,
+    elements: design.elements.map((element) =>
+      element.id === ids[0] ? { ...element, locked: true } : element,
+    ),
+  };
+
+  expect(moveElementsBy(locked, ids, 12, 12)).toEqual(locked);
 });
 it("rejects duplicate IDs, malformed elements and excessive layers", () => {
   const d = defaultDesign();

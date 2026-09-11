@@ -9,6 +9,8 @@ export type EditorShortcut =
   | "bring-front"
   | "send-back";
 
+export type EditorAction = EditorShortcut | "toggle-visibility" | "toggle-lock";
+
 interface KeyboardGesture {
   key: string;
   code?: string;

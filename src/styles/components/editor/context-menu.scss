@@ -1,0 +1,30 @@
+.watchface-context-menu {
+  position: fixed;
+  z-index: var(--app-z-menu);
+  width: var(--app-context-menu-width);
+  padding: var(--app-gap-1);
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border-radius: var(--app-radius-small);
+  background: var(--app-color-surface);
+}
+
+.watchface-context-menu .ui-button {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.watchface-context-menu .ui-button > span {
+  flex: 1;
+  text-align: left;
+}
+
+.watchface-context-menu kbd {
+  color: var(--app-color-text-subtle);
+  font: inherit;
+}
+
+.watchface-context-menu__divider {
+  height: var(--app-border-width);
+  margin: var(--app-gap-1) var(--app-gap-2);
+  background: var(--app-color-border);
+}

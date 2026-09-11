@@ -57,6 +57,20 @@
   cursor: default;
 }
 
+.watchface-selection-marquee {
+  fill: color-mix(in srgb, var(--app-color-primary) 14%, transparent);
+  stroke: var(--app-color-primary);
+  stroke-width: 1;
+}
+
+.watchface-selection-group {
+  fill: none;
+  stroke: var(--app-color-primary);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+  opacity: 0.7;
+}
+
 .watchface-resize__handle--nw,
 .watchface-resize__handle--se {
   cursor: nwse-resize;

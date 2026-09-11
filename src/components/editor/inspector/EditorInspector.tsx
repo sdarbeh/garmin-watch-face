@@ -37,6 +37,7 @@ export function EditorInspector({
   mode = "normal",
   ready,
   selected,
+  selectionCount = 1,
   setDesign,
   onCommand,
   onReset,
@@ -47,6 +48,7 @@ export function EditorInspector({
   mode?: PowerMode;
   ready: boolean;
   selected: EditorSelection;
+  selectionCount?: number;
   setDesign: (design: Design) => void;
   onCommand: DispatchEditorCommand;
   onReset: () => void;
@@ -66,6 +68,12 @@ export function EditorInspector({
       <h2 className="u-font-xl u-weight-semibold mb3">
         {element ? layerLabel(element) : LAYER_LABELS.background}
       </h2>
+      {selectionCount > 1 && (
+        <p className="u-font-xs u-text-secondary mb3">
+          {selectionCount} layers selected. Properties apply to the primary
+          layer.
+        </p>
+      )}
       {mode === "always-on" && (
         <p className="u-font-xs u-text-secondary mb3">
           Estimated luminance ceiling:{" "}

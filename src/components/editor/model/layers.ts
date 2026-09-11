@@ -6,6 +6,16 @@ import {
   type Design,
   type ElementType,
 } from "../../../watchface/schema";
+import { clampPosition } from "./geometry";
+
+const DUPLICATE_OFFSET = 12;
+
+function offsetDuplicate(value: number) {
+  const forward = clampPosition(value + DUPLICATE_OFFSET);
+  if (forward - value === DUPLICATE_OFFSET) return forward;
+  return clampPosition(value - DUPLICATE_OFFSET);
+}
+
 export function addLayer(
   design: Design,
   type: ElementType,
@@ -40,6 +50,8 @@ export function duplicateLayer(
     ...element,
     id,
     locked: false,
+    x: offsetDuplicate(element.x),
+    y: offsetDuplicate(element.y),
   });
   return { ...design, elements };
 }

@@ -113,7 +113,50 @@ describe("editor commands", () => {
     ).toMatchObject({ x: 260, y: 210 });
   });
 
-  it("pastes an unlocked copy with a new ID and visible offset", () => {
+  it("moves a multi-selection in one command", () => {
+    const initial = defaultDesign();
+    const ids = initial.elements.slice(0, 2).map((element) => element.id);
+    const before = initial.elements.filter((element) =>
+      ids.includes(element.id),
+    );
+    const result = executeEditorCommand(initial, "normal", {
+      type: "layer.move-many",
+      ids,
+      dx: 8,
+      dy: 6,
+    });
+
+    for (const element of before) {
+      expect(
+        result.design.elements.find((item) => item.id === element.id),
+      ).toMatchObject({ x: element.x + 8, y: element.y + 6 });
+    }
+  });
+
+  it("duplicates a group with one shared offset at the canvas edge", () => {
+    const initial = defaultDesign();
+    const sources = initial.elements.slice(0, 2).map((element, index) => ({
+      ...element,
+      x: 390 + index * 14,
+    }));
+    const design = { ...initial, elements: sources };
+    let nextId = 0;
+    const result = executeEditorCommand(
+      design,
+      "normal",
+      {
+        type: "layer.duplicate-many",
+        ids: sources.map((element) => element.id),
+      },
+      () => `copy-${nextId++}`,
+    );
+    const copies = result.design.elements.slice(-2);
+
+    expect(copies[1].x - copies[0].x).toBe(sources[1].x - sources[0].x);
+    expect(Math.max(...copies.map((element) => element.x))).toBe(404);
+  });
+
+  it("pastes an unlocked copy with a new ID at the requested position", () => {
     const initial = defaultDesign();
     const source = {
       ...initial.elements.find((item) => item.id === "time")!,
@@ -122,7 +165,12 @@ describe("editor commands", () => {
     const result = executeEditorCommand(
       initial,
       "normal",
-      { type: "layer.paste", element: source, offset: 12 },
+      {
+        type: "layer.paste",
+        elements: [source],
+        anchor: { x: source.x, y: source.y },
+        position: { x: source.x + 12, y: source.y + 12 },
+      },
       id("pasted-time"),
     );
 
@@ -134,6 +182,50 @@ describe("editor commands", () => {
       x: source.x + 12,
       y: source.y + 12,
     });
+  });
+
+  it("keeps point-based pastes within the editable canvas bounds", () => {
+    const initial = defaultDesign();
+    const source = initial.elements.find((item) => item.id === "time")!;
+    const result = executeEditorCommand(
+      initial,
+      "normal",
+      {
+        type: "layer.paste",
+        elements: [source],
+        anchor: { x: source.x, y: source.y },
+        position: { x: -20, y: 500 },
+      },
+      id("bounded-paste"),
+    );
+
+    expect(result.design.elements.at(-1)).toMatchObject({
+      id: "bounded-paste",
+      x: 50,
+      y: 404,
+    });
+  });
+
+  it("pastes multiple layers while preserving their relative spacing", () => {
+    const initial = defaultDesign();
+    const sources = initial.elements.slice(0, 2);
+    let nextId = 0;
+    const result = executeEditorCommand(
+      initial,
+      "normal",
+      {
+        type: "layer.paste",
+        elements: sources,
+        anchor: { x: sources[0].x, y: sources[0].y },
+        position: { x: sources[0].x + 20, y: sources[0].y + 10 },
+      },
+      () => `group-copy-${nextId++}`,
+    );
+
+    const copies = result.design.elements.slice(-2);
+    expect(result.selections).toEqual(["group-copy-0", "group-copy-1"]);
+    expect(copies[1].x - copies[0].x).toBe(sources[1].x - sources[0].x);
+    expect(copies[1].y - copies[0].y).toBe(sources[1].y - sources[0].y);
   });
 
   it("supports step and edge layer arranging", () => {

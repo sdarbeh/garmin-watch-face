@@ -10,8 +10,17 @@ import { ZoomControls } from "./ZoomControls";
 import { WatchPreview } from "./WatchPreview";
 import { getDeviceById } from "@/devices/catalog";
 import { type Design, type ElementId } from "@/watchface/schema";
-import type { EditorSelection } from "../types";
-import { moveElement, snapPosition } from "../model/geometry";
+import type { EditorPoint, EditorSelection } from "../types";
+import type { EditorContextRequest } from "../model/context-menu";
+import type { EditorCommandResult } from "../model/commands";
+import { moveElement, moveElementsBy, snapPosition } from "../model/geometry";
+import {
+  layersInSelection,
+  mergeMarqueeSelection,
+  selectionRect,
+  type MarqueeSelectionMode,
+  type SelectionRect,
+} from "../model/selection";
 import type { useDesignHistory } from "../hooks/useDesignHistory";
 
 import {
@@ -24,26 +33,36 @@ type Guide = { axis: "x" | "y"; value: number };
 export function EditorCanvas({
   design,
   selected,
+  selectedIds,
   preview,
   ready,
   onSelect,
+  onSelectMany,
+  onOpenContextMenu,
   history,
   keyboardGuides,
   simulation,
   displayMode,
   zoom,
   onZoomChange,
+  onCanvasPoint,
+  onDuplicateForDrag,
 }: {
   zoom: number;
   onZoomChange: (zoom: number) => void;
+  onCanvasPoint: (point: EditorPoint) => void;
+  onDuplicateForDrag: (ids: ElementId[]) => EditorCommandResult | null;
   keyboardGuides: Guide[];
   simulation: Simulation;
   displayMode: DisplayMode;
   design: Design;
   selected: EditorSelection;
+  selectedIds: string[];
   preview: boolean;
   ready: boolean;
-  onSelect: (selection: EditorSelection) => void;
+  onSelect: (selection: EditorSelection, additive?: boolean) => void;
+  onSelectMany: (selections: ElementId[]) => void;
+  onOpenContextMenu: (request: EditorContextRequest) => void;
   history: Pick<
     ReturnType<typeof useDesignHistory>,
     "begin" | "commit" | "cancel" | "update"
@@ -54,11 +73,19 @@ export function EditorCanvas({
   const svg = useRef<SVGSVGElement>(null);
   const drag = useRef<{
     id: ElementId;
+    ids: ElementId[];
     start: Design;
     x: number;
     y: number;
     pointer: number;
     corner?: ResizeCorner;
+  } | null>(null);
+  const marquee = useRef<{
+    pointer: number;
+    start: EditorPoint;
+    selected: ElementId[];
+    applied: ElementId[];
+    mode: MarqueeSelectionMode;
   } | null>(null);
   const pan = useRef<{
     x: number;
@@ -68,6 +95,7 @@ export function EditorCanvas({
   } | null>(null);
   const space = useRef(false);
   const [guides, setGuides] = useState<Guide[]>([]);
+  const [marqueeRect, setMarqueeRect] = useState<SelectionRect | null>(null);
   const pixels = (device.frame.presentationWidth * zoom) / 100;
   const scale = pixels / device.frame.width;
   const samples = simulationValues(simulation, displayMode);
@@ -84,6 +112,21 @@ export function EditorCanvas({
     const matrix = svg.current?.getScreenCTM();
     if (!matrix) return null;
     return new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse());
+  }
+  function displayPoint(clientX: number, clientY: number) {
+    const current = point(clientX, clientY);
+    if (!current) return null;
+    return {
+      x: Math.max(0, Math.min(454, current.x)),
+      y: Math.max(0, Math.min(454, current.y)),
+    };
+  }
+  function finishMarquee(cancel = false) {
+    const active = marquee.current;
+    if (!active) return;
+    if (cancel) onSelectMany(active.selected);
+    marquee.current = null;
+    setMarqueeRect(null);
   }
   function finish(cancel = false) {
     if (!drag.current) return;
@@ -115,13 +158,16 @@ export function EditorCanvas({
         className="watchface-preview__stage"
         ref={viewport}
         tabIndex={0}
-        aria-label="Canvas. Drag elements to move; drag corner handles to resize. Arrow keys nudge. Hold Space and drag to pan."
+        aria-label="Canvas. Drag empty space to select layers. Drag elements to move; drag corner handles to resize. Arrow keys nudge. Hold Space and drag to pan."
         onKeyDown={(event) => {
           if (event.code === "Space") {
             event.preventDefault();
             space.current = true;
           }
-          if (event.key === "Escape") finish(true);
+          if (event.key === "Escape") {
+            finish(true);
+            finishMarquee(true);
+          }
         }}
         onKeyUp={(event) => {
           if (event.code === "Space") space.current = false;
@@ -130,8 +176,40 @@ export function EditorCanvas({
           space.current = false;
           pan.current = null;
           finish();
+          finishMarquee(true);
+        }}
+        onContextMenu={(event) => {
+          if (!ready || preview) return;
+          event.preventDefault();
+          finish();
+          finishMarquee(true);
+          const elementId = (event.target as Element)
+            .closest("[data-element]")
+            ?.getAttribute("data-element") as ElementId | undefined;
+          let target: EditorSelection = "background";
+          if (
+            elementId &&
+            design.elements.some((element) => element.id === elementId)
+          )
+            target = elementId;
+          const canvasPosition = point(event.clientX, event.clientY);
+          if (target === "background" || !selectedIds.includes(target))
+            onSelect(target);
+          const request: EditorContextRequest = {
+            target,
+            x: event.clientX,
+            y: event.clientY,
+          };
+          if (canvasPosition)
+            request.canvasPosition = {
+              x: canvasPosition.x,
+              y: canvasPosition.y,
+            };
+          onOpenContextMenu(request);
         }}
         onPointerDownCapture={(event) => {
+          const canvasPoint = point(event.clientX, event.clientY);
+          if (canvasPoint) onCanvasPoint(canvasPoint);
           if (!(space.current || event.button === 1)) return;
           event.preventDefault();
           event.stopPropagation();
@@ -191,6 +269,8 @@ export function EditorCanvas({
               selected={preview || selected === "background" ? null : selected}
               svgRef={svg}
               guides={preview ? [] : [...guides, ...keyboardGuides]}
+              selectedIds={selectedIds}
+              marquee={marqueeRect}
               onPointerDown={(event) => {
                 if (event.button !== 0 || !ready || preview || drag.current)
                   return;
@@ -199,11 +279,37 @@ export function EditorCanvas({
                 const id = (event.target as Element)
                   .closest("[data-element]")
                   ?.getAttribute("data-element") as ElementId | undefined;
-                onSelect(id ?? "background");
                 const start = point(event.clientX, event.clientY);
+                if (!start) return;
+                const additive = Boolean(
+                  event.shiftKey || event.metaKey || event.ctrlKey,
+                );
+                if (!id) {
+                  const insideDisplay =
+                    (start.x - 227) ** 2 + (start.y - 227) ** 2 <= 227 ** 2;
+                  if (!insideDisplay) {
+                    if (!additive) onSelect("background");
+                    return;
+                  }
+                  let mode: MarqueeSelectionMode = "replace";
+                  if (event.shiftKey) mode = "add";
+                  if (event.metaKey || event.ctrlKey) mode = "toggle";
+                  const origin = displayPoint(event.clientX, event.clientY)!;
+                  marquee.current = {
+                    pointer: event.pointerId,
+                    start: origin,
+                    selected: selectedIds,
+                    applied: mergeMarqueeSelection(selectedIds, [], mode),
+                    mode,
+                  };
+                  setMarqueeRect(selectionRect(origin, origin));
+                  onSelectMany(marquee.current.applied);
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                  return;
+                }
+                if (!selectedIds.includes(id) || additive)
+                  onSelect(id, additive);
                 if (
-                  !id ||
-                  !start ||
                   design.elements.find((element) => element.id === id)?.locked
                 )
                   return;
@@ -213,10 +319,36 @@ export function EditorCanvas({
                 const corner = RESIZE_CORNERS.find(
                   (corner) => corner === handle,
                 );
+                let dragId = id;
+                let dragDesign = design;
+                let dragIds = selectedIds.includes(id) ? selectedIds : [id];
+                if (
+                  dragIds.some(
+                    (selectedId) =>
+                      design.elements.find(
+                        (element) => element.id === selectedId,
+                      )?.locked,
+                  )
+                )
+                  return;
                 history.begin();
+                if (event.altKey) {
+                  const duplicate = onDuplicateForDrag(dragIds);
+                  let duplicatedIds = duplicate?.selections ?? [];
+                  if (!duplicatedIds.length && duplicate?.selection)
+                    duplicatedIds = [duplicate.selection];
+                  if (!duplicate || !duplicatedIds.length) {
+                    history.cancel();
+                    return;
+                  }
+                  dragId = duplicatedIds.at(-1)!;
+                  dragDesign = duplicate.design;
+                  dragIds = duplicatedIds;
+                }
                 drag.current = {
-                  id,
-                  start: design,
+                  id: dragId,
+                  ids: dragIds,
+                  start: dragDesign,
                   x: start.x,
                   y: start.y,
                   pointer: event.pointerId,
@@ -225,6 +357,31 @@ export function EditorCanvas({
                 event.currentTarget.setPointerCapture(event.pointerId);
               }}
               onPointerMove={(event) => {
+                const activeMarquee = marquee.current;
+                if (
+                  activeMarquee &&
+                  event.pointerId === activeMarquee.pointer
+                ) {
+                  const current = displayPoint(event.clientX, event.clientY);
+                  if (!current) return;
+                  const rect = selectionRect(activeMarquee.start, current);
+                  setMarqueeRect(rect);
+                  const nextSelection = mergeMarqueeSelection(
+                    activeMarquee.selected,
+                    layersInSelection(design, rect, samples),
+                    activeMarquee.mode,
+                  );
+                  if (
+                    nextSelection.length !== activeMarquee.applied.length ||
+                    nextSelection.some(
+                      (id, index) => id !== activeMarquee.applied[index],
+                    )
+                  ) {
+                    activeMarquee.applied = nextSelection;
+                    onSelectMany(nextSelection);
+                  }
+                  return;
+                }
                 const active = drag.current;
                 const current = point(event.clientX, event.clientY);
                 if (!active || !current || event.pointerId !== active.pointer)
@@ -261,18 +418,38 @@ export function EditorCanvas({
                       y,
                       6 / scale,
                       samples,
+                      active.ids,
                     );
                 setGuides(snapped.guides);
+                if (active.ids.length === 1) {
+                  history.update(
+                    moveElement(active.start, active.id, snapped.x, snapped.y),
+                  );
+                  return;
+                }
                 history.update(
-                  moveElement(active.start, active.id, snapped.x, snapped.y),
+                  moveElementsBy(
+                    active.start,
+                    active.ids,
+                    snapped.x - element.x,
+                    snapped.y - element.y,
+                  ),
                 );
               }}
               onPointerUp={(event) => {
+                finishMarquee();
                 finish();
                 if (event.currentTarget.hasPointerCapture(event.pointerId))
                   event.currentTarget.releasePointerCapture(event.pointerId);
               }}
-              onPointerCancel={() => finish(true)}
+              onPointerCancel={() => {
+                finishMarquee(true);
+                finish(true);
+              }}
+              onLostPointerCapture={() => {
+                finishMarquee();
+                finish();
+              }}
             />
           </div>
         </div>

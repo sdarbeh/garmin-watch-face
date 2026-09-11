@@ -5,17 +5,22 @@ import { Button } from "@/components/ui/button";
 import { LayerIcon, VisibilityIcon, LockIcon, PlusIcon } from "@/icons";
 import { MAX_ELEMENTS, type Design } from "@/watchface/schema";
 import type { DispatchEditorCommand } from "./model/commands";
+import type { EditorContextRequest } from "./model/context-menu";
 import { LAYER_LABELS, layerLabel, type EditorSelection } from "./types";
 
 export function EditorLayers({
   selected,
+  selectedIds,
   onSelect,
+  onOpenContextMenu,
   design,
   onCommand,
   ready,
 }: {
   selected: EditorSelection;
-  onSelect: (selection: EditorSelection) => void;
+  selectedIds: string[];
+  onSelect: (selection: EditorSelection, additive?: boolean) => void;
+  onOpenContextMenu: (request: EditorContextRequest) => void;
   design: Design;
   onCommand: DispatchEditorCommand;
   ready: boolean;
@@ -82,14 +87,28 @@ export function EditorLayers({
               <Fragment key={item.id}>
                 <div
                   className="watchface-layer-row"
-                  data-selected={selected === item.id}
+                  data-selected={selectedIds.includes(item.id)}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    if (!selectedIds.includes(item.id)) onSelect(item.id);
+                    onOpenContextMenu({
+                      target: item.id,
+                      x: event.clientX,
+                      y: event.clientY,
+                    });
+                  }}
                 >
                   <Button
                     variant="ghost"
                     className="watchface-layer-select"
                     title={layerLabel(item)}
-                    aria-pressed={selected === item.id}
-                    onClick={() => onSelect(item.id)}
+                    aria-pressed={selectedIds.includes(item.id)}
+                    onClick={(event) =>
+                      onSelect(
+                        item.id,
+                        event.shiftKey || event.metaKey || event.ctrlKey,
+                      )
+                    }
                   >
                     <LayerIcon type={item.type} size="sm" />
                     <span>{layerLabel(item)}</span>
@@ -132,6 +151,15 @@ export function EditorLayers({
               className="watchface-layer"
               aria-pressed={selected === "background"}
               onClick={() => onSelect("background")}
+              onContextMenu={(event) => {
+                event.preventDefault();
+                onSelect("background");
+                onOpenContextMenu({
+                  target: "background",
+                  x: event.clientX,
+                  y: event.clientY,
+                });
+              }}
             >
               <LayerIcon type="background" size="sm" />
               Background

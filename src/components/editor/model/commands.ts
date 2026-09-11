@@ -11,17 +11,25 @@ import {
   type ElementType,
   type FaceElement,
 } from "../../../watchface/schema";
-import type { EditorSelection } from "../types";
-import { clampPosition, moveElement } from "./geometry";
+import type { EditorPoint, EditorSelection } from "../types";
+import { moveElement, moveElementsBy } from "./geometry";
 import { addLayer, duplicateLayer, reorderLayer } from "./layers";
+import { nextPastePosition, placeClipboardElements } from "./clipboard";
 
 export type EditorLayerPatch = Omit<Partial<FaceElement>, "id" | "type">;
 
 export type EditorCommand =
   | { type: "layer.add"; layerType: ElementType }
   | { type: "layer.duplicate"; id: ElementId }
-  | { type: "layer.paste"; element: FaceElement; offset: number }
+  | { type: "layer.duplicate-many"; ids: ElementId[] }
+  | {
+      type: "layer.paste";
+      elements: FaceElement[];
+      anchor: EditorPoint;
+      position: EditorPoint;
+    }
   | { type: "layer.delete"; id: ElementId }
+  | { type: "layer.delete-many"; ids: ElementId[] }
   | {
       type: "layer.reorder";
       id: ElementId;
@@ -31,6 +39,7 @@ export type EditorCommand =
   | { type: "layer.toggle-lock"; id: ElementId }
   | { type: "layer.update"; id: ElementId; patch: EditorLayerPatch }
   | { type: "layer.move"; id: ElementId; x: number; y: number }
+  | { type: "layer.move-many"; ids: ElementId[]; dx: number; dy: number }
   | { type: "project.reset"; initialDesign: Design };
 
 export type DispatchEditorCommand = (
@@ -40,6 +49,7 @@ export type DispatchEditorCommand = (
 export interface EditorCommandResult {
   design: Design;
   selection?: EditorSelection;
+  selections?: ElementId[];
 }
 
 function updateLayer(
@@ -73,12 +83,16 @@ export function executeEditorCommand(
   createId: () => string = () => crypto.randomUUID(),
 ): EditorCommandResult {
   if (command.type === "project.reset") {
-    return { design: validateDesign(command.initialDesign) };
+    return {
+      design: validateDesign(command.initialDesign),
+      selection: "background",
+    };
   }
 
   const active = powerLayout(project, mode);
   let edited = active;
   let selection: EditorSelection | undefined;
+  let selections: ElementId[] | undefined;
 
   switch (command.type) {
     case "layer.add": {
@@ -93,18 +107,55 @@ export function executeEditorCommand(
       if (edited !== active) selection = id;
       break;
     }
-    case "layer.paste": {
-      if (active.elements.length >= MAX_ELEMENTS) break;
-      const id = createId();
-      const element = {
-        ...command.element,
-        id,
-        locked: false,
-        x: clampPosition(command.element.x + command.offset),
-        y: clampPosition(command.element.y + command.offset),
+    case "layer.duplicate-many": {
+      if (
+        !command.ids.length ||
+        active.elements.length + command.ids.length > MAX_ELEMENTS
+      )
+        break;
+      const sources = active.elements.filter((element) =>
+        command.ids.includes(element.id),
+      );
+      if (
+        sources.length !== command.ids.length ||
+        sources.some((element) => element.locked)
+      )
+        break;
+      const anchor = {
+        x:
+          sources.reduce((sum, element) => sum + element.x, 0) / sources.length,
+        y:
+          sources.reduce((sum, element) => sum + element.y, 0) / sources.length,
       };
-      edited = { ...active, elements: [...active.elements, element] };
-      selection = id;
+      const copies = placeClipboardElements(
+        sources,
+        anchor,
+        nextPastePosition(anchor),
+      ).map((source) => ({ ...source, id: createId(), locked: false }));
+      edited = { ...active, elements: [...active.elements, ...copies] };
+      selections = copies.map((element) => element.id);
+      selection = selections.at(-1);
+      break;
+    }
+    case "layer.paste": {
+      if (
+        !command.elements.length ||
+        active.elements.length + command.elements.length > MAX_ELEMENTS
+      )
+        break;
+      const placed = placeClipboardElements(
+        command.elements,
+        command.anchor,
+        command.position,
+      );
+      const pasted = placed.map((source) => ({
+        ...source,
+        id: createId(),
+        locked: false,
+      }));
+      edited = { ...active, elements: [...active.elements, ...pasted] };
+      selection = pasted.at(-1)?.id;
+      selections = pasted.map((element) => element.id);
       break;
     }
     case "layer.delete": {
@@ -113,6 +164,20 @@ export function executeEditorCommand(
       edited = {
         ...active,
         elements: active.elements.filter((item) => item.id !== command.id),
+      };
+      selection = "background";
+      break;
+    }
+    case "layer.delete-many": {
+      const ids = new Set(command.ids);
+      if (!ids.size) break;
+      if (
+        active.elements.some((element) => ids.has(element.id) && element.locked)
+      )
+        break;
+      edited = {
+        ...active,
+        elements: active.elements.filter((element) => !ids.has(element.id)),
       };
       selection = "background";
       break;
@@ -155,6 +220,9 @@ export function executeEditorCommand(
     case "layer.move":
       edited = moveElement(active, command.id, command.x, command.y);
       break;
+    case "layer.move-many":
+      edited = moveElementsBy(active, command.ids, command.dx, command.dy);
+      break;
     default:
       return unsupportedCommand(command);
   }
@@ -164,5 +232,6 @@ export function executeEditorCommand(
   return {
     design: validateDesign(design),
     ...(selection ? { selection } : {}),
+    ...(selections?.length ? { selections } : {}),
   };
 }
