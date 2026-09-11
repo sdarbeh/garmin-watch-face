@@ -99,6 +99,30 @@ describe("editor commands", () => {
     ).toBe(false);
   });
 
+  it("resets only the active mode override", () => {
+    const initial = defaultDesign();
+    const project = validateDesign({
+      ...initial,
+      layouts: {
+        "low-battery": { background: "#000000", elements: [] },
+        "always-on": { background: "#000000", elements: [] },
+      },
+    });
+
+    const result = executeEditorCommand(project, "low-battery", {
+      type: "mode.reset",
+    });
+
+    expect(result.design.layouts?.["low-battery"]).toBeUndefined();
+    expect(result.design.layouts?.["always-on"]).toBeDefined();
+    expect(result.selection).toBe("background");
+
+    const withoutOverrides = executeEditorCommand(result.design, "always-on", {
+      type: "mode.reset",
+    });
+    expect(withoutOverrides.design.layouts).toBeUndefined();
+  });
+
   it("moves layers through the same validated command path", () => {
     const initial = defaultDesign();
     const result = executeEditorCommand(initial, "normal", {

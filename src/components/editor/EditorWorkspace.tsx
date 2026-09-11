@@ -34,6 +34,7 @@ import {
 import type { EditorSelection } from "./types";
 import { EditorContextMenu } from "./EditorContextMenu";
 import type { EditorContextRequest } from "./model/context-menu";
+import { baseDesignForProject } from "./model/reset";
 import { useModeSelection } from "./hooks/useModeSelection";
 import {
   EDITOR_RAILS,
@@ -367,6 +368,12 @@ export function EditorWorkspace({
                 dispatchCommand({
                   type: "project.reset",
                   initialDesign: project.initialDesign,
+                })
+              }
+              onResetBase={() =>
+                dispatchCommand({
+                  type: "project.reset",
+                  initialDesign: baseDesignForProject(project),
                 })
               }
               mode={displayMode}

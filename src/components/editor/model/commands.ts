@@ -1,5 +1,6 @@
 import {
   powerLayout,
+  resetModeLayout,
   updateModeLayout,
   type PowerMode,
 } from "@/watchface/power";
@@ -60,7 +61,8 @@ export type EditorCommand =
   | { type: "layer.set-lock"; ids: ElementId[]; locked: boolean }
   | { type: "layer.move"; id: ElementId; x: number; y: number }
   | { type: "layer.move-many"; ids: ElementId[]; dx: number; dy: number }
-  | { type: "project.reset"; initialDesign: Design };
+  | { type: "project.reset"; initialDesign: Design }
+  | { type: "mode.reset" };
 
 export type DispatchEditorCommand = (
   command: EditorCommand,
@@ -144,6 +146,13 @@ export function executeEditorCommand(
   if (command.type === "project.reset") {
     return {
       design: validateDesign(command.initialDesign),
+      selection: "background",
+    };
+  }
+
+  if (command.type === "mode.reset") {
+    return {
+      design: validateDesign(resetModeLayout(project, mode)),
       selection: "background",
     };
   }

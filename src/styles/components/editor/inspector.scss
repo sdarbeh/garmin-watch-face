@@ -46,8 +46,13 @@
   flex-shrink: 0;
 }
 .watchface-inspector-actions {
-  margin-top: auto;
+  margin-top: var(--app-gap-3);
   padding-top: var(--app-gap-3);
+}
+.watchface-reset-project-actions {
+  display: grid;
+  justify-items: start;
+  gap: var(--app-gap-1);
 }
 .watchface-inspector-actions__buttons {
   grid-template-columns: repeat(2, minmax(0, 1fr));

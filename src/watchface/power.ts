@@ -143,3 +143,15 @@ export function updateModeLayout(
     },
   };
 }
+
+/** Remove a mode override so the editor falls back to its inherited layout. */
+export function resetModeLayout(project: Design, mode: PowerMode): Design {
+  if (mode === "normal" || !project.layouts?.[mode]) return project;
+  const remaining: NonNullable<Design["layouts"]> = { ...project.layouts };
+  delete remaining[mode];
+  if (Object.keys(remaining).length > 0)
+    return { ...project, layouts: remaining };
+  const reset: Design = { ...project };
+  delete reset.layouts;
+  return reset;
+}

@@ -35,6 +35,8 @@ import type {
   EditorLayerPatch,
 } from "../model/commands";
 import { GroupInspector } from "./GroupInspector";
+import { ModeLayoutSettings } from "./ModeLayoutSettings";
+import type { ReactNode } from "react";
 
 export function EditorInspector({
   design,
@@ -47,6 +49,7 @@ export function EditorInspector({
   setDesign,
   onCommand,
   onReset,
+  onResetBase,
 }: {
   design: Design;
   simulation: Simulation;
@@ -58,6 +61,7 @@ export function EditorInspector({
   setDesign: (design: Design) => void;
   onCommand: DispatchEditorCommand;
   onReset: () => void;
+  onResetBase: () => void;
 }) {
   const device = getDeviceById(design.device)!;
   const element =
@@ -68,6 +72,14 @@ export function EditorInspector({
   const groupIds = selectedIds.filter((id) =>
     design.elements.some((element) => element.id === id),
   );
+  const modeSettings: ReactNode = (
+    <ModeLayoutSettings
+      design={design}
+      mode={mode}
+      disabled={!ready}
+      onReset={() => onCommand({ type: "mode.reset" })}
+    />
+  );
   if (selected !== "background" && groupIds.length > 1) {
     return (
       <GroupInspector
@@ -76,6 +88,7 @@ export function EditorInspector({
         selectedIds={groupIds}
         ready={ready}
         onCommand={onCommand}
+        modeSettings={modeSettings}
       />
     );
   }
@@ -339,11 +352,6 @@ export function EditorInspector({
             disabled={!ready}
             onChange={setDesign}
           />
-          {mode === "normal" && (
-            <InspectorSection title="Project settings">
-              <ResetProject disabled={!ready} onConfirm={onReset} />
-            </InspectorSection>
-          )}
         </>
       )}
       {warnings.length > 0 && (
@@ -360,6 +368,16 @@ export function EditorInspector({
         ready={ready}
         onCommand={onCommand}
       />
+      {modeSettings}
+      {selected === "background" && mode === "normal" && (
+        <InspectorSection title="Project settings">
+          <ResetProject
+            disabled={!ready}
+            onConfirm={onReset}
+            onResetBase={onResetBase}
+          />
+        </InspectorSection>
+      )}
     </aside>
   );
 }

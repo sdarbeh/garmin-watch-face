@@ -18,6 +18,7 @@ import { layerSelectionState } from "../model/selection";
 import { FontSizeField, TypographyAppearance } from "./TypographyFields";
 import { InspectorSection } from "./InspectorSection";
 import { PositionField } from "./PositionField";
+import type { ReactNode } from "react";
 
 export function GroupInspector({
   design,
@@ -25,12 +26,14 @@ export function GroupInspector({
   selectedIds,
   ready,
   onCommand,
+  modeSettings,
 }: {
   design: Design;
   selected: ElementId;
   selectedIds: ElementId[];
   ready: boolean;
   onCommand: DispatchEditorCommand;
+  modeSettings: ReactNode;
 }) {
   const selection = layerSelectionState(design, selected, selectedIds);
   if (!selection || !selection.multiple) return null;
@@ -227,6 +230,7 @@ export function GroupInspector({
         ready={ready}
         onCommand={onCommand}
       />
+      {modeSettings}
     </aside>
   );
 }

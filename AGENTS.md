@@ -18,5 +18,6 @@ Follow the Watchface Studio structure and design language:
 - Import styles once through `src/styles/index.scss`. Component-specific global SCSS uses descriptive, prefixed names under `src/styles/components`; page layout belongs in `src/styles/pages`. Do not introduce CSS Modules.
 - Use the existing `--app-*` tokens, Inter fonts, theme provider, icons and `cx` helper. Inline styles are reserved for dynamic design values.
 - Run lint (including style contracts), typecheck, tests and the production build after structural changes.
+- Use Conventional Commit subjects with an appropriate prefix such as `feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`, or `style:`, followed by a concise imperative description.
 
 - Define raw colors, dimensions, shadows and breakpoints in shared style tokens. Use atomics for simple composition; when a dedicated component class is needed, keep its fixed layout and appearance together in its SCSS rule.

@@ -1,5 +1,5 @@
 import { DesignHistory } from "@/components/editor/model/history";
-import { updateModeLayout } from "@/watchface/power";
+import { resetModeLayout, updateModeLayout } from "@/watchface/power";
 import { expect, it } from "vitest";
 import { devices } from "@/devices/catalog";
 import {
@@ -93,6 +93,23 @@ it("edits each mode independently and preserves them through export and history"
   expect(source["resources/fonts/fonts.xml"]).toContain("doto_400_32");
   expect(source["resources/fonts/fonts.xml"]).toContain("rubikbubbles_400_80");
   expect(source["source/FaceApp.mc"]).toContain("400 + (clock.min % 2) * 0");
+});
+
+it("removes a mode override without changing the normal design or other modes", () => {
+  const original = defaultDesign();
+  const low = updateModeLayout(original, "low-battery", {
+    ...original,
+    elements: [],
+  });
+  const withBoth = updateModeLayout(low, "always-on", {
+    ...original,
+    elements: [],
+  });
+  const reset = resetModeLayout(withBoth, "low-battery");
+  expect(reset.elements).toEqual(original.elements);
+  expect(reset.layouts?.["low-battery"]).toBeUndefined();
+  expect(reset.layouts?.["always-on"]).toBeDefined();
+  expect(resetModeLayout(original, "normal")).toBe(original);
 });
 
 it("rejects invalid mode data and preserves intentionally empty layouts", () => {
