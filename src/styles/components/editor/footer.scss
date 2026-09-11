@@ -1,14 +1,18 @@
 @use "../../tokens";
 
 .watchface-footer {
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--app-editor-columns);
   align-items: center;
-  gap: var(--app-gap-4);
   min-width: 0;
-  padding: var(--app-gap-3) var(--app-gap-4);
+  padding-block: var(--app-gap-3);
   border-top: var(--app-border-width) solid var(--app-color-border);
   background: var(--app-color-background);
   flex-shrink: 0;
+}
+
+.watchface-footer[data-preview="true"] {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 }
 
 .watchface-footer__history,
@@ -22,21 +26,13 @@
 
 .watchface-footer__history {
   gap: var(--app-gap-1);
-  padding-right: var(--app-gap-4);
-  border-right: var(--app-border-width) solid var(--app-color-border);
+  padding-inline: var(--app-gap-4);
   flex-shrink: 0;
 }
 
 .watchface-footer__simulation {
   justify-content: center;
   gap: var(--app-gap-4);
-  flex: 1;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.watchface-footer__simulation::-webkit-scrollbar {
-  display: none;
 }
 
 .watchface-footer__simulation > .ui-field,
@@ -54,8 +50,7 @@
 
 .watchface-footer__display {
   justify-content: flex-end;
-  padding-left: var(--app-gap-4);
-  border-left: var(--app-border-width) solid var(--app-color-border);
+  padding-inline: var(--app-gap-4);
   flex-shrink: 0;
 }
 
@@ -65,6 +60,10 @@
   padding: var(--app-gap-1);
   border: var(--app-border-width) solid var(--app-color-border);
   border-radius: var(--app-radius-pill);
+}
+
+.watchface-footer__value:has(input[aria-invalid="true"]) {
+  border-color: var(--app-color-error);
 }
 
 .watchface-footer__value input {
@@ -83,9 +82,7 @@
   display: none;
 }
 
-.watchface-footer__value .ui-button,
-.watchface-footer__segments,
-.watchface-footer__segments .ui-button {
+.watchface-footer__value .ui-button {
   border-radius: var(--app-radius-pill);
 }
 
@@ -94,40 +91,12 @@
   align-items: center;
   padding: var(--app-gap-1);
   border: var(--app-border-width) solid var(--app-color-border);
-  background: var(--app-color-fill-subtle);
+  background: transparent;
 }
 
-.watchface-footer__segments .ui-button {
-  position: relative;
-  min-width: var(--app-action-min-width);
-  padding-inline: var(--app-gap-3);
-  font-size: var(--app-font-size-xs);
-}
-
-.watchface-footer__segments .ui-button + .ui-button::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: var(--app-border-width);
-  height: var(--app-gap-4);
-  background: var(--app-color-border);
-}
-
-.watchface-footer__segments .ui-button[data-active="true"] {
+.watchface-footer__mode[data-active="true"] {
   color: var(--app-color-text);
-  background: color-mix(in srgb, var(--app-color-primary) 10%, transparent);
-  box-shadow: inset 0 0 0 var(--app-border-width) var(--app-color-primary);
-}
-
-.watchface-footer__segments .ui-button[data-active="true"]::before,
-.watchface-footer__segments
-  .ui-button[data-active="true"]
-  + .ui-button::before {
-  opacity: 0;
-}
-
-.watchface-footer__mode-label-short {
-  display: none;
+  background: var(--app-color-fill-subtle);
 }
 
 .watchface-footer__history .ui-button {
@@ -137,35 +106,23 @@
 
 @media (max-width: tokens.$breakpoint-lg) {
   .watchface-footer {
-    gap: var(--app-gap-2);
-    padding-inline: var(--app-gap-2);
+    grid-template-columns: var(--app-editor-columns);
   }
 
-  .watchface-footer__history {
-    padding-right: var(--app-gap-2);
-  }
-
-  .watchface-footer__history-label,
-  .watchface-footer__mode-label {
+  .watchface-footer__history-label {
     display: none;
   }
 
-  .watchface-footer__mode-label-short {
-    display: inline;
-  }
-
+  .watchface-footer__history,
   .watchface-footer__display {
-    padding-left: var(--app-gap-2);
-  }
-
-  .watchface-footer__segments .ui-button {
-    min-width: 0;
+    padding-inline: var(--app-gap-2);
   }
 }
 
 @media (max-width: tokens.$breakpoint-md) {
-  .watchface-footer {
-    flex-wrap: wrap;
+  .watchface-footer,
+  .watchface-footer[data-preview="true"] {
+    grid-template-columns: auto minmax(0, 1fr);
     row-gap: var(--app-gap-2);
   }
 
@@ -174,19 +131,13 @@
   }
 
   .watchface-footer__display {
+    grid-column: 1 / -1;
     justify-content: center;
     width: 100%;
-    padding-top: var(--app-gap-2);
-    padding-left: 0;
-    border-top: var(--app-border-width) solid var(--app-color-border);
-    border-left: 0;
+    padding-inline: var(--app-gap-2);
   }
 
   .watchface-footer__segments {
     width: min(100%, var(--app-content-reading));
-  }
-
-  .watchface-footer__segments .ui-button {
-    flex: 1;
   }
 }

@@ -11,6 +11,8 @@ import {
   type AppearanceRule,
 } from "@/watchface/rules";
 import type { Simulation } from "../model/simulation";
+import { METRIC_SIMULATION_CONSTRAINTS } from "../model/simulation-constraints";
+import { SimulationNumberInput } from "../footer/SimulationNumberInput";
 import { InspectorSection } from "./InspectorSection";
 import { RuleGoalPreview } from "./RuleGoalPreview";
 
@@ -209,17 +211,16 @@ export function AppearanceRuleEditor({
         )}
         <label className="watchface-property-row">
           Preview value
-          <input
-            type="number"
-            step="any"
-            min={-100}
-            max={999999}
+          <SimulationNumberInput
+            key={rule.source}
+            id={`rule-${index + 1}-preview`}
+            label={`Preview ${METRICS[rule.source].label.toLowerCase()}`}
             value={simulation[rule.source]}
-            onChange={(event) => {
-              const value = event.target.valueAsNumber;
-              if (Number.isFinite(value) && value >= -100 && value <= 999999)
-                onSimulationChange({ ...simulation, [rule.source]: value });
-            }}
+            constraint={METRIC_SIMULATION_CONSTRAINTS[rule.source]}
+            disabled={disabled}
+            onChange={(value) =>
+              onSimulationChange({ ...simulation, [rule.source]: value })
+            }
           />
         </label>
         {rule.target === "goal" && hasUserGoal(rule.source) && (

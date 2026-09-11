@@ -19,6 +19,7 @@ export function EditorFooter({
   selectedComplication,
   mode,
   onModeChange,
+  preview,
 }: {
   ready: boolean;
   device: Device;
@@ -30,9 +31,14 @@ export function EditorFooter({
   selectedComplication?: ComplicationSource;
   mode: DisplayMode;
   onModeChange: (mode: DisplayMode) => void;
+  preview: boolean;
 }) {
   return (
-    <footer className="watchface-footer" aria-label="Editor controls">
+    <footer
+      className="watchface-footer"
+      aria-label="Editor controls"
+      data-preview={preview}
+    >
       <FooterHistoryControls ready={ready} history={history} />
       <FooterSimulationControls
         ready={ready}

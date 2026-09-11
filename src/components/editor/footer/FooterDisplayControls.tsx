@@ -5,9 +5,11 @@ import { supportsMode } from "@/watchface/capabilities";
 import { EDITOR_MODE_OPTIONS } from "../model/display-modes";
 import type { DisplayMode } from "../model/simulation";
 
-const SHORT_MODE_LABELS: Partial<Record<DisplayMode, string>> = {
+const MODE_LABELS: Record<DisplayMode, string> = {
+  normal: "Normal",
   "always-on": "AOD",
   "low-battery": "Low",
+  night: "Night",
 };
 
 export function FooterDisplayControls({
@@ -50,7 +52,7 @@ export function FooterDisplayControls({
   return (
     <div className="watchface-footer__display" aria-label="Display preview">
       <div
-        className="watchface-footer__segments"
+        className="watchface-footer__segments u-radius-pill"
         role="group"
         aria-label="Display mode"
       >
@@ -59,6 +61,7 @@ export function FooterDisplayControls({
             key={id}
             size="sm"
             variant="ghost"
+            className="watchface-footer__mode u-flex-1 u-radius-pill px3"
             active={mode === id}
             aria-label={label}
             aria-pressed={mode === id}
@@ -68,13 +71,7 @@ export function FooterDisplayControls({
             onKeyDown={(event) => handleModeKeyDown(event, index)}
             onClick={() => onModeChange(id)}
           >
-            <span className="watchface-footer__mode-label">{label}</span>
-            <span
-              className="watchface-footer__mode-label-short"
-              aria-hidden="true"
-            >
-              {SHORT_MODE_LABELS[id] ?? label}
-            </span>
+            {MODE_LABELS[id]}
           </Button>
         ))}
       </div>

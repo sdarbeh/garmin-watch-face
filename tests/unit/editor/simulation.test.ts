@@ -6,12 +6,36 @@ import {
   shiftDate,
   shiftTime,
 } from "@/components/editor/model/simulation";
+import {
+  clampSimulationNumber,
+  isSimulationDateValid,
+  isSimulationNumberValid,
+  METRIC_SIMULATION_CONSTRAINTS,
+} from "@/components/editor/model/simulation-constraints";
 import { renderModel } from "@/watchface/render-model";
 import { defaultDesign, serializeProject } from "@/watchface/schema";
+
 it("wraps simulated time across midnight", () => {
   expect(shiftTime("23:55", 15)).toBe("00:10");
   expect(shiftTime("00:05", -15)).toBe("23:50");
 });
+
+it("enforces realistic simulation ranges", () => {
+  const heartRate = METRIC_SIMULATION_CONSTRAINTS.heartRate;
+
+  expect(isSimulationNumberValid(68, heartRate)).toBe(true);
+  expect(isSimulationNumberValid(68.5, heartRate)).toBe(false);
+  expect(isSimulationNumberValid(1_000_000, heartRate)).toBe(false);
+  expect(clampSimulationNumber(68.5, heartRate)).toBe(69);
+  expect(clampSimulationNumber(1_000_000, heartRate)).toBe(254);
+});
+
+it("rejects impossible and out-of-range simulation dates", () => {
+  expect(isSimulationDateValid("2028-02-29")).toBe(true);
+  expect(isSimulationDateValid("2026-02-31")).toBe(false);
+  expect(isSimulationDateValid("2200-01-01")).toBe(false);
+});
+
 it("simulates time formats and low battery without changing the saved design", () => {
   const design = defaultDesign();
   const time = design.elements.find((e) => e.type === "time")!;

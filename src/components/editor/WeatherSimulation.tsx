@@ -1,12 +1,8 @@
 import { WEATHER_CONDITIONS } from "@/watchface/weather";
 import type { Simulation } from "./model/simulation";
-const fields = {
-  high: ["weatherHigh", "High (C)", -100, 100],
-  low: ["weatherLow", "Low (C)", -100, 100],
-  "feels-like": ["weatherFeelsLike", "Feels like (C)", -100, 100],
-  humidity: ["weatherHumidity", "Humidity (%)", 0, 100],
-  wind: ["weatherWind", "Wind (m/s)", 0, 150],
-} as const;
+import { WEATHER_SIMULATION_CONSTRAINTS } from "./model/simulation-constraints";
+import { SimulationNumberInput } from "./footer/SimulationNumberInput";
+
 export function WeatherSimulation({
   variant,
   values,
@@ -38,27 +34,26 @@ export function WeatherSimulation({
         </select>
       </label>
     );
-  const field = fields[variant as keyof typeof fields];
+  const field =
+    WEATHER_SIMULATION_CONSTRAINTS[
+      variant as keyof typeof WEATHER_SIMULATION_CONSTRAINTS
+    ];
   if (!field) return null;
-  const [key, label, min, max] = field;
+  const { key, label, ...constraint } = field;
   return (
     <label className="ui-field u-font-xs">
       {label}
-      <input
-        type="number"
+      <SimulationNumberInput
+        key={key}
+        id="weather-sample"
+        label={`Simulate ${label.toLowerCase()}`}
         disabled={disabled}
-        min={min}
-        max={max}
-        step="0.1"
         value={values[key]}
-        onChange={(e) => {
-          const n = e.target.valueAsNumber;
-          if (Number.isFinite(n) && n >= min && n <= max)
-            onChange({ ...values, [key]: n });
-        }}
+        constraint={constraint}
+        onChange={(value) => onChange({ ...values, [key]: value })}
       />
     </label>
   );
 }
 export const hasWeatherSimulation = (variant: string) =>
-  variant === "condition-icon" || variant in fields;
+  variant === "condition-icon" || variant in WEATHER_SIMULATION_CONSTRAINTS;

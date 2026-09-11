@@ -3,6 +3,9 @@ import {
   type ComplicationSource,
 } from "@/watchface/complications";
 import type { Simulation } from "./model/simulation";
+import { METRIC_SIMULATION_CONSTRAINTS } from "./model/simulation-constraints";
+import { SimulationNumberInput } from "./footer/SimulationNumberInput";
+
 export function ComplicationSimulation({
   source,
   values,
@@ -15,13 +18,17 @@ export function ComplicationSimulation({
   disabled: boolean;
 }) {
   const definition = COMPLICATIONS[source];
-  const stored = values[source];
-  const missing = !Number.isFinite(stored);
-  const sample = stored;
+  const stored = values.complicationValues?.[source];
+  const missing = stored === null;
+  const rawValue = stored ?? definition.sample;
+  const sample = missing ? null : rawValue / definition.divisor;
   const update = (value: number | null) =>
     onChange({
       ...values,
-      [source]: value ?? NaN,
+      complicationValues: {
+        ...values.complicationValues,
+        [source]: value,
+      },
     });
   return (
     <>
@@ -32,21 +39,14 @@ export function ComplicationSimulation({
         Simulate
       </label>
       <div className="watchface-footer__value">
-        <input
+        <SimulationNumberInput
+          key={source}
           id="complication-sample"
-          aria-label={`Simulate ${definition.label.toLowerCase()}`}
-          title={`${definition.label}${definition.unit}`}
-          type="number"
-          min={0}
-          max={999999}
-          step="any"
+          label={`Simulate ${definition.label.toLowerCase()}`}
           disabled={disabled || missing}
-          value={missing ? "" : sample}
-          onChange={(event) => {
-            const value = event.target.valueAsNumber;
-            if (Number.isFinite(value) && value >= 0 && value <= 999999)
-              update(value);
-          }}
+          value={sample}
+          constraint={METRIC_SIMULATION_CONSTRAINTS[source]}
+          onChange={(value) => update(value * definition.divisor)}
         />
       </div>
       <label className="u-font-xs u-text-secondary">
@@ -55,11 +55,7 @@ export function ComplicationSimulation({
           disabled={disabled}
           checked={missing}
           onChange={(event) =>
-            update(
-              event.target.checked
-                ? null
-                : definition.sample / definition.divisor,
-            )
+            update(event.target.checked ? null : definition.sample)
           }
         />{" "}
         No data

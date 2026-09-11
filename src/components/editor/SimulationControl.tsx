@@ -1,8 +1,9 @@
-import type { Metric } from "@/watchface/layer-catalog";
-import { isMetric } from "@/watchface/layer-catalog";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/icons";
+import { isMetric, type Metric } from "@/watchface/layer-catalog";
+import type { ElementType } from "@/watchface/schema";
+import { SimulationNumberInput } from "./footer/SimulationNumberInput";
 import { LAYER_LABELS } from "./types";
 import {
   shiftDate,
@@ -10,7 +11,13 @@ import {
   type DisplayMode,
   type Simulation,
 } from "./model/simulation";
-import type { ElementType } from "@/watchface/schema";
+import {
+  clampSimulationNumber,
+  isSimulationDateValid,
+  METRIC_SIMULATION_CONSTRAINTS,
+  SIMULATION_DATE_MAX,
+  SIMULATION_DATE_MIN,
+} from "./model/simulation-constraints";
 
 export function SimulationControl({
   type,
@@ -56,46 +63,40 @@ export function SimulationControl({
   const inactive = disabled || batteryOverride;
   const shown = batteryOverride ? 5 : values[type];
   const numeric = isMetric(type);
-  const min = type === "weather" ? -100 : 0;
-  const max = type === "battery" ? 100 : 999999;
-  function update(value: string) {
+  function updateTemporalValue(value: string) {
     setDraft(value);
-    if (
-      type === "time" &&
-      !/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value)
-    )
+    if (type === "time") {
+      if (/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value)) {
+        onChange({ ...values, time: value });
+      }
       return;
-    if (
-      type === "date" &&
-      (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value)))
-    )
-      return;
-    if (
-      numeric &&
-      (!/^-?\d+(\.\d+)?$/.test(value) ||
-        Number(value) > max ||
-        Number(value) < min)
-    )
-      return;
-    onChange({ ...values, [type]: numeric ? Number(value) : value });
+    }
+    if (type === "date" && isSimulationDateValid(value)) {
+      onChange({ ...values, date: value });
+    }
   }
+
   function step(direction: number) {
     setDraft(null);
-    if (type === "time")
+    if (type === "time") {
       onChange({ ...values, time: shiftTime(values.time, direction * 15) });
-    else if (type === "date")
-      onChange({ ...values, date: shiftDate(values.date, direction) });
-    else if (isMetric(type))
+      return;
+    }
+    if (type === "date") {
+      const date = shiftDate(values.date, direction);
+      if (isSimulationDateValid(date)) onChange({ ...values, date });
+      return;
+    }
+    if (isMetric(type)) {
+      const constraint = METRIC_SIMULATION_CONSTRAINTS[type];
       onChange({
         ...values,
-        [type]: Math.max(
-          min,
-          Math.min(
-            max,
-            values[type] + direction * (type === "steps" ? 100 : 1),
-          ),
+        [type]: clampSimulationNumber(
+          values[type] + direction * constraint.step,
+          constraint,
         ),
       });
+    }
   }
   return (
     <>
@@ -118,17 +119,28 @@ export function SimulationControl({
         >
           <ChevronLeftIcon size="sm" />
         </Button>
-        <input
-          id="sample-value"
-          type={numeric ? "number" : type}
-          min={numeric ? min : undefined}
-          max={numeric ? max : undefined}
-          step={numeric ? 1 : undefined}
-          value={batteryOverride ? shown : (draft ?? shown)}
-          disabled={inactive}
-          onChange={(event) => update(event.target.value)}
-          onBlur={() => setDraft(null)}
-        />
+        {numeric ? (
+          <SimulationNumberInput
+            key={type}
+            id="sample-value"
+            label={`Simulate ${LAYER_LABELS[type].toLowerCase()}`}
+            value={shown as number}
+            constraint={METRIC_SIMULATION_CONSTRAINTS[type]}
+            disabled={inactive}
+            onChange={(value) => onChange({ ...values, [type]: value })}
+          />
+        ) : (
+          <input
+            id="sample-value"
+            type={type}
+            min={type === "date" ? SIMULATION_DATE_MIN : undefined}
+            max={type === "date" ? SIMULATION_DATE_MAX : undefined}
+            value={draft ?? shown}
+            disabled={inactive}
+            onChange={(event) => updateTemporalValue(event.target.value)}
+            onBlur={() => setDraft(null)}
+          />
+        )}
         <Button
           size="sm"
           variant="ghost"

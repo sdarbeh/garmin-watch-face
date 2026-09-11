@@ -450,6 +450,7 @@ export function EditorWorkspace({
       <EditorFooter
         device={getDeviceById(design.device)!}
         ready={ready}
+        preview={preview}
         history={history}
         simulation={simulation}
         onSimulationChange={setSimulation}
