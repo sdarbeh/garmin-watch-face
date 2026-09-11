@@ -1,5 +1,5 @@
 import { hasUserGoal, type GoalSamples } from "./goals";
-import { isMetric, type Metric } from "./layer-catalog";
+import { isMetric, METRICS, type Metric } from "./layer-catalog";
 import { supportsMetric, type CapabilityDevice } from "./capabilities";
 export const COMPARISONS = {
   lt: "Below",
@@ -8,6 +8,7 @@ export const COMPARISONS = {
   gte: "At or above",
   eq: "Equals",
 } as const;
+export const MAX_APPEARANCE_RULES = 4;
 export interface AppearanceRule {
   source: Metric;
   comparison: keyof typeof COMPARISONS;
@@ -24,7 +25,7 @@ export function validateRules(
   device: CapabilityDevice,
   recolor: boolean,
 ): AppearanceRule[] {
-  if (!Array.isArray(value) || value.length > 4)
+  if (!Array.isArray(value) || value.length > MAX_APPEARANCE_RULES)
     throw new Error("Use up to four appearance rules.");
   return value.map((r) => {
     if (
@@ -65,6 +66,193 @@ export function validateRules(
       color: r.color.toUpperCase(),
     };
   });
+}
+
+const COMPARISON_PHRASES: Record<AppearanceRule["comparison"], string> = {
+  lt: "falls below",
+  lte: "is at or below",
+  gt: "rises above",
+  gte: "is at or above",
+  eq: "equals",
+};
+
+function ruleThresholdLabel(rule: AppearanceRule) {
+  if (rule.target === "goal")
+    return `${rule.threshold}% of the user’s daily goal`;
+  if (rule.source === "weather") return `${rule.threshold}°C`;
+  return `${rule.threshold}${METRICS[rule.source].unit}`;
+}
+
+export function ruleSummary(rule: AppearanceRule) {
+  const action = rule.effect === "hide" ? "Hide layer" : "Change color";
+  return `${action} when ${METRICS[rule.source].label.toLowerCase()} ${COMPARISON_PHRASES[rule.comparison]} ${ruleThresholdLabel(rule)}.`;
+}
+
+export function reorderRules(
+  rules: AppearanceRule[],
+  from: number,
+  to: number,
+) {
+  if (
+    from === to ||
+    from < 0 ||
+    to < 0 ||
+    from >= rules.length ||
+    to >= rules.length
+  )
+    return rules;
+  const reordered = [...rules];
+  const [rule] = reordered.splice(from, 1);
+  reordered.splice(to, 0, rule);
+  return reordered;
+}
+
+interface RuleRange {
+  low: number;
+  lowInclusive: boolean;
+  high: number;
+  highInclusive: boolean;
+}
+
+function ruleRange(rule: AppearanceRule): RuleRange {
+  switch (rule.comparison) {
+    case "lt":
+      return {
+        low: -Infinity,
+        lowInclusive: false,
+        high: rule.threshold,
+        highInclusive: false,
+      };
+    case "lte":
+      return {
+        low: -Infinity,
+        lowInclusive: false,
+        high: rule.threshold,
+        highInclusive: true,
+      };
+    case "gt":
+      return {
+        low: rule.threshold,
+        lowInclusive: false,
+        high: Infinity,
+        highInclusive: false,
+      };
+    case "gte":
+      return {
+        low: rule.threshold,
+        lowInclusive: true,
+        high: Infinity,
+        highInclusive: false,
+      };
+    case "eq":
+      return {
+        low: rule.threshold,
+        lowInclusive: true,
+        high: rule.threshold,
+        highInclusive: true,
+      };
+  }
+}
+
+function rangesOverlap(first: RuleRange, second: RuleRange) {
+  const low = Math.max(first.low, second.low);
+  const high = Math.min(first.high, second.high);
+  if (low < high) return true;
+  if (low !== high) return false;
+  const lowIncluded =
+    (low !== first.low || first.lowInclusive) &&
+    (low !== second.low || second.lowInclusive);
+  const highIncluded =
+    (high !== first.high || first.highInclusive) &&
+    (high !== second.high || second.highInclusive);
+  return lowIncluded && highIncluded;
+}
+
+function rangeContains(outer: RuleRange, inner: RuleRange) {
+  const containsLow =
+    outer.low < inner.low ||
+    (outer.low === inner.low && (outer.lowInclusive || !inner.lowInclusive));
+  const containsHigh =
+    outer.high > inner.high ||
+    (outer.high === inner.high &&
+      (outer.highInclusive || !inner.highInclusive));
+  return containsLow && containsHigh;
+}
+
+/** Relationship of the first condition's matching values to the second's. */
+export function compareRuleConditions(
+  first: AppearanceRule,
+  second: AppearanceRule,
+) {
+  if (
+    first.source !== second.source ||
+    (first.target ?? "value") !== (second.target ?? "value")
+  )
+    return "unknown";
+  const firstRange = ruleRange(first);
+  const secondRange = ruleRange(second);
+  if (!rangesOverlap(firstRange, secondRange)) return "disjoint";
+  const contains = rangeContains(firstRange, secondRange);
+  const within = rangeContains(secondRange, firstRange);
+  if (contains && within) return "equal";
+  if (contains) return "contains";
+  if (within) return "within";
+  return "overlap";
+}
+
+export interface RuleConflict {
+  first: number;
+  second: number;
+  kind: "duplicate" | "overlap";
+}
+
+/** Reports redundant conditions and competing colors whose matching ranges intersect. */
+export function ruleConflicts(rules: AppearanceRule[]): RuleConflict[] {
+  const conflicts: RuleConflict[] = [];
+  rules.forEach((first, firstIndex) => {
+    rules.slice(firstIndex + 1).forEach((second, offset) => {
+      if (first.source !== second.source) return;
+      const secondIndex = firstIndex + offset + 1;
+      const sameTarget =
+        (first.target ?? "value") === (second.target ?? "value");
+      const sameCondition =
+        sameTarget &&
+        first.comparison === second.comparison &&
+        first.threshold === second.threshold;
+      if (sameCondition) {
+        conflicts.push({
+          first: firstIndex,
+          second: secondIndex,
+          kind: "duplicate",
+        });
+        return;
+      }
+      if (
+        first.effect !== "color" ||
+        second.effect !== "color" ||
+        first.color === second.color
+      )
+        return;
+      if (!sameTarget) {
+        conflicts.push({
+          first: firstIndex,
+          second: secondIndex,
+          kind: "overlap",
+        });
+        return;
+      }
+      const firstRange = ruleRange(first);
+      const secondRange = ruleRange(second);
+      const intentionalPriority = rangeContains(firstRange, secondRange);
+      if (rangesOverlap(firstRange, secondRange) && !intentionalPriority)
+        conflicts.push({
+          first: firstIndex,
+          second: secondIndex,
+          kind: "overlap",
+        });
+    });
+  });
+  return conflicts;
 }
 export function matchesRule(
   rule: AppearanceRule,

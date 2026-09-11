@@ -1,23 +1,50 @@
-import { hasUserGoal } from "@/watchface/goals";
-import { RuleGoalPreview } from "./RuleGoalPreview";
-import { DeleteIcon } from "@/icons";
-import { InspectorSection } from "./InspectorSection";
-import { Button, ColorField } from "@/components/ui";
-import { METRICS } from "@/watchface/layer-catalog";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui";
+import { PlusIcon, WarningIcon } from "@/icons";
+import type { PowerMode } from "@/watchface/power";
 import {
   supportedMetrics,
   type CapabilityDevice,
 } from "@/watchface/capabilities";
 import {
-  COMPARISONS,
+  MAX_APPEARANCE_RULES,
   canRecolor,
-  type AppearanceRule,
+  reorderRules,
+  ruleConflicts,
 } from "@/watchface/rules";
+import {
+  createAppearanceRule,
+  elementRuleSource,
+} from "@/watchface/rule-recipes";
+import {
+  addRuleSuggestion,
+  ruleSuggestionsFor,
+} from "@/watchface/rule-suggestions";
+import type { Metric } from "@/watchface/layer-catalog";
 import { presentation, type FaceElement } from "@/watchface/schema";
 import type { Simulation } from "../model/simulation";
+import { AppearanceRuleEditor } from "./AppearanceRuleEditor";
+import { InspectorSection } from "./InspectorSection";
+import { RuleSuggestions } from "./RuleSuggestions";
+
+const FALLBACK_RULE_SOURCES: Metric[] = ["battery", "steps", "heartRate"];
+
+function preferredRuleSource(
+  contextualSource: Metric | null,
+  sources: Metric[],
+) {
+  if (contextualSource && sources.includes(contextualSource))
+    return contextualSource;
+  return (
+    FALLBACK_RULE_SOURCES.find((source) => sources.includes(source)) ??
+    sources[0]
+  );
+}
+
 export function AppearanceRules({
   element,
   device,
+  mode,
   disabled,
   onChange,
   simulation,
@@ -25,206 +52,138 @@ export function AppearanceRules({
 }: {
   element: FaceElement;
   device: CapabilityDevice;
+  mode: PowerMode;
   disabled: boolean;
   onChange: (patch: Partial<FaceElement>) => void;
   simulation: Simulation;
   onSimulationChange: (value: Simulation) => void;
 }) {
+  const [openRuleIndex, setOpenRuleIndex] = useState<number | null>(null);
+  const pendingFocus = useRef<number | null>(null);
+  const ruleHeaders = useRef<(HTMLButtonElement | null)[]>([]);
+  const addCustomButton = useRef<HTMLButtonElement>(null);
   const rules = element.rules ?? [];
+  useEffect(() => {
+    const index = pendingFocus.current;
+    if (index === null) return;
+    pendingFocus.current = null;
+    const header = ruleHeaders.current[index] ?? addCustomButton.current;
+    header?.focus({ preventScroll: true });
+    header?.scrollIntoView({ block: "nearest" });
+  }, [element.rules]);
   const recolor = canRecolor(element.type, presentation(element).variant);
-  const update = (index: number, patch: Partial<AppearanceRule>) =>
-    onChange({
-      rules: rules.map((r, i) => (i === index ? { ...r, ...patch } : r)),
-    });
+  const sources = supportedMetrics(device);
+  const contextualSource = elementRuleSource(element);
+  const defaultSource = preferredRuleSource(contextualSource, sources);
+  const suggestions = ruleSuggestionsFor(element, device, mode);
+  const conflicts = ruleConflicts(rules);
+  const updateRules = (nextRules: NonNullable<FaceElement["rules"]>) =>
+    onChange({ rules: nextRules });
+
   return (
     <InspectorSection
       title={`Rules${rules.length ? ` (${rules.length})` : ""}`}
     >
       <p className="u-font-xs u-text-secondary mb3">
-        Change this layer based on watch data. Matching hide rules take
-        priority; the last matching color wins. Missing data leaves the base
-        appearance unchanged.
+        Change this layer based on watch data. Rules run top to bottom; the last
+        matching color wins, and Hide always wins. Missing data keeps the base
+        appearance.
       </p>
-      {rules.map((rule, index) => (
-        <InspectorSection
-          key={index}
-          defaultOpen
-          title={`${METRICS[rule.source].label} ${COMPARISONS[rule.comparison].toLowerCase()} ${rule.threshold}${rule.target === "goal" ? "% of daily goal" : ""} → ${rule.effect === "hide" ? "Hide layer" : "Change color"}`}
-        >
-          <fieldset
-            className="watchface-rule ui-field"
-            disabled={disabled}
-            aria-label={`Rule ${index + 1}`}
-          >
-            <label className="watchface-property-row u-font-xs mb2">
-              When
-              <select
-                value={rule.source}
-                onChange={(e) =>
-                  update(index, {
-                    source: e.target.value as AppearanceRule["source"],
-                    target: "value",
-                  })
-                }
-              >
-                {supportedMetrics(device).map((source) => (
-                  <option key={source} value={source}>
-                    {METRICS[source].label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="watchface-property-row u-font-xs mb2">
-              Comparison
-              <select
-                value={rule.comparison}
-                onChange={(e) =>
-                  update(index, {
-                    comparison: e.target.value as AppearanceRule["comparison"],
-                  })
-                }
-              >
-                {Object.entries(COMPARISONS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {hasUserGoal(rule.source) && (
-              <label className="watchface-property-row u-font-xs mb2">
-                Compare to
-                <select
-                  value={rule.target ?? "value"}
-                  onChange={(e) =>
-                    update(index, {
-                      target: e.target.value as "value" | "goal",
-                      threshold:
-                        e.target.value === "goal"
-                          ? 100
-                          : METRICS[rule.source].goal,
-                    })
-                  }
-                >
-                  <option value="value">Fixed value</option>
-                  <option value="goal">User’s daily goal</option>
-                </select>
-              </label>
-            )}
-            <label className="watchface-property-row u-font-xs mb2">
-              {rule.target === "goal" ? "Goal percentage" : "Threshold"}
-              <input
-                type="number"
-                step="any"
-                min={rule.target === "goal" ? 0 : -100}
-                max={999999}
-                value={rule.threshold}
-                onChange={(e) => {
-                  const threshold = e.target.valueAsNumber;
-                  if (
-                    Number.isFinite(threshold) &&
-                    threshold >= (rule.target === "goal" ? 0 : -100) &&
-                    threshold <= 999999
-                  )
-                    update(index, { threshold });
-                }}
-              />
-            </label>
-            <label className="watchface-property-row u-font-xs mb2">
-              Then
-              <select
-                value={rule.effect}
-                onChange={(e) =>
-                  update(index, {
-                    effect: e.target.value as AppearanceRule["effect"],
-                  })
-                }
-              >
-                {recolor && <option value="color">Change color</option>}
-                <option value="hide">Hide layer</option>
-              </select>
-            </label>
-            {rule.effect === "color" && (
-              <ColorField
-                label="Rule color"
-                value={rule.color}
-                disabled={disabled}
-                onChange={(color) => update(index, { color })}
-              />
-            )}
-            <label className="watchface-property-row u-font-xs mb2">
-              Preview value
-              <input
-                type="number"
-                step="any"
-                min={-100}
-                max={999999}
-                value={simulation[rule.source]}
-                onChange={(e) => {
-                  const value = e.target.valueAsNumber;
-                  if (
-                    Number.isFinite(value) &&
-                    value >= -100 &&
-                    value <= 999999
-                  )
-                    onSimulationChange({ ...simulation, [rule.source]: value });
-                }}
-              />
-            </label>
-            {rule.target === "goal" && hasUserGoal(rule.source) && (
-              <RuleGoalPreview
-                source={rule.source}
-                simulation={simulation}
-                onChange={onSimulationChange}
-              />
-            )}
-            <p className="u-font-xs u-text-secondary mb2">
-              Values use{" "}
-              {(
-                { weather: "Celsius", distance: "kilometers" } as Record<
-                  string,
-                  string
-                >
-              )[rule.source] ?? METRICS[rule.source].label.toLowerCase()}
-              . Preview changes are not saved.
-            </p>
-            <Button
-              size="sm"
-              variant="danger"
-              iconOnly
-              aria-label={`Remove rule ${index + 1}`}
-              title="Remove rule"
-              disabled={disabled}
-              onClick={() =>
-                onChange({ rules: rules.filter((_, i) => i !== index) })
-              }
+      <RuleSuggestions
+        suggestions={suggestions}
+        disabled={disabled}
+        onAdd={(id) => {
+          if (disabled) return;
+          const addition = addRuleSuggestion(element, device, mode, id);
+          if (!addition) return;
+          pendingFocus.current = addition.index;
+          setOpenRuleIndex(addition.index);
+          updateRules(addition.rules);
+        }}
+      />
+      {conflicts.length > 0 && (
+        <div className="watchface-rule-conflicts" role="status">
+          <p className="watchface-rule-conflicts__title u-font-xs u-weight-medium">
+            <WarningIcon size="sm" />
+            Check rule priority
+          </p>
+          {conflicts.map((conflict) => (
+            <p
+              key={`${conflict.first}-${conflict.second}-${conflict.kind}`}
+              className="u-font-xs"
             >
-              <DeleteIcon size="sm" />
-            </Button>
-          </fieldset>
-        </InspectorSection>
+              Rules {conflict.first + 1} and {conflict.second + 1}{" "}
+              {conflict.kind === "duplicate"
+                ? "use the same condition."
+                : `can both match; rule ${conflict.second + 1} wins.`}
+            </p>
+          ))}
+        </div>
+      )}
+      {rules.map((rule, index) => (
+        <AppearanceRuleEditor
+          key={index}
+          rule={rule}
+          index={index}
+          rules={rules}
+          sources={sources}
+          recolor={recolor}
+          mode={mode}
+          disabled={disabled}
+          simulation={simulation}
+          open={openRuleIndex === index}
+          summaryRef={(header) => {
+            ruleHeaders.current[index] = header;
+          }}
+          onRulesChange={updateRules}
+          onOpenChange={(open) =>
+            setOpenRuleIndex((current) => {
+              if (open) return index;
+              return current === index ? null : current;
+            })
+          }
+          onMove={(to) => {
+            pendingFocus.current = to;
+            setOpenRuleIndex(to);
+            updateRules(reorderRules(rules, index, to));
+          }}
+          onRemove={() => {
+            const nextRules = rules.filter(
+              (_, ruleIndex) => ruleIndex !== index,
+            );
+            setOpenRuleIndex(null);
+            pendingFocus.current = nextRules.length
+              ? Math.min(index, nextRules.length - 1)
+              : null;
+            updateRules(nextRules);
+          }}
+          onSimulationChange={onSimulationChange}
+        />
       ))}
-      <Button
-        size="sm"
-        variant="ghost"
-        disabled={disabled || rules.length >= 4}
-        onClick={() =>
-          onChange({
-            rules: [
+      {rules.length < MAX_APPEARANCE_RULES ? (
+        <Button
+          ref={addCustomButton}
+          size="sm"
+          variant="ghost"
+          disabled={disabled || !defaultSource}
+          onClick={() => {
+            if (!defaultSource) return;
+            pendingFocus.current = rules.length;
+            setOpenRuleIndex(rules.length);
+            updateRules([
               ...rules,
-              {
-                source: "battery",
-                comparison: "lt",
-                threshold: 20,
-                effect: recolor ? "color" : "hide",
-                color: "#FF4444",
-              },
-            ],
-          })
-        }
-      >
-        Add rule
-      </Button>
+              createAppearanceRule(defaultSource, recolor, mode),
+            ]);
+          }}
+        >
+          <PlusIcon size="sm" />
+          Add custom rule
+        </Button>
+      ) : (
+        <p className="u-font-xs u-text-secondary" role="status">
+          Maximum of {MAX_APPEARANCE_RULES} rules reached.
+        </p>
+      )}
     </InspectorSection>
   );
 }

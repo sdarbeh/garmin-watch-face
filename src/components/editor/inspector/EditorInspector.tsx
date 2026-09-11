@@ -215,8 +215,10 @@ export function EditorInspector({
             </InspectorSection>
           )}
           <AppearanceRules
+            key={`rules-${element.id}`}
             element={element}
             device={device}
+            mode={mode}
             disabled={!ready || element.locked}
             onChange={updateElement}
             simulation={simulation}

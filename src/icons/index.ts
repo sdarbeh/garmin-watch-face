@@ -24,3 +24,5 @@ export { CheckCircleIcon } from "./CheckCircleIcon";
 export { MoreIcon } from "./MoreIcon";
 export { AppleIcon } from "./AppleIcon";
 export { WindowsIcon } from "./WindowsIcon";
+export { SuggestionIcon } from "./SuggestionIcon";
+export { WarningIcon } from "./WarningIcon";

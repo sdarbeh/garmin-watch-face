@@ -4,7 +4,13 @@ import {
   createElement,
   validateDesign,
 } from "@/watchface/schema";
-import { ruleAppearance, type AppearanceRule } from "@/watchface/rules";
+import {
+  reorderRules,
+  ruleAppearance,
+  ruleConflicts,
+  ruleSummary,
+  type AppearanceRule,
+} from "@/watchface/rules";
 import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 import { generateProject } from "@/watchface/generator";
 const rule: AppearanceRule = {
@@ -67,4 +73,20 @@ it("rejects unsupported rules and excessive rule lists", () => {
       elements: [{ ...e, rules: Array(5).fill(rule) }],
     }),
   ).toThrow(/four/);
+});
+
+it("describes, reorders, and diagnoses rule priority", () => {
+  const warning = { ...rule, comparison: "lte" as const, threshold: 20 };
+  const critical = { ...warning, threshold: 10, color: "#AA0000" };
+  expect(ruleSummary(warning)).toBe(
+    "Change color when battery is at or below 20% battery.",
+  );
+  expect(reorderRules([warning, critical], 0, 1)).toEqual([critical, warning]);
+  expect(ruleConflicts([warning, critical])).toEqual([]);
+  expect(ruleConflicts([critical, warning])).toEqual([
+    { first: 0, second: 1, kind: "overlap" },
+  ]);
+  expect(ruleConflicts([warning, { ...warning, color: "#00FF00" }])).toEqual([
+    { first: 0, second: 1, kind: "duplicate" },
+  ]);
 });

@@ -1,27 +1,57 @@
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode, type Ref } from "react";
 import { ChevronRightIcon } from "@/icons";
+import { cx } from "@/utils/css";
 
 export function InspectorSection({
   title,
   defaultOpen = false,
+  open,
+  className,
   children,
+  onOpenChange,
+  summaryRef,
 }: {
   title: ReactNode;
   defaultOpen?: boolean;
+  open?: boolean;
+  className?: string;
   children: ReactNode;
+  onOpenChange?: (open: boolean) => void;
+  summaryRef?: Ref<HTMLButtonElement>;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const resolvedOpen = open ?? internalOpen;
+  const headingId = useId();
+
   return (
-    <details
-      className="watchface-property-section"
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
+    <section
+      className={cx("watchface-property-section", className)}
+      data-open={resolvedOpen}
     >
-      <summary className="watchface-property-section__summary">
+      <button
+        ref={summaryRef}
+        id={headingId}
+        type="button"
+        className="watchface-property-section__summary"
+        aria-expanded={resolvedOpen}
+        onClick={() => {
+          const nextOpen = !resolvedOpen;
+          if (open === undefined) setInternalOpen(nextOpen);
+          onOpenChange?.(nextOpen);
+        }}
+      >
         <span>{title}</span>
         <ChevronRightIcon size="sm" />
-      </summary>
-      <div className="watchface-property-section__body">{children}</div>
-    </details>
+      </button>
+      <div
+        className="watchface-property-section__drawer"
+        role="region"
+        aria-labelledby={headingId}
+        aria-hidden={!resolvedOpen}
+        inert={!resolvedOpen}
+      >
+        <div className="watchface-property-section__body">{children}</div>
+      </div>
+    </section>
   );
 }
