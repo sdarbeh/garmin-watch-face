@@ -359,6 +359,7 @@ export function EditorWorkspace({
             <EditorInspector
               key={`inspector-${displayMode}`}
               design={activeDesign}
+              projectDesign={design}
               simulation={simulation}
               selectedIds={selectedIds}
               onSimulationChange={setSimulation}

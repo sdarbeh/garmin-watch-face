@@ -67,6 +67,23 @@
   min-width: 0;
   padding-block: var(--app-gap-1);
 }
+.watchface-design-checks {
+  display: grid;
+  gap: var(--app-gap-3);
+}
+.watchface-design-issue {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--app-gap-2);
+}
+.watchface-design-issue > svg {
+  color: var(--app-color-warn);
+}
+.watchface-design-issue[data-severity="error"] > svg,
+.watchface-design-issue[data-severity="error"] .u-weight-medium {
+  color: var(--app-color-error);
+}
 
 @media (max-width: tokens.$breakpoint-lg) {
   .watchface-customizer {

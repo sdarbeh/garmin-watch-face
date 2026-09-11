@@ -6,7 +6,7 @@ import {
   type FontWeight,
 } from "@/watchface/fonts";
 import { isGraphic } from "@/watchface/layer-catalog";
-import { layoutWarnings } from "@/watchface/render-model";
+import type { DesignIssue } from "@/watchface/design-validation";
 import { presentation, type Design, type ElementId } from "@/watchface/schema";
 import { LayerActions } from "../LayerActions";
 import type {
@@ -17,6 +17,7 @@ import { layerLabel } from "../types";
 import { layerSelectionState } from "../model/selection";
 import { FontSizeField, TypographyAppearance } from "./TypographyFields";
 import { InspectorSection } from "./InspectorSection";
+import { DesignChecks } from "./DesignChecks";
 import { PositionField } from "./PositionField";
 import type { ReactNode } from "react";
 
@@ -27,6 +28,7 @@ export function GroupInspector({
   ready,
   onCommand,
   modeSettings,
+  issues,
 }: {
   design: Design;
   selected: ElementId;
@@ -34,6 +36,7 @@ export function GroupInspector({
   ready: boolean;
   onCommand: DispatchEditorCommand;
   modeSettings: ReactNode;
+  issues: DesignIssue[];
 }) {
   const selection = layerSelectionState(design, selected, selectedIds);
   if (!selection || !selection.multiple) return null;
@@ -51,7 +54,6 @@ export function GroupInspector({
       elements.reduce((sum, element) => sum + element.y, 0) / elements.length,
     ),
   };
-  const warnings = layoutWarnings(design);
   const disabled = !ready || locked;
   function updateElements(patch: EditorLayerPatch) {
     if (disabled) return;
@@ -216,13 +218,7 @@ export function GroupInspector({
           </Button>
         </div>
       </InspectorSection>
-      {warnings.length > 0 && (
-        <InspectorSection title={`Layout warnings (${warnings.length})`}>
-          {warnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </InspectorSection>
-      )}
+      <DesignChecks design={design} issues={issues} />
       <LayerActions
         design={design}
         selected={primary.id}

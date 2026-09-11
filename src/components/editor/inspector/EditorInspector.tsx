@@ -1,5 +1,4 @@
 import { isComplicationSource } from "@/watchface/complications";
-import { estimateAodLuminance } from "@/watchface/aod";
 import { OnWatchSettings } from "./OnWatchSettings";
 import { ComplicationContent } from "./ComplicationContent";
 import { InspectorSection } from "./InspectorSection";
@@ -23,7 +22,7 @@ import { PositionField } from "./PositionField";
 import { ResetProject } from "./ResetProject";
 import { Button, ColorField } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
-import { layoutWarnings } from "@/watchface/render-model";
+import { designIssues } from "@/watchface/design-validation";
 import {
   LAYER_LABELS,
   defaultLayerLabel,
@@ -36,10 +35,12 @@ import type {
 } from "../model/commands";
 import { GroupInspector } from "./GroupInspector";
 import { ModeLayoutSettings } from "./ModeLayoutSettings";
-import type { ReactNode } from "react";
+import { DesignChecks } from "./DesignChecks";
+import { useMemo, type ReactNode } from "react";
 
 export function EditorInspector({
   design,
+  projectDesign,
   simulation,
   onSimulationChange,
   mode = "normal",
@@ -52,6 +53,7 @@ export function EditorInspector({
   onResetBase,
 }: {
   design: Design;
+  projectDesign: Design;
   simulation: Simulation;
   onSimulationChange: (value: Simulation) => void;
   mode?: PowerMode;
@@ -68,7 +70,14 @@ export function EditorInspector({
     selected === "background"
       ? null
       : design.elements.find((item) => item.id === selected);
-  const warnings = layoutWarnings(design);
+  const issues = useMemo(
+    () =>
+      designIssues(projectDesign).filter(
+        (issue) =>
+          !issue.mode || issue.mode === mode || issue.severity === "error",
+      ),
+    [mode, projectDesign],
+  );
   const groupIds = selectedIds.filter((id) =>
     design.elements.some((element) => element.id === id),
   );
@@ -89,6 +98,7 @@ export function EditorInspector({
         ready={ready}
         onCommand={onCommand}
         modeSettings={modeSettings}
+        issues={issues}
       />
     );
   }
@@ -101,14 +111,6 @@ export function EditorInspector({
       <h2 className="u-font-xl u-weight-semibold mb3">
         {element ? layerLabel(element) : LAYER_LABELS.background}
       </h2>
-      {mode === "always-on" && (
-        <p className="u-font-xs u-text-secondary mb3">
-          Estimated luminance ceiling:{" "}
-          {Math.round(estimateAodLuminance(design) * 100)}%. Target below 10%.
-          This conservative estimate uses sample values; verify changing values
-          and images in Garmin’s simulator.
-        </p>
-      )}
       {element?.locked && (
         <p className="u-font-sm u-text-secondary mb3">
           Unlock this layer to edit its properties.
@@ -354,13 +356,7 @@ export function EditorInspector({
           />
         </>
       )}
-      {warnings.length > 0 && (
-        <InspectorSection title={`Layout warnings (${warnings.length})`}>
-          {warnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </InspectorSection>
-      )}
+      <DesignChecks design={design} issues={issues} />
       <LayerActions
         design={design}
         selected={selected}

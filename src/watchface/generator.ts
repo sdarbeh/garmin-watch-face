@@ -31,10 +31,12 @@ import { compilationLayouts, lowBatteryThreshold, powerLayout } from "./power";
 import { fontDescriptor, TEXT_PLACEMENT } from "./fonts";
 import { validateDesign, type Design } from "./schema";
 import { renderModel } from "./render-model";
+import { assertDesignExportable } from "./design-validation";
 const hex = (color: string) => `0x${color.slice(1)}`;
 /** Only validated literals enter source. No uploaded code, paths, or templates. */
 export function generateProject(input: Design): Record<string, string> {
   const design = validateDesign(input);
+  assertDesignExportable(design);
   const device = getDeviceById(design.device)!;
   const hasComplications =
     complicationSources(design).length > 0 ||
@@ -58,17 +60,6 @@ export function generateProject(input: Design): Record<string, string> {
   }
   const fonts = usedFonts(design);
   const images = usedImages(design);
-  for (const layout of compilationLayouts(design)) {
-    if (
-      layout.elements.some(
-        (e) => e.visible && e.type === "image" && !presentation(e).image,
-      )
-    ) {
-      throw new Error(
-        "An image layer is empty. Upload an image, hide the layer, or delete it before building.",
-      );
-    }
-  }
   const nativeFonts = [
     ...new Map(
       [

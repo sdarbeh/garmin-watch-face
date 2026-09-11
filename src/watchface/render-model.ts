@@ -179,14 +179,24 @@ export function renderModel(
       ),
     }));
 }
-export function layoutWarnings(design: Design): string[] {
+export interface LayerLayoutIssue {
+  elementId: string;
+  message: string;
+}
+
+export function layerLayoutIssues(design: Design): LayerLayoutIssue[] {
   return renderModel(design).flatMap((e) => {
     if (isAnalog(presentation(e).variant)) {
       const p = presentation(e);
       const radius =
         Math.max(p.width, p.height) * HAND_LENGTHS[2] + p.stroke / 2;
       return Math.hypot(e.x - 227, e.y - 227) + radius > 224
-        ? [`${e.id}: hands may clip at the round screen edge.`]
+        ? [
+            {
+              elementId: e.id,
+              message: "Hands may clip at the round screen edge.",
+            },
+          ]
         : [];
     }
     const graphic = isGraphic(e.type, presentation(e).variant);
@@ -202,8 +212,17 @@ export function layoutWarnings(design: Design): string[] {
       ) > 224;
     return outside
       ? [
-          `${e.id}: text may clip at the round screen edge. Check the simulator; live values can be wider.`,
+          {
+            elementId: e.id,
+            message: `${graphic ? "Graphic" : "Text"} may clip at the round screen edge. Check changing values in the simulator.`,
+          },
         ]
       : [];
   });
+}
+
+export function layoutWarnings(design: Design): string[] {
+  return layerLayoutIssues(design).map(
+    (issue) => `${issue.elementId}: ${issue.message.toLowerCase()}`,
+  );
 }
