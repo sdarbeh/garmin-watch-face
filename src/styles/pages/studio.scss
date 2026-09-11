@@ -50,22 +50,6 @@
   );
   gap: var(--app-gap-4);
 }
-.studio-dialog {
-  position: fixed;
-  inset: 0;
-  margin: auto;
-  width: min(calc(100% - var(--app-gap-6)), var(--app-confirmation-width));
-  max-height: calc(100dvh - var(--app-gap-6));
-  overflow-y: auto;
-  padding: var(--app-gap-5);
-  border: var(--app-border-width) solid var(--app-color-border);
-  border-radius: var(--app-radius-medium);
-  color: var(--app-color-text);
-  background: var(--app-color-surface);
-}
-.studio-dialog::backdrop {
-  background: var(--app-color-overlay);
-}
 @media (max-width: tokens.$breakpoint-md) {
   .studio-hero {
     grid-template-columns: minmax(0, 1fr);
@@ -194,31 +178,6 @@
   }
 }
 
-.watch-picker-modal__results {
-  display: grid;
-  gap: var(--app-gap-2);
-  margin-top: var(--app-gap-3);
-  max-height: var(--app-code-max-height);
-  overflow-y: auto;
-}
-.watch-picker-modal__watch {
-  width: 100%;
-  height: auto;
-  justify-content: flex-start;
-  gap: var(--app-gap-3);
-  padding: var(--app-gap-3);
-  text-align: left;
-}
-.watch-picker-modal__image {
-  width: var(--app-home-recent-size);
-  height: var(--app-home-recent-size);
-  object-fit: contain;
-}
-.watch-picker-modal__info {
-  display: grid;
-  gap: var(--app-gap-1);
-  flex: 1;
-}
 .preset-detail {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);

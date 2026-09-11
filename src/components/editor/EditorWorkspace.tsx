@@ -8,7 +8,7 @@ import {
 } from "@/watchface/power";
 import { getDeviceById } from "@/devices/catalog";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui";
 import { browserLibrary, type SavedDesign } from "@/library/store";
 import { useWatchfaceBuild } from "./hooks/useWatchfaceBuild";
@@ -17,6 +17,7 @@ import {
   DEFAULT_SIMULATION,
   createDefaultSimulation,
   simulationValues,
+  type DisplayMode,
 } from "./model/simulation";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./canvas/EditorCanvas";
@@ -36,6 +37,8 @@ import { EditorContextMenu } from "./EditorContextMenu";
 import type { EditorContextRequest } from "./model/context-menu";
 import { baseDesignForProject } from "./model/reset";
 import { useModeSelection } from "./hooks/useModeSelection";
+import { designIssues, type DesignIssue } from "@/watchface/design-validation";
+import { DesignValidationDialog } from "./DesignValidationDialog";
 import {
   EDITOR_RAILS,
   EditorRailResizer,
@@ -156,6 +159,10 @@ export function EditorWorkspace({
       )
     : displayMode;
   const [exportOpen, setExportOpen] = useState(false);
+  const [validationOpen, setValidationOpen] = useState(false);
+  const [validationMode, setValidationMode] = useState(displayMode);
+  const issues = useMemo(() => designIssues(design), [design]);
+  const canBuild = ready && !issues.some((issue) => issue.severity === "error");
   const build = useWatchfaceBuild(design, setMessage);
   const editorActions = useEditorActions({
     projectId: project.id,
@@ -166,6 +173,21 @@ export function EditorWorkspace({
     onCommand: dispatchCommand,
     onMessage: setMessage,
   });
+  const focusValidationTarget = (
+    mode: DisplayMode,
+    selection: EditorSelection,
+  ) => {
+    setContextMenu(null);
+    history.commit();
+    setKeyboardGuides([]);
+    modeSelection.focusSelection(mode, selection);
+  };
+  const focusIssue = (issue: DesignIssue) => {
+    focusValidationTarget(
+      issue.mode ?? displayMode,
+      issue.elementId ?? "background",
+    );
+  };
 
   return (
     <section
@@ -196,6 +218,7 @@ export function EditorWorkspace({
         if (
           !ready ||
           exportOpen ||
+          validationOpen ||
           (event.target as Element).closest(
             "input, select, textarea, [contenteditable=true], dialog, footer, [role=menu]",
           )
@@ -285,7 +308,16 @@ export function EditorWorkspace({
       }}
     >
       <EditorToolbar
-        {...{ design, ready, saved, setDesign, preview }}
+        {...{
+          design,
+          ready,
+          saved,
+          setDesign,
+          preview,
+          validationOpen,
+        }}
+        canBuild={canBuild}
+        issues={issues}
         onPreview={() => {
           setContextMenu(null);
           setPreview(!preview);
@@ -293,6 +325,11 @@ export function EditorWorkspace({
         onExport={() => {
           setContextMenu(null);
           setExportOpen(true);
+        }}
+        onValidation={() => {
+          setContextMenu(null);
+          setValidationMode(displayMode);
+          setValidationOpen(true);
         }}
       />
       {(error || message) && (
@@ -359,12 +396,13 @@ export function EditorWorkspace({
             <EditorInspector
               key={`inspector-${displayMode}`}
               design={activeDesign}
-              projectDesign={design}
+              issues={issues}
               simulation={simulation}
               selectedIds={selectedIds}
               onSimulationChange={setSimulation}
               setDesign={setActiveDesign}
               onCommand={dispatchCommand}
+              onIssueSelect={focusIssue}
               onReset={() =>
                 dispatchCommand({
                   type: "project.reset",
@@ -419,9 +457,22 @@ export function EditorWorkspace({
         }
         open={exportOpen}
         onClose={() => setExportOpen(false)}
-        {...{ design, ready }}
+        design={design}
+        ready={canBuild}
         message={message}
         controller={build}
+      />
+      <DesignValidationDialog
+        open={validationOpen}
+        design={design}
+        issues={issues}
+        activeMode={validationMode}
+        onClose={() => setValidationOpen(false)}
+        onModeChange={setValidationMode}
+        onNavigate={(mode, selection) => {
+          setValidationOpen(false);
+          focusValidationTarget(mode, selection);
+        }}
       />
       {contextMenu && contextMenuTargetExists && !preview && !exportOpen && (
         <EditorContextMenu

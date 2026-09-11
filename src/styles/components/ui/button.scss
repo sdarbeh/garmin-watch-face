@@ -6,13 +6,13 @@
   touch-action: manipulation;
   gap: var(--app-gap-2);
   flex-shrink: 0;
+  border: 0;
   line-height: 1.25;
   font-weight: var(--app-font-weight-medium);
   text-transform: none;
   transition:
     color var(--app-transition-fast),
     background-color var(--app-transition-fast),
-    border-color var(--app-transition-fast),
     box-shadow var(--app-transition-fast),
     transform var(--app-transition-fast);
 }
@@ -52,34 +52,29 @@
 }
 
 .ui-button--secondary {
-  border: var(--app-border-width) solid var(--app-color-border-strong);
   color: var(--app-color-text);
   background: var(--app-color-fill-subtle);
   box-shadow: none;
 }
 
 .ui-button--secondary:hover:not(:disabled) {
-  border-color: var(--app-color-text-subtle);
-  background: var(--app-color-fill-subtle);
+  background: var(--app-color-border);
 }
 
 .ui-button--secondary:active:not(:disabled),
 .ui-button--secondary[data-active="true"],
 .ui-button--ghost[data-active="true"] {
-  border-color: var(--app-color-primary);
   color: var(--app-color-text);
   background: color-mix(in srgb, var(--app-color-primary) 12%, transparent);
 }
 
 .ui-button--primary {
-  border: var(--app-border-width) solid var(--app-color-primary);
   color: var(--app-color-on-primary);
   background: var(--app-color-primary);
   box-shadow: none;
 }
 
 .ui-button--primary:hover:not(:disabled) {
-  border-color: var(--app-color-primary);
   background: var(--app-color-primary);
   filter: brightness(1.08);
 }
@@ -89,7 +84,6 @@
 }
 
 .ui-button--ghost {
-  border: var(--app-border-width) solid transparent;
   color: var(--app-color-text-muted);
   background: transparent;
   box-shadow: none;
@@ -163,7 +157,6 @@
 
 .ui-button--danger {
   color: var(--app-color-error);
-  border: var(--app-border-width) solid var(--app-color-error);
   background: color-mix(in srgb, var(--app-color-error) 10%, transparent);
 }
 .ui-button--danger:hover:not(:disabled),

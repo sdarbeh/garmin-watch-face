@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "./button";
+import { Dialog } from "./Dialog";
 import { ColorSpectrum } from "./color-picker/ColorSpectrum";
 import { hexToHsv, hsvToHex, type HSV } from "./color-picker/color";
 import { readRecentColors, rememberColor } from "./color-picker/recent-colors";
@@ -16,8 +17,6 @@ export function ColorPicker({
   onApply: (color: string) => void;
   onClose: () => void;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const outsideStart = useRef(false);
   const [recents] = useState(readRecentColors);
   const title = useId();
   const hint = useId();
@@ -25,11 +24,6 @@ export function ColorPicker({
   const [hsv, setHsv] = useState(() => hexToHsv(value));
   const normalized = `#${draft.replace(/^#/, "")}`.toUpperCase();
   const valid = /^#[0-9A-F]{6}$/.test(normalized);
-  useEffect(() => {
-    const element = dialog.current;
-    element?.showModal();
-    return () => element?.close();
-  }, []);
   function choose(color: string) {
     setHsv(hexToHsv(color));
     setDraft(color.toUpperCase());
@@ -39,38 +33,11 @@ export function ColorPicker({
     setDraft(hsvToHex(next));
   }
   return (
-    <dialog
-      ref={dialog}
+    <Dialog
+      open
+      onDismiss={onClose}
       className="ui-color-picker"
       aria-labelledby={title}
-      onPointerDown={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        outsideStart.current =
-          event.target === event.currentTarget &&
-          (event.clientX < rect.left ||
-            event.clientX > rect.right ||
-            event.clientY < rect.top ||
-            event.clientY > rect.bottom);
-      }}
-      onPointerUp={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const outside =
-          event.clientX < rect.left ||
-          event.clientX > rect.right ||
-          event.clientY < rect.top ||
-          event.clientY > rect.bottom;
-        if (
-          outsideStart.current &&
-          event.target === event.currentTarget &&
-          outside
-        )
-          onClose();
-        outsideStart.current = false;
-      }}
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
     >
       <form
         onSubmit={(event) => {
@@ -144,7 +111,7 @@ export function ColorPicker({
           </Button>
         </div>
       </form>
-    </dialog>
+    </Dialog>
   );
 }
 

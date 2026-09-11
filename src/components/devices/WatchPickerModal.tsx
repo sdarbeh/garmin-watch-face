@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Image from "next/image";
 import { devices, type Device } from "@/devices/catalog";
 import type { Preset } from "@/presets/catalog";
-import { Button } from "@/components/ui";
+import { Button, Dialog } from "@/components/ui";
 import { ArrowRightIcon, SearchIcon } from "@/icons";
 
 export function WatchPickerModal({
@@ -17,8 +17,6 @@ export function WatchPickerModal({
   onClose: () => void;
   selectionAction?: string;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const outsideStart = useRef(false);
   const search = useRef<HTMLInputElement>(null);
   const title = useId();
   const hint = useId();
@@ -31,34 +29,14 @@ export function WatchPickerModal({
         .toLowerCase()
         .includes(query.trim().toLowerCase()),
   );
-  useEffect(() => {
-    const element = dialog.current;
-    const trigger = document.activeElement;
-    element?.showModal();
-    search.current?.focus();
-    return () => {
-      element?.close();
-      if (trigger instanceof HTMLElement && trigger.isConnected)
-        trigger.focus({ preventScroll: true });
-    };
-  }, []);
   return (
-    <dialog
-      ref={dialog}
-      className="studio-dialog watch-picker-modal"
+    <Dialog
+      open
+      onDismiss={onClose}
+      initialFocusRef={search}
+      className="watch-picker-modal"
       aria-labelledby={title}
       aria-describedby={hint}
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
-      onPointerDown={(event) => {
-        outsideStart.current = event.target === event.currentTarget;
-      }}
-      onClick={(event) => {
-        if (outsideStart.current && event.target === event.currentTarget)
-          onClose();
-      }}
     >
       <div className="u-flex u-items-center u-justify-between gap3">
         <h2 id={title} className="u-font-xl u-weight-semibold">
@@ -118,6 +96,6 @@ export function WatchPickerModal({
           </p>
         )}
       </div>
-    </dialog>
+    </Dialog>
   );
 }

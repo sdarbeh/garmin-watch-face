@@ -15,9 +15,6 @@
   border-radius: var(--app-radius-small);
   background: var(--app-color-fill-subtle);
 }
-.watchface-layer-tabs .ui-button[data-active="true"] {
-  border-color: transparent;
-}
 .watchface-layer-list {
   flex: 1;
   min-height: 0;

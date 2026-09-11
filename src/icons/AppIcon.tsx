@@ -4,6 +4,7 @@ import { cx } from "@/utils/css";
 import type { IconProps, IconSize } from "./types";
 
 const ICON_SIZE_CLASS: Record<IconSize, string> = {
+  xxs: "u-icon-xxs",
   xs: "u-icon-xs",
   sm: "u-icon-sm",
   md: "u-icon-md",

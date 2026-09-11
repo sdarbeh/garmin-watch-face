@@ -12,18 +12,12 @@
   color: var(--app-color-text);
   font-weight: var(--app-font-weight-medium);
 }
-.ui-disclosure > summary::after {
-  content: "";
-  width: var(--app-chevron-size);
-  height: var(--app-chevron-size);
+.ui-disclosure > summary > svg {
   flex: 0 0 auto;
-  border-right: var(--app-border-width) solid currentColor;
-  border-bottom: var(--app-border-width) solid currentColor;
-  transform: rotate(45deg);
   transition: transform var(--app-transition-fast);
 }
-.ui-disclosure[open] > summary::after {
-  transform: rotate(225deg);
+.ui-disclosure[open] > summary > svg {
+  transform: rotate(90deg);
 }
 .ui-disclosure > :not(summary) {
   margin-bottom: var(--app-gap-3);

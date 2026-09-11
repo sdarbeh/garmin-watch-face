@@ -1,4 +1,5 @@
 import { useId, useState, type ReactNode, type Ref } from "react";
+import { Drawer } from "@/components/ui";
 import { ChevronRightIcon } from "@/icons";
 import { cx } from "@/utils/css";
 
@@ -43,15 +44,9 @@ export function InspectorSection({
         <span>{title}</span>
         <ChevronRightIcon size="sm" />
       </button>
-      <div
-        className="watchface-property-section__drawer"
-        role="region"
-        aria-labelledby={headingId}
-        aria-hidden={!resolvedOpen}
-        inert={!resolvedOpen}
-      >
+      <Drawer open={resolvedOpen} labelledBy={headingId}>
         <div className="watchface-property-section__body">{children}</div>
-      </div>
+      </Drawer>
     </section>
   );
 }

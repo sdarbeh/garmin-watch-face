@@ -1,16 +1,15 @@
-.watchface-reset-dialog {
+.ui-dialog {
   position: fixed;
   inset: 0;
-  padding: 0;
-  width: min(var(--app-confirmation-width), calc(100vw - var(--app-gap-6)));
+  box-sizing: border-box;
   max-height: calc(100dvh - var(--app-gap-6));
-  overflow: auto;
   margin: auto;
-  border: var(--app-border-width) solid var(--app-color-border-strong);
+  border: 0;
   border-radius: var(--app-radius-medium);
   background: var(--app-color-surface);
   color: var(--app-color-text);
 }
-.watchface-reset-dialog::backdrop {
+
+.ui-dialog::backdrop {
   background: var(--app-color-overlay);
 }

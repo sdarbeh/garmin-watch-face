@@ -1,0 +1,5 @@
+.watchface-reset-dialog {
+  padding: 0;
+  width: min(var(--app-confirmation-width), calc(100vw - var(--app-gap-6)));
+  overflow: auto;
+}

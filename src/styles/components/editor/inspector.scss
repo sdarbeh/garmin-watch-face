@@ -3,7 +3,7 @@
 .watchface-customizer {
   display: flex;
   flex-direction: column;
-  padding: var(--app-gap-4);
+  padding: var(--app-gap-6) var(--app-gap-4) var(--app-gap-4);
   border-left: var(--app-border-width) solid var(--app-color-border);
   min-width: 0;
   overflow-y: auto;
@@ -71,20 +71,6 @@
   display: grid;
   gap: var(--app-gap-3);
 }
-.watchface-design-issue {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: var(--app-gap-2);
-}
-.watchface-design-issue > svg {
-  color: var(--app-color-warn);
-}
-.watchface-design-issue[data-severity="error"] > svg,
-.watchface-design-issue[data-severity="error"] .u-weight-medium {
-  color: var(--app-color-error);
-}
-
 @media (max-width: tokens.$breakpoint-lg) {
   .watchface-customizer {
     padding: var(--app-gap-4);
@@ -229,31 +215,6 @@
   transform: rotate(90deg);
 }
 
-.watchface-property-section__drawer {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  visibility: hidden;
-}
-
-.watchface-property-section[data-open="true"]
-  > .watchface-property-section__drawer {
-  grid-template-rows: 1fr;
-  opacity: 1;
-  visibility: visible;
-}
-
 .watchface-property-section__body {
-  min-height: 0;
-  overflow: hidden;
   padding-top: var(--app-gap-3);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .watchface-property-section__drawer {
-    transition:
-      grid-template-rows var(--app-transition-fast),
-      opacity var(--app-transition-fast),
-      visibility var(--app-transition-fast);
-  }
 }

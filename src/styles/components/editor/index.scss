@@ -7,4 +7,6 @@
 
 @use "./footer";
 
-@use "./reset-dialog";
+@use "./reset-project.scss";
+@use "./design-validation-dialog.scss";
+@use "./validation-issue-button.scss";

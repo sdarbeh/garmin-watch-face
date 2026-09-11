@@ -3,14 +3,6 @@
   width: min(var(--app-color-picker-width), calc(100vw - var(--app-gap-6)));
   max-height: calc(100dvh - var(--app-gap-7));
   overflow-y: auto;
-  margin: auto;
-  border: var(--app-border-width) solid var(--app-color-border-strong);
-  border-radius: var(--app-radius-medium);
-  background: var(--app-color-surface);
-  color: var(--app-color-text);
-}
-.ui-color-picker::backdrop {
-  background: var(--app-color-overlay);
 }
 .ui-color-field {
   justify-content: flex-start;

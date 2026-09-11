@@ -22,7 +22,7 @@ import { PositionField } from "./PositionField";
 import { ResetProject } from "./ResetProject";
 import { Button, ColorField } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
-import { designIssues } from "@/watchface/design-validation";
+import type { DesignIssue } from "@/watchface/design-validation";
 import {
   LAYER_LABELS,
   defaultLayerLabel,
@@ -40,7 +40,7 @@ import { useMemo, type ReactNode } from "react";
 
 export function EditorInspector({
   design,
-  projectDesign,
+  issues,
   simulation,
   onSimulationChange,
   mode = "normal",
@@ -49,11 +49,12 @@ export function EditorInspector({
   selectedIds = [],
   setDesign,
   onCommand,
+  onIssueSelect,
   onReset,
   onResetBase,
 }: {
   design: Design;
-  projectDesign: Design;
+  issues: DesignIssue[];
   simulation: Simulation;
   onSimulationChange: (value: Simulation) => void;
   mode?: PowerMode;
@@ -62,6 +63,7 @@ export function EditorInspector({
   selectedIds?: string[];
   setDesign: (design: Design) => void;
   onCommand: DispatchEditorCommand;
+  onIssueSelect: (issue: DesignIssue) => void;
   onReset: () => void;
   onResetBase: () => void;
 }) {
@@ -70,13 +72,13 @@ export function EditorInspector({
     selected === "background"
       ? null
       : design.elements.find((item) => item.id === selected);
-  const issues = useMemo(
+  const visibleIssues = useMemo(
     () =>
-      designIssues(projectDesign).filter(
+      issues.filter(
         (issue) =>
           !issue.mode || issue.mode === mode || issue.severity === "error",
       ),
-    [mode, projectDesign],
+    [issues, mode],
   );
   const groupIds = selectedIds.filter((id) =>
     design.elements.some((element) => element.id === id),
@@ -98,7 +100,8 @@ export function EditorInspector({
         ready={ready}
         onCommand={onCommand}
         modeSettings={modeSettings}
-        issues={issues}
+        issues={visibleIssues}
+        onIssueSelect={onIssueSelect}
       />
     );
   }
@@ -356,7 +359,11 @@ export function EditorInspector({
           />
         </>
       )}
-      <DesignChecks design={design} issues={issues} />
+      <DesignChecks
+        design={design}
+        issues={visibleIssues}
+        onIssueSelect={onIssueSelect}
+      />
       <LayerActions
         design={design}
         selected={selected}

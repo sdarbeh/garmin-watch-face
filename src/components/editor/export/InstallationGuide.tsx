@@ -1,3 +1,5 @@
+import { ChevronRightIcon } from "@/icons";
+
 export function InstallationGuide({
   step,
   platform,
@@ -28,7 +30,10 @@ export function InstallationGuide({
           try your always-on layout.
         </p>
         <details className="ui-disclosure mt4">
-          <summary>Face not showing up?</summary>
+          <summary>
+            Face not showing up?
+            <ChevronRightIcon size="xxs" strokeWidth="3" />
+          </summary>
           <p>
             Check that the .prg was copied into GARMIN/APPS on the selected
             watch and the transfer completed. Reconnect and retry the transfer
@@ -69,7 +74,10 @@ export function InstallationGuide({
         </li>
       </ol>
       <details className="ui-disclosure mt4">
-        <summary>Watch not connecting?</summary>
+        <summary>
+          Watch not connecting?
+          <ChevronRightIcon size="xxs" strokeWidth="3" />
+        </summary>
         <p>
           Try a data-capable cable rather than a charging-only cable, confirm
           MTP mode, and close other apps accessing the watch. On Mac, use an MTP

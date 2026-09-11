@@ -72,6 +72,21 @@ export function useModeSelection(design: Design) {
     setMode(nextMode);
   }
 
+  function focusSelection(nextMode: DisplayMode, next: EditorSelection) {
+    const layout = powerLayout(design, nextMode);
+    const selection =
+      next !== "background" &&
+      layout.elements.some((element) => element.id === next)
+        ? next
+        : "background";
+    applySelection(
+      selection,
+      selection === "background" ? [] : [selection],
+      nextMode,
+    );
+    setMode(nextMode);
+  }
+
   return {
     mode,
     selected: snapshot.selected,
@@ -80,5 +95,6 @@ export function useModeSelection(design: Design) {
     selectLayer,
     selectLayers,
     changeMode,
+    focusSelection,
   };
 }

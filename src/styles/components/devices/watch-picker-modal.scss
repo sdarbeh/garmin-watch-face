@@ -1,0 +1,34 @@
+.watch-picker-modal {
+  width: min(calc(100% - var(--app-gap-6)), var(--app-confirmation-width));
+  padding: var(--app-gap-5);
+  overflow-y: auto;
+}
+
+.watch-picker-modal__results {
+  display: grid;
+  gap: var(--app-gap-2);
+  max-height: var(--app-code-max-height);
+  margin-top: var(--app-gap-3);
+  overflow-y: auto;
+}
+
+.watch-picker-modal__watch {
+  justify-content: flex-start;
+  width: 100%;
+  height: auto;
+  gap: var(--app-gap-3);
+  padding: var(--app-gap-3);
+  text-align: left;
+}
+
+.watch-picker-modal__image {
+  width: var(--app-home-recent-size);
+  height: var(--app-home-recent-size);
+  object-fit: contain;
+}
+
+.watch-picker-modal__info {
+  display: grid;
+  flex: 1;
+  gap: var(--app-gap-1);
+}

@@ -1,0 +1,128 @@
+.watchface-validation-dialog {
+  width: min(calc(100% - var(--app-gap-6)), var(--app-confirmation-width));
+  height: min(
+    var(--app-validation-dialog-height),
+    calc(100dvh - var(--app-gap-6))
+  );
+  padding: 0;
+  overflow: hidden;
+}
+.watchface-validation-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.watchface-validation-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--app-gap-4);
+  padding: var(--app-gap-5) var(--app-gap-5) var(--app-gap-4);
+  flex-shrink: 0;
+}
+.watchface-validation-dialog__header h2 {
+  font-size: var(--app-font-size-xl);
+  font-weight: var(--app-font-weight-semibold);
+  line-height: var(--app-line-height-tight);
+}
+.watchface-validation-dialog__header p {
+  margin-top: var(--app-gap-1);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+}
+.watchface-validation-dialog__tabs {
+  display: flex;
+  gap: var(--app-gap-1);
+  padding-inline: var(--app-gap-5);
+  overflow-x: auto;
+  border-bottom: var(--app-border-width) solid var(--app-color-border);
+  flex-shrink: 0;
+}
+.watchface-validation-dialog__tabs .ui-button {
+  min-height: var(--app-control-sm);
+  padding-inline: var(--app-gap-2);
+  border: 0;
+  border-bottom: calc(var(--app-border-width) * 2) solid transparent;
+  border-radius: 0;
+  background: transparent;
+  white-space: nowrap;
+}
+.watchface-validation-dialog__tabs .ui-button[aria-selected="true"] {
+  border-bottom-color: var(--app-color-primary);
+  background: transparent;
+  box-shadow: none;
+}
+.watchface-validation-dialog__tabs .ui-button:hover:not(:disabled),
+.watchface-validation-dialog__tabs .ui-button:focus-visible {
+  background: transparent;
+}
+.watchface-validation-dialog__count {
+  min-width: var(--app-gap-4);
+  padding-inline: var(--app-gap-1);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-color-fill-subtle);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xxs);
+  line-height: var(--app-gap-4);
+  text-align: center;
+}
+.watchface-validation-dialog__content {
+  display: grid;
+  align-content: start;
+  flex: 1;
+  gap: var(--app-gap-4);
+  min-height: 0;
+  padding: var(--app-gap-4) var(--app-gap-5) var(--app-gap-5);
+  overflow-y: auto;
+}
+.watchface-validation-dialog__group {
+  display: grid;
+}
+.watchface-validation-dialog__group-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-gap-2);
+  width: 100%;
+  padding-inline: 0;
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+  font-weight: var(--app-font-weight-medium);
+  background: transparent;
+}
+.watchface-validation-dialog__group-summary:hover:not(:disabled),
+.watchface-validation-dialog__group-summary:focus-visible {
+  background: transparent;
+}
+.watchface-validation-dialog__group-summary > span {
+  display: flex;
+  align-items: center;
+  gap: var(--app-gap-2);
+}
+.watchface-validation-dialog__group-summary > svg {
+  transition: transform var(--app-transition-fast);
+}
+.watchface-validation-dialog__group[data-open="true"]
+  > .watchface-validation-dialog__group-summary
+  > svg {
+  transform: rotate(90deg);
+}
+.watchface-validation-dialog__list {
+  display: grid;
+  gap: var(--app-gap-2);
+  padding-top: var(--app-gap-2);
+}
+.watchface-validation-dialog__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--app-gap-1);
+  padding: var(--app-gap-6) var(--app-gap-4);
+  text-align: center;
+}
+.watchface-validation-dialog__empty p {
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-medium);
+}
+.watchface-validation-dialog__empty span {
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+}

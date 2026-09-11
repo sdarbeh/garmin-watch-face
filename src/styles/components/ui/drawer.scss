@@ -1,0 +1,26 @@
+.ui-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+}
+
+[data-open="true"] > .ui-drawer {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+}
+
+.ui-drawer__body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-drawer {
+    transition:
+      grid-template-rows var(--app-transition-fast),
+      opacity var(--app-transition-fast),
+      visibility var(--app-transition-fast);
+  }
+}

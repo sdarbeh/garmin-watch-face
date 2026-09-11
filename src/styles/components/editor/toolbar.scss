@@ -1,15 +1,30 @@
 @use "../../tokens";
 
 .watchface-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--app-gap-4);
   padding-inline: var(--app-gap-5);
   position: relative;
+  z-index: var(--app-z-header);
   min-height: var(--app-header-height);
   flex-shrink: 0;
   border-bottom: var(--app-border-width) solid var(--app-color-border);
   background: var(--app-color-background);
+}
+.watchface-toolbar__identity,
+.watchface-toolbar__context {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.watchface-toolbar__identity {
+  gap: var(--app-gap-3);
+}
+.watchface-toolbar__context {
+  justify-content: center;
+  gap: var(--app-gap-4);
 }
 .watchface-back {
   flex-shrink: 0;
@@ -17,15 +32,35 @@
 }
 .watchface-project-name {
   position: relative;
+  display: flex;
+  align-items: center;
   min-width: 0;
-  flex: 0 1 var(--app-panel-width-compact);
+  max-width: var(--app-panel-width-compact);
 }
 .watchface-project-name input {
+  width: auto;
+  max-width: 100%;
   border-color: transparent;
   background: transparent;
   font-weight: var(--app-font-weight-semibold);
   font-size: var(--app-font-size-md);
   min-height: var(--app-control-sm);
+  padding-right: var(--app-gap-5);
+}
+.watchface-project-name > svg {
+  position: absolute;
+  right: var(--app-gap-2);
+  color: var(--app-color-text-subtle);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--app-transition-fast);
+}
+.watchface-project-name:hover > svg,
+.watchface-project-name:focus-within > svg {
+  opacity: 1;
+}
+.watchface-project-name input:disabled ~ svg {
+  display: none;
 }
 .watchface-project-name input:hover,
 .watchface-project-name input:focus {
@@ -40,29 +75,96 @@
   border: var(--app-border-width) solid var(--app-color-border);
   border-radius: var(--app-radius-small);
   background: var(--app-color-surface);
+  color: var(--app-color-warn);
+  font-size: var(--app-font-size-xs);
 }
 .watchface-save-status {
   font-size: var(--app-font-size-xs);
   color: var(--app-color-text-muted);
-  margin-inline: auto;
+  white-space: nowrap;
+}
+.watchface-toolbar__device {
+  display: flex;
+  align-items: center;
+  gap: var(--app-gap-2);
+  min-width: 0;
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-medium);
+  white-space: nowrap;
+}
+.watchface-toolbar__device img {
+  width: var(--app-control-xs);
+  height: var(--app-control-xs);
+  object-fit: contain;
 }
 .watchface-toolbar__actions {
   display: flex;
-  gap: var(--app-gap-2);
   margin-left: auto;
   flex-shrink: 0;
 }
+.watchface-toolbar__buttons {
+  display: flex;
+  gap: var(--app-gap-2);
+}
+.watchface-build-status {
+  appearance: none;
+  position: absolute;
+  top: calc(100% - var(--app-border-width));
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--app-gap-2);
+  padding: var(--app-gap-1) var(--app-gap-5) var(--app-gap-2) var(--app-gap-4);
+  border-top: 0;
+  border-left: var(--app-border-width) solid var(--app-color-border);
+  border-right: var(--app-border-width) solid var(--app-color-border);
+  border-bottom: var(--app-border-width) solid var(--app-color-border);
+  border-bottom-left-radius: var(--app-radius-small);
+  background: var(--app-color-background);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--app-transition-fast);
+}
+.watchface-build-status:hover:not(:disabled) {
+  color: var(--app-color-text);
+}
+.watchface-build-status:disabled {
+  cursor: default;
+}
+.watchface-build-status > span {
+  flex-shrink: 0;
+  border-radius: var(--app-radius-pill);
+  background: var(--app-color-primary);
+}
+.watchface-build-status[data-status="warning"] > span {
+  background: var(--app-color-warn);
+}
+.watchface-build-status[data-status="error"] > span {
+  background: var(--app-color-error);
+}
+@media (max-width: tokens.$breakpoint-lg) {
+  .watchface-toolbar {
+    gap: var(--app-gap-2);
+  }
+  .watchface-back__label,
+  .watchface-save-status {
+    display: none;
+  }
+}
 @media (max-width: tokens.$breakpoint-md) {
   .watchface-toolbar {
-    flex-wrap: wrap;
+    grid-template-columns: minmax(0, 1fr) auto;
     padding: var(--app-gap-3);
     gap: var(--app-gap-2);
   }
   .watchface-project-name {
     flex: 1;
   }
-  .watchface-save-status {
-    margin-left: 0;
+  .watchface-toolbar__context {
+    display: none;
   }
 }
 
@@ -74,14 +176,6 @@
 .watchface-toolbar__actions .ui-button--primary {
   border-color: var(--app-color-primary);
 }
-@media (min-width: tokens.$breakpoint-xl) {
-  .watchface-save-status {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
-
 .watchface-toolbar__divider {
   width: var(--app-border-width);
   height: var(--app-gap-5);

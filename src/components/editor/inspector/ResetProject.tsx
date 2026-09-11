@@ -1,5 +1,5 @@
-import { useId, useRef, useState } from "react";
-import { Button } from "@/components/ui";
+import { useId, useState } from "react";
+import { Button, Dialog } from "@/components/ui";
 
 export function ResetProject({
   disabled,
@@ -10,7 +10,7 @@ export function ResetProject({
   onConfirm: () => void;
   onResetBase: () => void;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [resetKind, setResetKind] = useState<"initial" | "base">("initial");
   const title = useId();
   const description = useId();
@@ -21,9 +21,10 @@ export function ResetProject({
         variant="ghost"
         size="sm"
         aria-haspopup="dialog"
+        aria-expanded={dialogOpen && resetKind === "initial"}
         onClick={() => {
           setResetKind("initial");
-          dialog.current?.showModal();
+          setDialogOpen(true);
         }}
       >
         Reset to initial design
@@ -33,21 +34,20 @@ export function ResetProject({
         disabled={disabled}
         size="sm"
         aria-haspopup="dialog"
+        aria-expanded={dialogOpen && resetKind === "base"}
         onClick={() => {
           setResetKind("base");
-          dialog.current?.showModal();
+          setDialogOpen(true);
         }}
       >
         Reset to base
       </Button>
-      <dialog
-        ref={dialog}
+      <Dialog
+        open={dialogOpen}
+        onDismiss={() => setDialogOpen(false)}
         className="watchface-reset-dialog"
         aria-labelledby={title}
         aria-describedby={description}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) event.currentTarget.close();
-        }}
       >
         <div className="p5">
           <h2 id={title} className="u-font-lg u-weight-semibold mb2">
@@ -64,7 +64,7 @@ export function ResetProject({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => dialog.current?.close()}
+              onClick={() => setDialogOpen(false)}
             >
               Cancel
             </Button>
@@ -75,14 +75,14 @@ export function ResetProject({
               onClick={() => {
                 if (resetKind === "base") onResetBase();
                 else onConfirm();
-                dialog.current?.close();
+                setDialogOpen(false);
               }}
             >
               Reset design
             </Button>
           </div>
         </div>
-      </dialog>
+      </Dialog>
     </div>
   );
 }

@@ -29,6 +29,7 @@ export function GroupInspector({
   onCommand,
   modeSettings,
   issues,
+  onIssueSelect,
 }: {
   design: Design;
   selected: ElementId;
@@ -37,6 +38,7 @@ export function GroupInspector({
   onCommand: DispatchEditorCommand;
   modeSettings: ReactNode;
   issues: DesignIssue[];
+  onIssueSelect: (issue: DesignIssue) => void;
 }) {
   const selection = layerSelectionState(design, selected, selectedIds);
   if (!selection || !selection.multiple) return null;
@@ -218,7 +220,11 @@ export function GroupInspector({
           </Button>
         </div>
       </InspectorSection>
-      <DesignChecks design={design} issues={issues} />
+      <DesignChecks
+        design={design}
+        issues={issues}
+        onIssueSelect={onIssueSelect}
+      />
       <LayerActions
         design={design}
         selected={primary.id}

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui";
 import { UndoIcon, RedoIcon } from "@/icons";
 import type { useDesignHistory } from "./hooks/useDesignHistory";
 import { type Simulation, type DisplayMode } from "./model/simulation";
+import { EDITOR_MODE_OPTIONS } from "./model/display-modes";
 
 export function EditorFooter({
   ready,
@@ -137,28 +138,21 @@ export function EditorFooter({
           role="group"
           aria-label="Display mode"
         >
-          {(
-            [
-              ["normal", "Normal"],
-              ["always-on", "Always-on"],
-              ["low-battery", "Low battery"],
-              ["night", "Night"],
-            ] as const
-          )
-            .filter(([key]) => supportsMode(device, key))
-            .map(([key, label]) => (
+          {EDITOR_MODE_OPTIONS.filter(({ id }) => supportsMode(device, id)).map(
+            ({ id, label }) => (
               <Button
-                key={key}
+                key={id}
                 size="sm"
                 variant="ghost"
-                active={mode === key}
-                aria-pressed={mode === key}
+                active={mode === id}
+                aria-pressed={mode === id}
                 disabled={!ready}
-                onClick={() => onModeChange(key)}
+                onClick={() => onModeChange(id)}
               >
                 {label}
               </Button>
-            ))}
+            ),
+          )}
         </div>
       </div>
     </footer>
