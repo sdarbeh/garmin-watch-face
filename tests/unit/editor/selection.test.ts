@@ -4,6 +4,7 @@ import {
   layerSelectionState,
   mergeMarqueeSelection,
   pointInsideRect,
+  resolveModeSelection,
   selectionBounds,
   selectionRect,
 } from "../../../src/components/editor/model/selection";
@@ -77,5 +78,23 @@ describe("marquee selection", () => {
     expect(bounds).not.toBeNull();
     expect(pointInsideRect({ x: 200, y: 200 }, bounds!)).toBe(true);
     expect(pointInsideRect({ x: 450, y: 450 }, bounds!)).toBe(false);
+  });
+
+  it("restores valid mode selections and removes stale IDs", () => {
+    const design = defaultDesign();
+    expect(
+      resolveModeSelection(design, {
+        selected: "missing",
+        selectedIds: ["steps", "missing"],
+      }),
+    ).toEqual({ selected: "steps", selectedIds: ["steps"] });
+  });
+
+  it("selects a matching layer type when a mode has no history", () => {
+    const design = defaultDesign();
+    expect(resolveModeSelection(design, undefined, "date")).toEqual({
+      selected: "date",
+      selectedIds: ["date"],
+    });
   });
 });

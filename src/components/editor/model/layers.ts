@@ -135,3 +135,36 @@ export function reorderLayers(
     return design;
   return { ...design, elements };
 }
+
+/** Places a layer selection directly above or below another layer. */
+export function placeLayers(
+  design: Design,
+  ids: string[],
+  targetId: string,
+  placement: "above" | "below",
+): Design {
+  const selected = new Set(ids);
+  if (!selected.size || selected.has(targetId)) return design;
+  const moving = design.elements.filter((element) => selected.has(element.id));
+  if (
+    moving.length !== selected.size ||
+    moving.some((element) => element.locked)
+  )
+    return design;
+  const remaining = design.elements.filter(
+    (element) => !selected.has(element.id),
+  );
+  const targetIndex = remaining.findIndex((element) => element.id === targetId);
+  if (targetIndex < 0) return design;
+  const insertionIndex = targetIndex + (placement === "above" ? 1 : 0);
+  const elements = [
+    ...remaining.slice(0, insertionIndex),
+    ...moving,
+    ...remaining.slice(insertionIndex),
+  ];
+  if (
+    elements.every((element, index) => element.id === design.elements[index].id)
+  )
+    return design;
+  return { ...design, elements };
+}

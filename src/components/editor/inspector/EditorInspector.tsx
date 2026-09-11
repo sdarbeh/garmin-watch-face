@@ -24,7 +24,12 @@ import { ResetProject } from "./ResetProject";
 import { Button, ColorField } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
 import { layoutWarnings } from "@/watchface/render-model";
-import { LAYER_LABELS, layerLabel, type EditorSelection } from "../types";
+import {
+  LAYER_LABELS,
+  defaultLayerLabel,
+  layerLabel,
+  type EditorSelection,
+} from "../types";
 import type {
   DispatchEditorCommand,
   EditorLayerPatch,
@@ -95,6 +100,24 @@ export function EditorInspector({
         <p className="u-font-sm u-text-secondary mb3">
           Unlock this layer to edit its properties.
         </p>
+      )}
+      {element && (
+        <InspectorSection title="Layer" defaultOpen>
+          <label className="watchface-property-row ui-field u-font-xs">
+            Name
+            <input
+              disabled={!ready || element.locked}
+              maxLength={40}
+              placeholder={defaultLayerLabel(element)}
+              value={element.name ?? ""}
+              onChange={(event) =>
+                updateElement({
+                  name: event.target.value.replace(/[^\x20-\x7E]/g, ""),
+                })
+              }
+            />
+          </label>
+        </InspectorSection>
       )}
       {element?.type === "time" && (
         <InspectorSection title="Content" defaultOpen>

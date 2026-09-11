@@ -16,6 +16,7 @@ import { moveElement, moveElementsBy } from "./geometry";
 import {
   addLayer,
   duplicateLayer,
+  placeLayers,
   reorderLayer,
   reorderLayers,
 } from "./layers";
@@ -44,6 +45,12 @@ export type EditorCommand =
       type: "layer.reorder-many";
       ids: ElementId[];
       placement: "forward" | "backward" | "front" | "back";
+    }
+  | {
+      type: "layer.place";
+      ids: ElementId[];
+      targetId: ElementId;
+      placement: "above" | "below";
     }
   | { type: "layer.toggle-visibility"; id: ElementId }
   | { type: "layer.toggle-lock"; id: ElementId }
@@ -244,6 +251,14 @@ export function executeEditorCommand(
       );
       break;
     }
+    case "layer.place":
+      edited = placeLayers(
+        active,
+        command.ids,
+        command.targetId,
+        command.placement,
+      );
+      break;
     case "layer.toggle-visibility":
       edited = updateLayer(active, command.id, (element) => ({
         ...element,

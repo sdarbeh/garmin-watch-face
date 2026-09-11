@@ -13,6 +13,7 @@ import {
   duplicateLayer,
   reorderLayer,
   reorderLayers,
+  placeLayers,
 } from "../../../src/components/editor/model/layers";
 import {
   moveElement,
@@ -123,6 +124,25 @@ it("reorders a selected group while preserving its internal order", () => {
     design.elements[2].id,
     design.elements[1].id,
     design.elements[3].id,
+  ]);
+});
+
+it("places a dragged layer directly above or below its drop target", () => {
+  const design = defaultDesign();
+  const movedAbove = placeLayers(design, ["battery"], "time", "above");
+  expect(movedAbove.elements.map((element) => element.id)).toEqual([
+    "steps",
+    "time",
+    "battery",
+    "date",
+  ]);
+
+  const movedBelow = placeLayers(design, ["date"], "steps", "below");
+  expect(movedBelow.elements.map((element) => element.id)).toEqual([
+    "battery",
+    "date",
+    "steps",
+    "time",
   ]);
 });
 it("rejects duplicate IDs, malformed elements and excessive layers", () => {

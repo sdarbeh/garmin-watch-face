@@ -173,6 +173,27 @@ describe("editor commands", () => {
     ).toBe(true);
   });
 
+  it("persists and clears an optional custom layer name", () => {
+    const initial = defaultDesign();
+    const named = executeEditorCommand(initial, "normal", {
+      type: "layer.update",
+      id: "time",
+      patch: { name: "Main clock" },
+    });
+    expect(named.design.elements.find((item) => item.id === "time")?.name).toBe(
+      "Main clock",
+    );
+
+    const cleared = executeEditorCommand(named.design, "normal", {
+      type: "layer.update",
+      id: "time",
+      patch: { name: "" },
+    });
+    expect(
+      cleared.design.elements.find((item) => item.id === "time")?.name,
+    ).toBe("");
+  });
+
   it("sets visibility and lock state for the complete group", () => {
     const initial = defaultDesign();
     const ids = initial.elements.slice(0, 2).map((element) => element.id);

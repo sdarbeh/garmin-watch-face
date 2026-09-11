@@ -7,6 +7,7 @@ export { CopyIcon } from "./CopyIcon";
 export { CutIcon } from "./CutIcon";
 export { PasteIcon } from "./PasteIcon";
 export { ArrangeIcon } from "./ArrangeIcon";
+export { GripIcon } from "./GripIcon";
 export { DeleteIcon } from "./DeleteIcon";
 export { PlusIcon } from "./PlusIcon";
 export { UploadIcon } from "./UploadIcon";

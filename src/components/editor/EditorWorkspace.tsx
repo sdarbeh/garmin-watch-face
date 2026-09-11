@@ -17,7 +17,6 @@ import {
   DEFAULT_SIMULATION,
   createDefaultSimulation,
   simulationValues,
-  type DisplayMode,
 } from "./model/simulation";
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./canvas/EditorCanvas";
@@ -35,6 +34,7 @@ import {
 import type { EditorSelection } from "./types";
 import { EditorContextMenu } from "./EditorContextMenu";
 import type { EditorContextRequest } from "./model/context-menu";
+import { useModeSelection } from "./hooks/useModeSelection";
 
 export function EditorWorkspace({
   project,
@@ -50,41 +50,24 @@ export function EditorWorkspace({
   const [message, setMessage] = useState("");
   const history = useDesignHistory(project.id);
   const setDesign = history.update;
-  const initialSelection =
-    design.elements.find((element) => element.id === "time")?.id ??
-    design.elements.find((element) => element.type === "time")?.id ??
-    design.elements.at(-1)?.id ??
-    "background";
-  const [selection, setSelected] = useState<EditorSelection>(initialSelection);
-  const [selectedIds, setSelectedIds] = useState<string[]>(
-    initialSelection === "background" ? [] : [initialSelection],
-  );
+  const modeSelection = useModeSelection(design);
+  const displayMode = modeSelection.mode;
+  const selection = modeSelection.selected;
+  const selectedIds = modeSelection.selectedIds;
   const [contextMenu, setContextMenu] = useState<EditorContextRequest | null>(
     null,
   );
+  const applySelection = (next: EditorSelection, ids: string[]) => {
+    setContextMenu(null);
+    modeSelection.applySelection(next, ids);
+  };
   const selectLayers = (ids: string[]) => {
     setContextMenu(null);
-    setSelectedIds(ids);
-    setSelected(ids.at(-1) ?? "background");
+    modeSelection.selectLayers(ids);
   };
   const selectLayer = (next: EditorSelection, additive = false) => {
     setContextMenu(null);
-    if (next === "background") {
-      setSelectedIds([]);
-      setSelected(next);
-      return;
-    }
-    if (additive) {
-      const exists = selectedIds.includes(next);
-      const nextIds = exists
-        ? selectedIds.filter((id) => id !== next)
-        : [...selectedIds, next];
-      setSelectedIds(nextIds);
-      setSelected(nextIds.at(-1) ?? "background");
-      return;
-    }
-    setSelectedIds([next]);
-    setSelected(next);
+    modeSelection.selectLayer(next, additive);
   };
 
   const [keyboardGuides, setKeyboardGuides] = useState<
@@ -103,7 +86,6 @@ export function EditorWorkspace({
     );
     return () => cancelAnimationFrame(frame);
   }, []);
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("normal");
   const activeDesign = powerLayout(design, displayMode);
   const contextMenuTargetExists =
     contextMenu?.target === "background" ||
@@ -132,8 +114,10 @@ export function EditorWorkspace({
       const result = executeEditorCommand(current, displayMode, command);
       setDesign(result.design);
       if (result.selections) {
-        setSelectedIds(result.selections);
-        setSelected(result.selections.at(-1) ?? "background");
+        applySelection(
+          result.selections.at(-1) ?? "background",
+          result.selections,
+        );
       } else if (result.selection) selectLayer(result.selection);
       return result;
     } catch (error) {
@@ -384,16 +368,7 @@ export function EditorWorkspace({
           setContextMenu(null);
           history.commit();
           setKeyboardGuides([]);
-          const currentElement = activeDesign.elements.find(
-            (e) => e.id === selected,
-          );
-          const next = powerLayout(design, mode);
-          selectLayer(
-            next.elements.find((e) => e.type === currentElement?.type)?.id ??
-              next.elements.at(-1)?.id ??
-              "background",
-          );
-          setDisplayMode(mode);
+          modeSelection.changeMode(mode);
         }}
       />
       <EditorExport

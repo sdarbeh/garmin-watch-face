@@ -1,7 +1,12 @@
 import { renderModel, SAMPLE_DATA } from "../../../watchface/render-model";
-import type { Design, ElementId, FaceElement } from "../../../watchface/schema";
+import type {
+  Design,
+  ElementId,
+  ElementType,
+  FaceElement,
+} from "../../../watchface/schema";
 import { elementBounds } from "./geometry";
-import type { EditorPoint } from "../types";
+import type { EditorPoint, EditorSelection } from "../types";
 
 export interface SelectionRect {
   x: number;
@@ -21,6 +26,34 @@ export interface LayerSelectionState {
   allVisible: boolean;
   atFront: boolean;
   atBack: boolean;
+}
+
+export interface ModeSelectionSnapshot {
+  selected: EditorSelection;
+  selectedIds: ElementId[];
+}
+
+/** Restores valid IDs or chooses an equivalent first selection for a new mode. */
+export function resolveModeSelection(
+  design: Design,
+  remembered?: ModeSelectionSnapshot,
+  fallbackType?: ElementType,
+): ModeSelectionSnapshot {
+  if (remembered) {
+    const selectedIds = remembered.selectedIds.filter((id) =>
+      design.elements.some((element) => element.id === id),
+    );
+    const selected = selectedIds.includes(remembered.selected)
+      ? remembered.selected
+      : (selectedIds.at(-1) ?? "background");
+    return { selected, selectedIds };
+  }
+  const fallback =
+    design.elements.find((element) => element.type === fallbackType) ??
+    design.elements.at(-1);
+  return fallback
+    ? { selected: fallback.id, selectedIds: [fallback.id] }
+    : { selected: "background", selectedIds: [] };
 }
 
 /** Resolves one layer or its active multi-selection in document order. */

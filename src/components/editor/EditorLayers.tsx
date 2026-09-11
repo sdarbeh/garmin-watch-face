@@ -2,11 +2,17 @@ import { supportedLayers } from "@/watchface/capabilities";
 import { getDeviceById } from "@/devices/catalog";
 import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LayerIcon, VisibilityIcon, LockIcon, PlusIcon } from "@/icons";
+import { LayerIcon, PlusIcon, SearchIcon } from "@/icons";
 import { MAX_ELEMENTS, type Design } from "@/watchface/schema";
 import type { DispatchEditorCommand } from "./model/commands";
 import type { EditorContextRequest } from "./model/context-menu";
-import { LAYER_LABELS, layerLabel, type EditorSelection } from "./types";
+import {
+  LAYER_LABELS,
+  defaultLayerLabel,
+  layerLabel,
+  type EditorSelection,
+} from "./types";
+import { LayerListRow } from "./LayerListRow";
 
 export function EditorLayers({
   selected,
@@ -27,6 +33,20 @@ export function EditorLayers({
 }) {
   const supported = supportedLayers(getDeviceById(design.device)!);
   const [adding, setAdding] = useState(false);
+  const [query, setQuery] = useState("");
+  const [draggedIds, setDraggedIds] = useState<string[]>([]);
+  const [dropTarget, setDropTarget] = useState<{
+    id: string;
+    placement: "above" | "below";
+  } | null>(null);
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleLayers = [...design.elements].reverse().filter((element) => {
+    if (!normalizedQuery) return true;
+    return [layerLabel(element), defaultLayerLabel(element), element.type]
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedQuery);
+  });
   return (
     <aside className="watchface-layers" aria-label="Layers">
       <div
@@ -83,69 +103,63 @@ export function EditorLayers({
           </div>
         ) : (
           <div role="group" aria-label="Select a layer">
-            {[...design.elements].reverse().map((item) => (
-              <Fragment key={item.id}>
-                <div
-                  className="watchface-layer-row"
-                  data-selected={selectedIds.includes(item.id)}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    if (!selectedIds.includes(item.id)) onSelect(item.id);
-                    onOpenContextMenu({
-                      target: item.id,
-                      x: event.clientX,
-                      y: event.clientY,
-                    });
-                  }}
-                >
-                  <Button
-                    variant="ghost"
-                    className="watchface-layer-select"
-                    title={layerLabel(item)}
-                    aria-pressed={selectedIds.includes(item.id)}
-                    onClick={(event) =>
-                      onSelect(
-                        item.id,
-                        event.shiftKey || event.metaKey || event.ctrlKey,
-                      )
-                    }
-                  >
-                    <LayerIcon type={item.type} size="sm" />
-                    <span>{layerLabel(item)}</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    iconOnly
-                    disabled={!ready || item.locked}
-                    aria-label={`${item.visible ? "Hide" : "Show"} ${layerLabel(item)}`}
-                    aria-pressed={!item.visible}
-                    onClick={() =>
-                      onCommand({
-                        type: "layer.toggle-visibility",
-                        id: item.id,
-                      })
-                    }
-                  >
-                    <VisibilityIcon visible={item.visible} size="sm" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    iconOnly
-                    disabled={!ready}
-                    aria-label={`${item.locked ? "Unlock" : "Lock"} ${layerLabel(item)}`}
-                    aria-pressed={item.locked}
-                    onClick={() =>
-                      onCommand({ type: "layer.toggle-lock", id: item.id })
-                    }
-                  >
-                    <LockIcon locked={item.locked} size="sm" />
-                  </Button>
-                </div>
-                <div className="watchface-layer-divider" aria-hidden="true" />
-              </Fragment>
-            ))}
+            <label className="ui-search watchface-layer-search">
+              <span className="u-sr-only">Search layers</span>
+              <SearchIcon size="sm" />
+              <input
+                type="search"
+                placeholder="Search layers"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+            {visibleLayers.map((item) => {
+              const dragIds = selectedIds.includes(item.id)
+                ? selectedIds
+                : [item.id];
+              const dragDisabled = dragIds.some(
+                (id) =>
+                  design.elements.find((element) => element.id === id)?.locked,
+              );
+              return (
+                <Fragment key={item.id}>
+                  <LayerListRow
+                    item={item}
+                    selectedIds={selectedIds}
+                    ready={ready}
+                    draggedIds={draggedIds}
+                    dragDisabled={dragDisabled}
+                    dropTarget={dropTarget}
+                    onSelect={onSelect}
+                    onCommand={onCommand}
+                    onOpenContextMenu={onOpenContextMenu}
+                    onDragStart={setDraggedIds}
+                    onDragOver={setDropTarget}
+                    onDrop={() => {
+                      if (dropTarget && draggedIds.length)
+                        onCommand({
+                          type: "layer.place",
+                          ids: draggedIds,
+                          targetId: dropTarget.id,
+                          placement: dropTarget.placement,
+                        });
+                      setDraggedIds([]);
+                      setDropTarget(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedIds([]);
+                      setDropTarget(null);
+                    }}
+                  />
+                  <div className="watchface-layer-divider" aria-hidden="true" />
+                </Fragment>
+              );
+            })}
+            {visibleLayers.length === 0 && (
+              <p className="u-font-xs u-text-secondary p2" role="status">
+                No layers match “{query}”.
+              </p>
+            )}
             <Button
               variant="ghost"
               className="watchface-layer"

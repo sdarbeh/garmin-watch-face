@@ -28,6 +28,13 @@ export const LAYER_LABELS: Record<ElementType | Metric | "background", string> =
   };
 
 export function layerLabel(element: import("@/watchface/schema").FaceElement) {
+  if (element.name?.trim()) return element.name.trim();
+  return defaultLayerLabel(element);
+}
+
+export function defaultLayerLabel(
+  element: import("@/watchface/schema").FaceElement,
+) {
   if (element.complication)
     return COMPLICATIONS[element.complication.source].label;
   if (

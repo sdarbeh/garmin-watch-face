@@ -46,6 +46,7 @@ export const COLORS = [
 export type FaceColor = string;
 export interface FaceElement {
   id: ElementId;
+  name?: string;
   type: ElementType;
   visible: boolean;
   locked: boolean;
@@ -259,6 +260,9 @@ export function validateDesign(input: unknown): Design {
         "alignment",
         "opacity",
         "timeFormat",
+        ...(field && typeof field === "object" && "name" in field
+          ? ["name"]
+          : []),
         ...(field && typeof field === "object" && "openOnHold" in field
           ? ["openOnHold"]
           : []),
@@ -289,6 +293,11 @@ export function validateDesign(input: unknown): Design {
       throw new Error("Element IDs must be unique and valid.");
     const id = e.id;
     ids.add(id);
+    if (
+      e.name !== undefined &&
+      (typeof e.name !== "string" || !/^[\x20-\x7E]{0,40}$/.test(e.name))
+    )
+      throw new Error("Layer names support up to 40 printable characters.");
     if (
       !ELEMENTS.includes(e.type as ElementType) ||
       !supportsLayer(device, e.type as string)
@@ -454,6 +463,7 @@ export function validateDesign(input: unknown): Design {
     } else if (e.complication !== undefined)
       throw new Error("Complication settings require a complication layer.");
     elements.push({
+      ...(e.name !== undefined ? { name: e.name } : {}),
       ...(e.openOnHold !== undefined
         ? { openOnHold: e.openOnHold as boolean }
         : {}),
