@@ -1,0 +1,9 @@
+.watchface-canvas-grid {
+  fill: none;
+  stroke: color-mix(in srgb, var(--app-color-text) 28%, transparent);
+  stroke-width: 1;
+}
+
+.watchface-canvas-grid > * {
+  vector-effect: non-scaling-stroke;
+}

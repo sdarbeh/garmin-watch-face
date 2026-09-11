@@ -2,6 +2,7 @@ import Image from "next/image";
 import {
   CheckCircleIcon,
   ChevronLeftIcon,
+  DownloadIcon,
   EditIcon,
   WarningIcon,
 } from "@/icons";
@@ -23,25 +24,30 @@ function BuildButtonContent({ status }: { status: WatchfaceBuildStatus }) {
             className="watchface-build-button__spinner u-spin"
             aria-hidden="true"
           />
-          Building…
+          <span className="u-sr-only">Building watch file</span>
         </>
       );
     case "success":
       return (
         <>
           <CheckCircleIcon size="sm" />
-          Built
+          <span className="u-sr-only">Watch file built</span>
         </>
       );
     case "failure":
       return (
         <>
           <WarningIcon size="sm" />
-          Try again
+          <span className="u-sr-only">Build failed. Try again</span>
         </>
       );
     case "idle":
-      return <>Build</>;
+      return (
+        <>
+          <DownloadIcon size="sm" />
+          <span className="u-sr-only">Build and download</span>
+        </>
+      );
   }
 }
 
@@ -161,6 +167,7 @@ export function EditorToolbar({
       <div className="watchface-toolbar__actions">
         <div className="watchface-toolbar__buttons">
           <Button
+            className="watchface-toolbar__preview"
             size="sm"
             variant="ghost"
             active={preview}
@@ -174,11 +181,12 @@ export function EditorToolbar({
           <Button
             variant="primary"
             className="watchface-build-button"
+            iconOnly
             disabled={!buildEnabled}
             aria-busy={buildState === "building"}
             aria-keyshortcuts="Meta+Enter Control+Enter"
             aria-describedby="watchface-build-status"
-            title="Build (⌘/Ctrl + Enter)"
+            title="Build and download (⌘/Ctrl + Enter)"
             onClick={onExport}
           >
             <span className="watchface-build-button__label" aria-live="polite">

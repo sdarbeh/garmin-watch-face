@@ -1,0 +1,83 @@
+@use "../../tokens";
+
+.watchface-canvas-toolbar {
+  align-self: center;
+  max-width: 100%;
+  overflow-x: auto;
+  flex-shrink: 0;
+  padding: var(--app-gap-1) var(--app-gap-2);
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  background: color-mix(in srgb, var(--app-color-surface) 92%, transparent);
+  scrollbar-width: none;
+}
+
+.watchface-canvas-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.watchface-canvas-toolbar__zoom {
+  flex-shrink: 0;
+}
+
+.watchface-canvas-toolbar__zoom select {
+  min-height: var(--app-control-sm);
+  width: 4rem;
+  padding: var(--app-gap-1);
+  border: 0;
+  background: transparent;
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+  text-align: center;
+  cursor: pointer;
+}
+
+.watchface-canvas-toolbar__divider {
+  width: var(--app-border-width);
+  height: var(--app-control-xs);
+  margin-inline: var(--app-gap-1);
+  flex-shrink: 0;
+  background: var(--app-color-border);
+}
+
+.watchface-canvas-toolbar__icon {
+  display: inline-grid;
+  place-items: center;
+  width: var(--app-control-xs);
+  aspect-ratio: 1;
+  border-radius: var(--app-radius-pill);
+}
+
+.watchface-canvas-toolbar .ui-button[data-active="true"] {
+  background: transparent;
+}
+
+.watchface-canvas-toolbar .ui-button[data-active="true"]
+  .watchface-canvas-toolbar__icon {
+  background: var(--app-color-primary);
+  color: var(--app-color-on-primary);
+}
+
+.watchface-canvas-toolbar__zoom select:hover,
+.watchface-canvas-toolbar__zoom select:focus-visible {
+  background: var(--app-color-fill-subtle);
+  color: var(--app-color-text);
+}
+
+@media (max-width: tokens.$breakpoint-lg) {
+  .watchface-canvas-toolbar__label {
+    display: none;
+  }
+
+  .watchface-canvas-toolbar .ui-button {
+    width: var(--app-control-xs);
+    padding: 0;
+  }
+
+  .watchface-canvas-toolbar__divider {
+    display: none;
+  }
+
+  .watchface-canvas-toolbar__zoom label {
+    display: none;
+  }
+}

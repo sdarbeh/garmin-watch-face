@@ -7,6 +7,7 @@ import type { Design, ElementId } from "@/watchface/schema";
 import { elementBounds } from "../model/geometry";
 import { selectionBounds, type SelectionRect } from "../model/selection";
 import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
+import { CanvasGrid } from "./CanvasGrid";
 export function WatchPreview({
   design,
   scale = 1,
@@ -23,6 +24,7 @@ export function WatchPreview({
   guides = [],
   selectedIds = [],
   marquee,
+  showGrid = false,
 }: {
   design: Design;
   scale?: number;
@@ -39,6 +41,7 @@ export function WatchPreview({
   guides?: { axis: "x" | "y"; value: number }[];
   selectedIds?: ElementId[];
   marquee?: SelectionRect | null;
+  showGrid?: boolean;
 }) {
   const device = getDeviceById(design.device)!;
   const frame = device.frame;
@@ -96,6 +99,7 @@ export function WatchPreview({
             </g>
           ))}
         </g>
+        {showGrid && <CanvasGrid />}
         {clipArea && showClipArea && (
           <rect
             {...clipArea}

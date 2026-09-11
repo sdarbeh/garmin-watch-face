@@ -4,10 +4,9 @@ import {
   type ResizeCorner,
 } from "../model/resize";
 import { resizeLayers } from "../model/group-resize";
-import { DeviceTags } from "@/components/devices/DeviceTags";
 import { lowBatteryThreshold } from "@/watchface/power";
 import { useLayoutEffect, useRef, useState } from "react";
-import { ZoomControls } from "./ZoomControls";
+import { CanvasToolbar } from "./CanvasToolbar";
 import { WatchPreview } from "./WatchPreview";
 import { getDeviceById } from "@/devices/catalog";
 import { type Design, type ElementId } from "@/watchface/schema";
@@ -53,12 +52,24 @@ export function EditorCanvas({
   displayMode,
   zoom,
   onZoomChange,
+  gridEnabled,
+  snapEnabled,
+  guidesEnabled,
+  onGridChange,
+  onSnapChange,
+  onGuidesChange,
   onCanvasPoint,
   onAddTemplate,
   onDuplicateForDrag,
 }: {
   zoom: number;
   onZoomChange: (zoom: number) => void;
+  gridEnabled: boolean;
+  snapEnabled: boolean;
+  guidesEnabled: boolean;
+  onGridChange: (enabled: boolean) => void;
+  onSnapChange: (enabled: boolean) => void;
+  onGuidesChange: (enabled: boolean) => void;
   onCanvasPoint: (point: EditorPoint) => void;
   onAddTemplate: (templateId: string, position: EditorPoint) => void;
   onDuplicateForDrag: (ids: ElementId[]) => EditorCommandResult | null;
@@ -111,7 +122,7 @@ export function EditorCanvas({
   const pixels = (fittedWidth * zoom) / 100;
   const scale = pixels / device.frame.width;
   const samples = simulationValues(simulation, displayMode);
-  useLayoutEffect(() => {
+  function centerCanvas() {
     const stage = viewport.current;
     if (!stage) return;
     stage.scrollLeft = Math.max(0, (stage.scrollWidth - stage.clientWidth) / 2);
@@ -119,7 +130,14 @@ export function EditorCanvas({
       0,
       (stage.scrollHeight - stage.clientHeight) / 2,
     );
+  }
+  useLayoutEffect(() => {
+    centerCanvas();
   }, [fittedWidth, zoom, preview]);
+  function fitCanvas() {
+    onZoomChange(100);
+    requestAnimationFrame(centerCanvas);
+  }
   function point(clientX: number, clientY: number) {
     const matrix = svg.current?.getScreenCTM();
     if (!matrix) return null;
@@ -155,10 +173,6 @@ export function EditorCanvas({
   }
   return (
     <section className="watchface-preview" aria-label="Watch canvas">
-      <div className="u-flex u-flex-wrap u-items-center gap3">
-        <h2 className="u-font-md u-weight-bold">{device.name}</h2>
-        <DeviceTags device={device} />
-      </div>
       {displayMode !== "normal" && (
         <p className="u-font-xs u-text-secondary" role="status">
           {
@@ -172,6 +186,14 @@ export function EditorCanvas({
           }
         </p>
       )}
+      <CanvasToolbar
+        {...{ zoom, preview, gridEnabled, snapEnabled, guidesEnabled }}
+        onZoomChange={onZoomChange}
+        onFit={fitCanvas}
+        onGridChange={onGridChange}
+        onSnapChange={onSnapChange}
+        onGuidesChange={onGuidesChange}
+      />
       <div
         className="watchface-preview__stage"
         data-template-drop={templateDropActive || undefined}
@@ -326,9 +348,14 @@ export function EditorCanvas({
               design={design}
               scale={scale}
               samples={samples}
+              showGrid={gridEnabled && !preview}
               selected={preview || selected === "background" ? null : selected}
               svgRef={svg}
-              guides={preview ? [] : [...guides, ...keyboardGuides]}
+              guides={
+                preview || !guidesEnabled
+                  ? []
+                  : [...guides, ...keyboardGuides]
+              }
               selectedIds={preview ? [] : selectedIds}
               marquee={preview ? null : marqueeRect}
               onPointerDown={(event) => {
@@ -468,7 +495,7 @@ export function EditorCanvas({
                       active.corner,
                       current.x - active.x,
                       current.y - active.y,
-                      event.altKey ? 0 : 6 / scale,
+                      event.altKey || !snapEnabled ? 0 : 6 / scale,
                       samples,
                     );
                   } else {
@@ -478,17 +505,17 @@ export function EditorCanvas({
                       active.corner,
                       current.x - active.x,
                       current.y - active.y,
-                      event.altKey ? 0 : 6 / scale,
+                      event.altKey || !snapEnabled ? 0 : 6 / scale,
                       samples,
                     );
                   }
-                  setGuides(resized.guides);
+                  setGuides(guidesEnabled ? resized.guides : []);
                   history.update(resized.design);
                   return;
                 }
                 const x = element.x + current.x - active.x;
                 const y = element.y + current.y - active.y;
-                const snapped = event.altKey
+                const snapped = event.altKey || !snapEnabled
                   ? { x, y, guides: [] }
                   : snapPosition(
                       active.start,
@@ -499,7 +526,7 @@ export function EditorCanvas({
                       samples,
                       active.ids,
                     );
-                setGuides(snapped.guides);
+                setGuides(guidesEnabled ? snapped.guides : []);
                 if (active.ids.length === 1) {
                   history.update(
                     moveElement(active.start, active.id, snapped.x, snapped.y),
@@ -533,7 +560,6 @@ export function EditorCanvas({
           </div>
         </div>
       </div>
-      <ZoomControls value={zoom} onChange={onZoomChange} />
     </section>
   );
 }

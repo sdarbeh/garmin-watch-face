@@ -2,16 +2,16 @@
 
 .watchface-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: var(--app-editor-columns);
   align-items: center;
   gap: var(--app-gap-4);
   padding-inline: var(--app-gap-5);
   position: relative;
   z-index: var(--app-z-header);
-  min-height: var(--app-header-height);
+  min-height: var(--app-control-lg);
   flex-shrink: 0;
   border-bottom: var(--app-border-width) solid var(--app-color-border);
-  background: var(--app-color-background);
+  background: var(--app-color-surface);
 }
 .watchface-toolbar__identity,
 .watchface-toolbar__context {
@@ -42,7 +42,7 @@
   max-width: 100%;
   border-color: transparent;
   background: transparent;
-  font-weight: var(--app-font-weight-semibold);
+  font-weight: var(--app-font-weight-bold);
   font-size: var(--app-font-size-md);
   min-height: var(--app-control-sm);
   padding-right: var(--app-gap-5);
@@ -83,8 +83,8 @@
   align-items: center;
   gap: var(--app-gap-2);
   min-width: 0;
-  font-size: var(--app-font-size-sm);
-  font-weight: var(--app-font-weight-medium);
+  font-size: var(--app-font-size-md);
+  font-weight: var(--app-font-weight-bold);
   white-space: nowrap;
 }
 .watchface-toolbar__device img {
@@ -129,7 +129,7 @@
   border-right: var(--app-border-width) solid var(--app-color-border);
   border-bottom: var(--app-border-width) solid var(--app-color-border);
   border-bottom-left-radius: var(--app-radius-small);
-  background: var(--app-color-background);
+  background: var(--app-color-surface);
   color: var(--app-color-text-muted);
   font-size: var(--app-font-size-xs);
   line-height: 1;
@@ -163,6 +163,9 @@
   min-width: var(--app-action-min-width);
   border: var(--app-border-width) solid var(--app-color-border-strong);
   min-height: var(--app-control-xs);
+}
+.watchface-toolbar__actions .ui-button--icon-only {
+  min-width: var(--app-control-xs);
 }
 .watchface-toolbar__actions .ui-button--primary {
   border-color: var(--app-color-primary);

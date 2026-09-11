@@ -5,9 +5,9 @@
   grid-template-columns: var(--app-editor-columns);
   align-items: center;
   min-width: 0;
-  padding-block: var(--app-gap-3);
+  padding-block: var(--app-gap-2);
   border-top: var(--app-border-width) solid var(--app-color-border);
-  background: var(--app-color-background);
+  background: var(--app-color-surface);
   flex-shrink: 0;
 }
 

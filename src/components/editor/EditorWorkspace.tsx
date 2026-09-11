@@ -145,6 +145,9 @@ export function EditorWorkspace({
 
   const [zoom, setZoom] = useState(100);
   const [preview, setPreview] = useState(false);
+  const [gridEnabled, setGridEnabled] = useState(false);
+  const [snapEnabled, setSnapEnabled] = useState(true);
+  const [guidesEnabled, setGuidesEnabled] = useState(true);
   const [railWidths, setRailWidths] = useState<EditorRailWidths>({
     left: EDITOR_RAILS.left.default,
     right: EDITOR_RAILS.right.default,
@@ -308,15 +311,17 @@ export function EditorWorkspace({
         const moved = applied.elements.find((item) => item.id === selected)!;
         // Exact alignment shows guides without making one-pixel nudges sticky.
         setKeyboardGuides(
-          snapPosition(
-            applied,
-            selected,
-            moved.x,
-            moved.y,
-            0,
-            simulationValues(simulation, displayMode),
-            selectedIds,
-          ).guides,
+          guidesEnabled
+            ? snapPosition(
+                applied,
+                selected,
+                moved.x,
+                moved.y,
+                0,
+                simulationValues(simulation, displayMode),
+                selectedIds,
+              ).guides
+            : [],
         );
       }}
       onKeyUp={(event) => {
@@ -402,6 +407,15 @@ export function EditorWorkspace({
           displayMode={canvasMode}
           zoom={zoom}
           onZoomChange={setZoom}
+          gridEnabled={gridEnabled}
+          snapEnabled={snapEnabled}
+          guidesEnabled={guidesEnabled}
+          onGridChange={setGridEnabled}
+          onSnapChange={setSnapEnabled}
+          onGuidesChange={(enabled) => {
+            setGuidesEnabled(enabled);
+            if (!enabled) setKeyboardGuides([]);
+          }}
           onCanvasPoint={editorActions.rememberCanvasPoint}
           onAddTemplate={(templateId, position) =>
             dispatchCommand({

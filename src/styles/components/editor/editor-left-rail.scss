@@ -10,6 +10,7 @@
 .watchface-left-rail {
   padding: var(--app-gap-4);
   border-right: var(--app-border-width) solid var(--app-color-border);
+  background: var(--app-color-surface);
 }
 
 .watchface-left-rail__screen {
