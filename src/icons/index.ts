@@ -26,4 +26,5 @@ export { AppleIcon } from "./AppleIcon";
 export { WindowsIcon } from "./WindowsIcon";
 export { SuggestionIcon } from "./SuggestionIcon";
 export { WarningIcon } from "./WarningIcon";
+export { LoadingIcon } from "./LoadingIcon";
 export { EditIcon } from "./EditIcon";

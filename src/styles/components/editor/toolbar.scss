@@ -78,11 +78,6 @@
   color: var(--app-color-warn);
   font-size: var(--app-font-size-xs);
 }
-.watchface-save-status {
-  font-size: var(--app-font-size-xs);
-  color: var(--app-color-text-muted);
-  white-space: nowrap;
-}
 .watchface-toolbar__device {
   display: flex;
   align-items: center;
@@ -119,7 +114,6 @@
   border: calc(var(--app-border-width) * 2) solid currentColor;
   border-right-color: transparent;
   border-radius: var(--app-radius-pill);
-  animation: watchface-build-spin 700ms linear infinite;
 }
 .watchface-build-status {
   appearance: none;
@@ -179,11 +173,6 @@
   flex-shrink: 0;
   background: var(--app-color-border-strong);
 }
-@keyframes watchface-build-spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .watchface-build-button__spinner {
     animation: none;
@@ -195,8 +184,7 @@
   .watchface-toolbar {
     gap: var(--app-gap-2);
   }
-  .watchface-back__label,
-  .watchface-save-status {
+  .watchface-back__label {
     display: none;
   }
 }

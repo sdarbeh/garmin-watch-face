@@ -77,8 +77,10 @@ export function DesignLibrary() {
           </label>
         </div>
       )}
-      {(library.error || library.saved.startsWith("Autosave")) && (
-        <p role="alert">{library.error || library.saved}</p>
+      {(library.error || library.saveStatus.state === "error") && (
+        <p role="alert">
+          {library.error || "Couldn’t save locally. Keep this tab open."}
+        </p>
       )}
       {removed && (
         <div className="u-flex u-items-center gap3">

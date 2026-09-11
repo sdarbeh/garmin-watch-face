@@ -4,12 +4,13 @@ import {
   newDesignSession,
   newDesignSource,
 } from "@/library/new-design-session";
-import { browserLibrary } from "@/library/store";
+import { browserLibrary, type LocalSaveStatus } from "@/library/store";
 import type { Design } from "@/watchface/schema";
 import { useLibrary } from "@/library/useLibrary";
 import { EditorWorkspace } from "./EditorWorkspace";
 import { Button } from "@/components/ui";
 const getServerSession = () => null;
+const UNSAVED_STATUS: LocalSaveStatus = { state: "unsaved", revision: 0 };
 
 export function ProjectEditor({
   id,
@@ -69,7 +70,7 @@ export function ProjectEditor({
     <EditorWorkspace
       key={project.id}
       project={project}
-      saved={savedProject ? library.saved : "Unsaved — edit to save"}
+      saveStatus={savedProject ? library.saveStatus : UNSAVED_STATUS}
       error={library.error}
     />
   );

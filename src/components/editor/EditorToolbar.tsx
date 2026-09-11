@@ -10,7 +10,9 @@ import { Button } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
 import { getDeviceById } from "@/devices/catalog";
 import type { DesignIssue } from "@/watchface/design-validation";
+import type { LocalSaveStatus } from "@/library/store";
 import type { WatchfaceBuildStatus } from "./hooks/useWatchfaceBuild";
+import { SaveStatus } from "./SaveStatus";
 
 function BuildButtonContent({ status }: { status: WatchfaceBuildStatus }) {
   switch (status) {
@@ -18,7 +20,7 @@ function BuildButtonContent({ status }: { status: WatchfaceBuildStatus }) {
       return (
         <>
           <span
-            className="watchface-build-button__spinner"
+            className="watchface-build-button__spinner u-spin"
             aria-hidden="true"
           />
           Building…
@@ -65,7 +67,7 @@ function buildStatus(issues: DesignIssue[]) {
 export function EditorToolbar({
   design,
   ready,
-  saved,
+  saveStatus,
   canBuild,
   buildState,
   issues,
@@ -78,7 +80,7 @@ export function EditorToolbar({
 }: {
   design: Design;
   ready: boolean;
-  saved: string;
+  saveStatus: LocalSaveStatus;
   canBuild: boolean;
   buildState: WatchfaceBuildStatus;
   issues: DesignIssue[];
@@ -154,9 +156,7 @@ export function EditorToolbar({
           <Image src={device.preview} alt="" width={28} height={28} />
           <span>{device.name}</span>
         </div>
-        <span className="watchface-save-status" role="status">
-          {saved}
-        </span>
+        <SaveStatus status={saveStatus} />
       </div>
       <div className="watchface-toolbar__actions">
         <div className="watchface-toolbar__buttons">

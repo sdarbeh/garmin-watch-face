@@ -1,0 +1,15 @@
+.u-spin {
+  animation: app-spin 700ms linear infinite;
+}
+
+@keyframes app-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-spin {
+    animation: none;
+  }
+}

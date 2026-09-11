@@ -10,7 +10,11 @@ import { getDeviceById } from "@/devices/catalog";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui";
-import { browserLibrary, type SavedDesign } from "@/library/store";
+import {
+  browserLibrary,
+  type LocalSaveStatus,
+  type SavedDesign,
+} from "@/library/store";
 import { useWatchfaceBuild } from "./hooks/useWatchfaceBuild";
 import { EditorFooter } from "./EditorFooter";
 import {
@@ -49,11 +53,11 @@ type EditorRailWidths = Record<EditorRailSide, number>;
 
 export function EditorWorkspace({
   project,
-  saved,
+  saveStatus,
   error,
 }: {
   project: SavedDesign;
-  saved: string;
+  saveStatus: LocalSaveStatus;
   error: string;
 }) {
   const { design } = project;
@@ -329,7 +333,7 @@ export function EditorWorkspace({
         {...{
           design,
           ready,
-          saved,
+          saveStatus,
           setDesign,
           preview,
           validationOpen,

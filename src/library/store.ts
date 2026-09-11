@@ -7,6 +7,7 @@ import {
 } from "../watchface/schema";
 export const LIBRARY_KEY = "watchface.designs";
 export const SELECTED_WATCH_KEY = "watchface.selectedWatch";
+export const LOCAL_SAVE_DELAY_MS = 450;
 export interface SavedDesign {
   id: string;
   design: Design;
@@ -17,13 +18,23 @@ export interface SavedDesign {
   downloadedAt?: string;
   presetSlug?: string;
 }
+export type LocalSaveState =
+  | "loading"
+  | "pending"
+  | "saved"
+  | "error"
+  | "unsaved";
+export interface LocalSaveStatus {
+  state: LocalSaveState;
+  revision: number;
+}
 export interface LibrarySnapshot {
   projects: SavedDesign[];
   drafts: SavedDesign[];
   selectedWatch: string | null;
   ready: boolean;
   error: string;
-  saved: string;
+  saveStatus: LocalSaveStatus;
 }
 export const LIBRARY_SERVER: LibrarySnapshot = {
   projects: [],
@@ -31,7 +42,7 @@ export const LIBRARY_SERVER: LibrarySnapshot = {
   selectedWatch: null,
   ready: false,
   error: "",
-  saved: "Loading local designs…",
+  saveStatus: { state: "loading", revision: 0 },
 };
 type StoragePort = Pick<Storage, "getItem" | "setItem">;
 
@@ -42,6 +53,8 @@ function copyDesign(design: Design) {
 export class LibraryStore {
   private snapshot = LIBRARY_SERVER;
   private listeners = new Set<() => void>();
+  private pendingProjects: SavedDesign[] | null = null;
+  private saveTimer: ReturnType<typeof setTimeout> | null = null;
   constructor(private storage: () => StoragePort) {}
   getSnapshot = () => {
     if (!this.snapshot.ready) this.load();
@@ -56,7 +69,15 @@ export class LibraryStore {
   private emit() {
     for (const listener of this.listeners) listener();
   }
+  private nextSaveStatus(state: LocalSaveState): LocalSaveStatus {
+    return {
+      state,
+      revision: this.snapshot.saveStatus.revision + 1,
+    };
+  }
   load = () => {
+    // A queued local edit is newer than the last durable snapshot.
+    if (this.pendingProjects) return;
     try {
       const raw = this.storage().getItem(LIBRARY_KEY);
       const entries = raw ? JSON.parse(raw) : [];
@@ -106,7 +127,7 @@ export class LibraryStore {
         selectedWatch: this.snapshot.selectedWatch,
         ready: true,
         error: "",
-        saved: "Saved on this browser",
+        saveStatus: this.nextSaveStatus("saved"),
       };
     } catch {
       this.snapshot = {
@@ -114,27 +135,50 @@ export class LibraryStore {
         ready: true,
         error:
           "Could not read saved designs. Existing browser data has not been overwritten. Keep this tab open to preserve any unsaved work.",
-        saved: "Autosave unavailable — keep this tab open",
+        saveStatus: this.nextSaveStatus("error"),
       };
     }
     this.loadSelectedWatch();
   };
-  private write(projects: SavedDesign[]) {
-    let saved = "Saved on this browser";
+  private persist(projects: SavedDesign[]) {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    this.pendingProjects = null;
+    let state: LocalSaveState = "saved";
     try {
       if (this.snapshot.error) throw new Error("Storage needs recovery");
       this.storage().setItem(LIBRARY_KEY, JSON.stringify(projects));
     } catch {
-      saved = "Autosave unavailable — keep this tab open";
+      state = "error";
     }
     this.snapshot = {
       ...this.snapshot,
       projects,
       ready: true,
-      saved,
+      saveStatus: this.nextSaveStatus(state),
     };
     this.emit();
   }
+  private queuePersist(projects: SavedDesign[]) {
+    this.pendingProjects = projects;
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    const saveStatus =
+      this.snapshot.saveStatus.state === "pending"
+        ? this.snapshot.saveStatus
+        : this.nextSaveStatus("pending");
+    this.snapshot = {
+      ...this.snapshot,
+      projects,
+      ready: true,
+      saveStatus,
+    };
+    this.emit();
+    this.saveTimer = setTimeout(() => this.flush(), LOCAL_SAVE_DELAY_MS);
+  }
+  flush = () => {
+    if (!this.pendingProjects) return;
+    this.persist(this.pendingProjects);
+  };
   find = (id: string) =>
     [...this.getSnapshot().projects, ...this.snapshot.drafts].find(
       (project) => project.id === id,
@@ -180,7 +224,7 @@ export class LibraryStore {
       ...(presetSlug ? { presetSlug } : {}),
     };
     this.selectWatch(project.selectedWatch);
-    this.write([...current.projects, project]);
+    this.persist([...current.projects, project]);
     return project;
   }
   update(id: string, design: Design) {
@@ -198,7 +242,7 @@ export class LibraryStore {
         ...this.snapshot,
         drafts: current.drafts.filter((project) => project.id !== id),
       };
-      this.write([
+      this.queuePersist([
         ...current.projects,
         {
           ...existing,
@@ -210,7 +254,7 @@ export class LibraryStore {
       ]);
       return;
     }
-    this.write(
+    this.queuePersist(
       current.projects.map((project) =>
         project.id === id
           ? {
@@ -254,14 +298,14 @@ export class LibraryStore {
       ...this.snapshot,
       drafts: current.drafts.filter((draft) => draft.id !== project.id),
     };
-    this.write([
+    this.persist([
       ...current.projects.filter((item) => item.id !== project.id),
       project,
     ]);
     return project;
   }
   remove(id: string) {
-    this.write(
+    this.persist(
       this.getSnapshot().projects.filter((project) => project.id !== id),
     );
   }
@@ -274,7 +318,7 @@ export class LibraryStore {
         initialDesign.device !== design.device
       )
         throw new Error("Saved watch does not match the design target.");
-      this.write([
+      this.persist([
         ...this.getSnapshot().projects,
         {
           ...project,

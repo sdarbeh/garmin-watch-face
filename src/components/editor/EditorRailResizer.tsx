@@ -30,6 +30,7 @@ export function EditorRailResizer({
 }) {
   const [dragging, setDragging] = useState(false);
   const drag = useRef<ActiveRailDrag | null>(null);
+  const resizer = useRef<HTMLDivElement>(null);
   const limits = EDITOR_RAILS[side];
 
   useEffect(() => {
@@ -57,10 +58,19 @@ export function EditorRailResizer({
   function resizeWithPointer(event: globalThis.PointerEvent) {
     const active = drag.current;
     if (!active || active.pointer !== event.pointerId) return;
+    positionHandle(event.clientY);
     const delta = event.clientX - active.x;
     onChange(
       clampRail(side, active.width + (side === "left" ? delta : -delta)),
     );
+  }
+
+  function positionHandle(clientY: number) {
+    const element = resizer.current;
+    if (!element) return;
+    const bounds = element.getBoundingClientRect();
+    const y = Math.max(0, Math.min(bounds.height, clientY - bounds.top));
+    element.style.setProperty("--rail-resizer-y", `${y}px`);
   }
 
   function stopDragging(pointerId?: number) {
@@ -74,6 +84,7 @@ export function EditorRailResizer({
 
   return (
     <div
+      ref={resizer}
       className="watchface-rail-resizer"
       data-side={side}
       data-dragging={dragging}
@@ -87,9 +98,11 @@ export function EditorRailResizer({
       title={`Drag to resize ${side} rail. Double-click to reset.`}
       onDoubleClick={() => onChange(limits.default)}
       onKeyDown={resizeWithKeyboard}
+      onPointerMove={(event) => positionHandle(event.clientY)}
       onPointerDown={(event) => {
         if (event.button !== 0) return;
         event.preventDefault();
+        positionHandle(event.clientY);
         event.currentTarget.focus();
         stopDragging();
         const finish = (pointerEvent: globalThis.PointerEvent) =>

@@ -18,8 +18,17 @@ export function useLibrary() {
       else if (event.key === LIBRARY_KEY || event.key === null)
         browserLibrary.load();
     };
+    const flushWhenHidden = () => {
+      if (document.visibilityState === "hidden") browserLibrary.flush();
+    };
     window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
+    window.addEventListener("pagehide", browserLibrary.flush);
+    document.addEventListener("visibilitychange", flushWhenHidden);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("pagehide", browserLibrary.flush);
+      document.removeEventListener("visibilitychange", flushWhenHidden);
+    };
   }, []);
   return snapshot;
 }

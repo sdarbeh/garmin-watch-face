@@ -23,6 +23,7 @@ it("restores the saved project after a new-editor reload", () => {
   const session = sessions.resume(source);
   library.openDraft(session.projectId, defaultDesign());
   library.update(session.projectId, { ...defaultDesign(), name: "Edited" });
+  library.flush();
   const reload = new NewDesignSession(() => tab).resume(source);
   expect(reload.projectId).toBe(session.projectId);
   expect(

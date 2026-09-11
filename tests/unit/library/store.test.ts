@@ -1,5 +1,10 @@
-import { describe, expect, it } from "vitest";
-import { LibraryStore, LIBRARY_KEY, SELECTED_WATCH_KEY } from "@/library/store";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  LibraryStore,
+  LIBRARY_KEY,
+  LOCAL_SAVE_DELAY_MS,
+  SELECTED_WATCH_KEY,
+} from "@/library/store";
 import {
   defaultDesign,
   serializeProject,
@@ -7,6 +12,9 @@ import {
   validateDesign,
 } from "@/watchface/schema";
 import { presets } from "@/presets/catalog";
+
+afterEach(() => vi.useRealTimers());
+
 function setup() {
   const data = new Map<string, string>();
   const storage = {
@@ -23,12 +31,48 @@ describe("local design library", () => {
     const a = store.create(defaultDesign());
     const b = store.create(defaultDesign());
     store.update(a.id, { ...a.design, name: "Changed" });
+    store.flush();
     const reloaded = new LibraryStore(() => storage);
     expect(reloaded.find(a.id)?.design.name).toBe("Changed");
     expect(reloaded.find(b.id)?.design).toEqual(b.design);
     expect(parseProject(serializeProject(reloaded.find(a.id)!.design))).toEqual(
       reloaded.find(a.id)!.design,
     );
+  });
+  it("debounces edits and reports the completed local write", async () => {
+    vi.useFakeTimers();
+    const { store, storage } = setup();
+    const write = vi.spyOn(storage, "setItem");
+    const project = store.create(defaultDesign());
+    const created = store.getSnapshot().saveStatus;
+    write.mockClear();
+
+    expect(created.state).toBe("saved");
+    store.update(project.id, { ...project.design, name: "Updated" });
+    store.update(project.id, {
+      ...store.find(project.id)!.design,
+      name: "Updated again",
+    });
+    expect(store.getSnapshot().saveStatus.state).toBe("pending");
+    expect(write).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(LOCAL_SAVE_DELAY_MS);
+
+    expect(write).toHaveBeenCalledTimes(1);
+    expect(store.getSnapshot().saveStatus.state).toBe("saved");
+    expect(store.getSnapshot().saveStatus.revision).toBe(created.revision + 2);
+  });
+  it("keeps a queued local edit authoritative during storage sync", () => {
+    const { data, store } = setup();
+    const project = store.create(defaultDesign());
+    store.update(project.id, { ...project.design, name: "Local edit" });
+    data.set(LIBRARY_KEY, "[]");
+
+    store.load();
+
+    expect(store.find(project.id)?.design.name).toBe("Local edit");
+    store.flush();
+    expect(JSON.parse(data.get(LIBRARY_KEY)!)[0].design.name).toBe("Local edit");
   });
   it("copies every preset without modifying the original", () => {
     const { store } = setup();
@@ -40,6 +84,7 @@ describe("local design library", () => {
       expect(store.find(project.id)?.presetSlug).toBe(preset.slug);
       expect(store.find(project.id)?.initialDesign).toEqual(preset.design);
     }
+    store.flush();
   });
   it("keeps the exact initial design after edits and reloads", () => {
     const { store, storage } = setup();
@@ -59,6 +104,7 @@ describe("local design library", () => {
     };
 
     store.update(project.id, edited);
+    store.flush();
 
     const saved = new LibraryStore(() => storage).find(project.id)!;
     expect(saved.design).toEqual(validateDesign(edited));
@@ -93,8 +139,9 @@ describe("local design library", () => {
       throw new Error("quota");
     };
     store.update(a.id, { ...a.design, name: "Unsaved" });
+    store.flush();
     expect(store.find(a.id)?.design.name).toBe("Unsaved");
-    expect(store.getSnapshot().saved).toContain("unavailable");
+    expect(store.getSnapshot().saveStatus.state).toBe("error");
   });
   it("does not overwrite corrupt stored data", () => {
     const { store, data } = setup();
@@ -122,6 +169,7 @@ it("promotes a draft on its first real edit using the same ID", () => {
   const { store, storage } = setup();
   store.openDraft("draft", presets[0].design, presets[0].slug);
   store.update("draft", { ...presets[0].design, name: "First edit" });
+  store.flush();
   expect(store.getSnapshot().drafts).toEqual([]);
   expect(store.getSnapshot().projects).toHaveLength(1);
   const persisted = new LibraryStore(() => storage).find("draft");
@@ -143,6 +191,7 @@ it("stores global selection separately and attaches a fixed watch to each projec
   store.openDraft("new-draft", defaultDesign());
   expect(store.find("new-draft")?.selectedWatch).toBe("fr970");
   store.update("new-draft", { ...defaultDesign(), name: "Edited draft" });
+  store.flush();
   expect(JSON.parse(data.get(LIBRARY_KEY)!)[1].selectedWatch).toBe("fr970");
 });
 it("rejects old library envelopes and records missing required project state", () => {
@@ -211,6 +260,7 @@ it("saves downloaded drafts and preserves created and edited dates on repeat dow
     new LibraryStore(() => storage).find(saved.id)?.downloadedAt,
   ).toBeTruthy();
   store.update(saved.id, { ...saved.design, name: "Changed after download" });
+  store.flush();
   expect(store.find(saved.id)?.downloadedAt).toBeTruthy();
 });
 
