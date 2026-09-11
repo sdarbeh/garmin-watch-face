@@ -1,13 +1,13 @@
 import { expect, it } from "vitest";
-import { chartLines, sampleHistory } from "../../../src/watchface/charts";
+import { chartLines, sampleHistory } from "@/watchface/charts";
 import {
   createElement,
   defaultDesign,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { generateProject } from "../../../src/watchface/generator";
-import { graphicLines } from "../../../src/watchface/graphics";
-import { renderModel, SAMPLE_DATA } from "../../../src/watchface/render-model";
+} from "@/watchface/schema";
+import { generateProject } from "@/watchface/generator";
+import { graphicLines } from "@/watchface/graphics";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 it("preserves gaps without connecting across missing readings", () => {
   const lines = chartLines([60, 70, null, 80, 90], 100, 100, 100, 50, false);
   expect(lines).toHaveLength(2);

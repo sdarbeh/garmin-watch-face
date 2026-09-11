@@ -1,12 +1,12 @@
 import { expect, it } from "vitest";
-import { devices } from "../../../src/devices/catalog";
+import { devices } from "@/devices/catalog";
 import {
   defaultDesign,
   designForDevice,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { generateProject } from "../../../src/watchface/generator";
-import { presets } from "../../../src/presets/catalog";
+} from "@/watchface/schema";
+import { generateProject } from "@/watchface/generator";
+import { presets } from "@/presets/catalog";
 
 it("targets each supported watch and preserves every preset layout", () => {
   expect(devices).toHaveLength(4);

@@ -4,20 +4,20 @@ import {
   defaultDesign,
   presentation,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { renderModel } from "../../../src/watchface/render-model";
-import { FONT_SIZES } from "../../../src/watchface/fonts";
+} from "@/watchface/schema";
+import { renderModel } from "@/watchface/render-model";
+import { FONT_SIZES } from "@/watchface/fonts";
 import {
   RESIZE_CORNERS,
   cornerPoint,
   resizeLayer,
-} from "../../../src/components/editor/model/resize";
+} from "@/components/editor/model/resize";
 import {
   resizeLayers,
   selectionCornerPoint,
-} from "../../../src/components/editor/model/group-resize";
-import { selectionBounds } from "../../../src/components/editor/model/selection";
-import { DesignHistory } from "../../../src/components/editor/model/history";
+} from "@/components/editor/model/group-resize";
+import { selectionBounds } from "@/components/editor/model/selection";
+import { DesignHistory } from "@/components/editor/model/history";
 function graphic(type: "shape" | "image" = "shape") {
   const design = defaultDesign();
   const element = createElement(type, "resizable");

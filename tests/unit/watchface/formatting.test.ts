@@ -4,15 +4,12 @@ import {
   defaultDesign,
   presentation,
   validateDesign,
-} from "../../../src/watchface/schema";
-import {
-  defaultFormat,
-  formattedValue,
-} from "../../../src/watchface/formatting";
-import { renderModel } from "../../../src/watchface/render-model";
-import { generateProject } from "../../../src/watchface/generator";
-import { graphicLines } from "../../../src/watchface/graphics";
-import { weatherIcon } from "../../../src/watchface/weather";
+} from "@/watchface/schema";
+import { defaultFormat, formattedValue } from "@/watchface/formatting";
+import { renderModel } from "@/watchface/render-model";
+import { generateProject } from "@/watchface/generator";
+import { graphicLines } from "@/watchface/graphics";
+import { weatherIcon } from "@/watchface/weather";
 
 it("converts temperatures, distance and wind with precision and custom text", () => {
   const f = {

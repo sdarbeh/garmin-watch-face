@@ -13,6 +13,7 @@ import {
   type EditorSelection,
 } from "./types";
 import { LayerListRow } from "./LayerListRow";
+import { matchesLayerQuery, searchLayerTypes } from "./model/layer-search";
 
 export function EditorLayers({
   selected,
@@ -33,20 +34,20 @@ export function EditorLayers({
 }) {
   const supported = supportedLayers(getDeviceById(design.device)!);
   const [adding, setAdding] = useState(false);
-  const [query, setQuery] = useState("");
+  const [layerQuery, setLayerQuery] = useState("");
+  const [addQuery, setAddQuery] = useState("");
   const [draggedIds, setDraggedIds] = useState<string[]>([]);
   const [dropTarget, setDropTarget] = useState<{
     id: string;
     placement: "above" | "below";
   } | null>(null);
-  const normalizedQuery = query.trim().toLowerCase();
   const visibleLayers = [...design.elements].reverse().filter((element) => {
-    if (!normalizedQuery) return true;
-    return [layerLabel(element), defaultLayerLabel(element), element.type]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery);
+    return matchesLayerQuery(element.type, layerQuery, [
+      layerLabel(element),
+      defaultLayerLabel(element),
+    ]);
   });
+  const addableLayers = searchLayerTypes(supported, addQuery);
   return (
     <aside className="watchface-layers" aria-label="Layers">
       <div
@@ -68,7 +69,10 @@ export function EditorLayers({
           size="sm"
           active={!adding}
           aria-pressed={!adding}
-          onClick={() => setAdding(false)}
+          onClick={() => {
+            setAdding(false);
+            setAddQuery("");
+          }}
         >
           Layers
         </Button>
@@ -76,7 +80,18 @@ export function EditorLayers({
       <div className="watchface-layer-list">
         {adding ? (
           <div className="u-grid gap2" role="group" aria-label="Add element">
-            {supported.map((type, index) => (
+            <label className="ui-search watchface-layer-search">
+              <span className="u-sr-only">Search elements to add</span>
+              <SearchIcon size="sm" />
+              <input
+                type="search"
+                autoFocus
+                placeholder="Search elements"
+                value={addQuery}
+                onChange={(event) => setAddQuery(event.target.value)}
+              />
+            </label>
+            {addableLayers.map((type, index) => (
               <Fragment key={type}>
                 <Button
                   className="watchface-layer"
@@ -84,17 +99,23 @@ export function EditorLayers({
                   disabled={!ready || design.elements.length >= MAX_ELEMENTS}
                   onClick={() => {
                     onCommand({ type: "layer.add", layerType: type });
+                    setAddQuery("");
                     setAdding(false);
                   }}
                 >
                   <LayerIcon type={type} size="sm" />
                   {LAYER_LABELS[type]}
                 </Button>
-                {index < supported.length - 1 && (
+                {index < addableLayers.length - 1 && (
                   <div className="watchface-layer-divider" aria-hidden="true" />
                 )}
               </Fragment>
             ))}
+            {addableLayers.length === 0 && (
+              <p className="u-font-xs u-text-secondary p2" role="status">
+                No elements match “{addQuery}”.
+              </p>
+            )}
             {design.elements.length >= MAX_ELEMENTS && (
               <p className="u-font-xs u-text-secondary">
                 Maximum of {MAX_ELEMENTS} elements reached.
@@ -109,8 +130,8 @@ export function EditorLayers({
               <input
                 type="search"
                 placeholder="Search layers"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                value={layerQuery}
+                onChange={(event) => setLayerQuery(event.target.value)}
               />
             </label>
             {visibleLayers.map((item) => {
@@ -157,7 +178,7 @@ export function EditorLayers({
             })}
             {visibleLayers.length === 0 && (
               <p className="u-font-xs u-text-secondary p2" role="status">
-                No layers match “{query}”.
+                No layers match “{layerQuery}”.
               </p>
             )}
             <Button

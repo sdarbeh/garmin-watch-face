@@ -4,15 +4,11 @@ import {
   parseProject,
   serializeProject,
   validateDesign,
-} from "../../../src/watchface/schema";
-import {
-  fontMetrics,
-  textWidth,
-  fontDescriptor,
-} from "../../../src/watchface/fonts";
-import { renderModel } from "../../../src/watchface/render-model";
-import { generateProject, usedFonts } from "../../../src/watchface/generator";
-import { elementBounds } from "../../../src/components/editor/model/geometry";
+} from "@/watchface/schema";
+import { fontMetrics, textWidth, fontDescriptor } from "@/watchface/fonts";
+import { renderModel } from "@/watchface/render-model";
+import { generateProject, usedFonts } from "@/watchface/generator";
+import { elementBounds } from "@/components/editor/model/geometry";
 
 it("round trips typography and rejects unsupported combinations", () => {
   const design = defaultDesign();

@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
-import { presets, getPreset } from "../../../src/presets/catalog";
-import { renderModel, SAMPLE_DATA } from "../../../src/watchface/render-model";
-import { presentation } from "../../../src/watchface/schema";
-import { isGraphic } from "../../../src/watchface/layer-catalog";
-import { elementBounds } from "../../../src/components/editor/model/geometry";
+import { presets, getPreset } from "@/presets/catalog";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
+import { presentation } from "@/watchface/schema";
+import { isGraphic } from "@/watchface/layer-catalog";
+import { elementBounds } from "@/components/editor/model/geometry";
 
 function inkBounds(e: ReturnType<typeof renderModel>[number]) {
   let advance = 0;

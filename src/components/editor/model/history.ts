@@ -1,4 +1,4 @@
-import { serializeProject, type Design } from "../../../watchface/schema";
+import { serializeProject, type Design } from "@/watchface/schema";
 
 /** History contains designs only; a transaction groups a continuous interaction. */
 export class DesignHistory {

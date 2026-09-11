@@ -6,12 +6,12 @@ import {
   parseProject,
   serializeProject,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { renderModel } from "../../../src/watchface/render-model";
-import { generateProject } from "../../../src/watchface/generator";
-import { usedImages } from "../../../src/watchface/garmin-layers";
-import { elementBounds } from "../../../src/components/editor/model/geometry";
-import { METRICS } from "../../../src/watchface/layer-catalog";
+} from "@/watchface/schema";
+import { renderModel } from "@/watchface/render-model";
+import { generateProject } from "@/watchface/generator";
+import { usedImages } from "@/watchface/garmin-layers";
+import { elementBounds } from "@/components/editor/model/geometry";
+import { METRICS } from "@/watchface/layer-catalog";
 const png =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==";
 it("round trips every metric and generates real bindings with missing-data handling", () => {

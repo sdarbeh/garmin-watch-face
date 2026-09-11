@@ -1,11 +1,7 @@
-import { FONT_SIZES, TEXT_PLACEMENT } from "../../../watchface/fonts";
-import { isGraphic } from "../../../watchface/layer-catalog";
-import {
-  presentation,
-  type Design,
-  type ElementId,
-} from "../../../watchface/schema";
-import { renderModel, SAMPLE_DATA } from "../../../watchface/render-model";
+import { FONT_SIZES, TEXT_PLACEMENT } from "@/watchface/fonts";
+import { isGraphic } from "@/watchface/layer-catalog";
+import { presentation, type Design, type ElementId } from "@/watchface/schema";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 import { clampPosition, elementBounds } from "./geometry";
 import { RESIZE_CORNERS, type ResizeCorner } from "./resize";
 import { selectionBounds, type SelectionRect } from "./selection";

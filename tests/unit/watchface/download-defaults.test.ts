@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
-import { defaultDesign, validateDesign } from "../../../src/watchface/schema";
-import { downloadFilename } from "../../../src/watchface/download-filename";
-import { presets } from "../../../src/presets/catalog";
+import { defaultDesign, validateDesign } from "@/watchface/schema";
+import { downloadFilename } from "@/watchface/download-filename";
+import { presets } from "@/presets/catalog";
 
 it("names files by project, device, and timestamp", () => {
   expect(

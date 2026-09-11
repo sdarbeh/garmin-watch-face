@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import { powerLayout } from "../../../watchface/power";
-import type { Design, ElementId } from "../../../watchface/schema";
+import { powerLayout } from "@/watchface/power";
+import type { Design, ElementId } from "@/watchface/schema";
 import type { DisplayMode } from "../model/simulation";
 import type { EditorSelection } from "../types";
 import {

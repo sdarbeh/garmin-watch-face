@@ -5,14 +5,14 @@ import {
   parseProject,
   serializeProject,
   validateDesign,
-} from "../../../src/watchface/schema";
+} from "@/watchface/schema";
 import {
   isNightActive,
   powerLayout,
   resolvePowerMode,
   updateModeLayout,
-} from "../../../src/watchface/power";
-import { generateProject, usedFonts } from "../../../src/watchface/generator";
+} from "@/watchface/power";
+import { generateProject, usedFonts } from "@/watchface/generator";
 
 const design = () => ({
   ...defaultDesign(),

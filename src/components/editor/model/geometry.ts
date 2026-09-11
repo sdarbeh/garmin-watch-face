@@ -1,8 +1,8 @@
-import { isGraphic } from "../../../watchface/layer-catalog";
-import { presentation } from "../../../watchface/schema";
-import { textWidth, TEXT_PLACEMENT } from "../../../watchface/fonts";
-import { renderModel, SAMPLE_DATA } from "../../../watchface/render-model";
-import type { Design, ElementId } from "../../../watchface/schema";
+import { isGraphic } from "@/watchface/layer-catalog";
+import { presentation } from "@/watchface/schema";
+import { textWidth, TEXT_PLACEMENT } from "@/watchface/fonts";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
+import type { Design, ElementId } from "@/watchface/schema";
 export const clampPosition = (value: number) =>
   Math.max(50, Math.min(404, Math.round(value)));
 export function elementBounds(element: ReturnType<typeof renderModel>[number]) {

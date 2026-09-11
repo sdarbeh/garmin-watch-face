@@ -2,7 +2,7 @@ import {
   powerLayout,
   updateModeLayout,
   type PowerMode,
-} from "../../../watchface/power";
+} from "@/watchface/power";
 import {
   validateDesign,
   MAX_ELEMENTS,
@@ -10,7 +10,7 @@ import {
   type ElementId,
   type ElementType,
   type FaceElement,
-} from "../../../watchface/schema";
+} from "@/watchface/schema";
 import type { EditorPoint, EditorSelection } from "../types";
 import { moveElement, moveElementsBy } from "./geometry";
 import {

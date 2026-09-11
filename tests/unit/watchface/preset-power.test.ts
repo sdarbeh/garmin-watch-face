@@ -1,10 +1,10 @@
 import { expect, it } from "vitest";
-import { presets, featuredPresets } from "../../../src/presets/catalog";
-import { getDeviceById } from "../../../src/devices/catalog";
-import { parseProject, serializeProject } from "../../../src/watchface/schema";
-import { powerLayout, updateModeLayout } from "../../../src/watchface/power";
-import { renderModel } from "../../../src/watchface/render-model";
-import { elementBounds } from "../../../src/components/editor/model/geometry";
+import { presets, featuredPresets } from "@/presets/catalog";
+import { getDeviceById } from "@/devices/catalog";
+import { parseProject, serializeProject } from "@/watchface/schema";
+import { powerLayout, updateModeLayout } from "@/watchface/power";
+import { renderModel } from "@/watchface/render-model";
+import { elementBounds } from "@/components/editor/model/geometry";
 
 it("ships explicit, portable power layouts for all presets and featured entries", () => {
   for (const { design } of [...presets, ...featuredPresets]) {

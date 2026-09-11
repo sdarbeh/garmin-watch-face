@@ -1,4 +1,4 @@
-import type { FaceElement } from "../../../watchface/schema";
+import type { FaceElement } from "@/watchface/schema";
 import type { EditorPoint } from "../types";
 
 const CANVAS_MIN = 50;

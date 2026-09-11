@@ -5,9 +5,9 @@ import {
   DEFAULT_SIMULATION,
   shiftDate,
   shiftTime,
-} from "../../../src/components/editor/model/simulation";
-import { renderModel } from "../../../src/watchface/render-model";
-import { defaultDesign, serializeProject } from "../../../src/watchface/schema";
+} from "@/components/editor/model/simulation";
+import { renderModel } from "@/watchface/render-model";
+import { defaultDesign, serializeProject } from "@/watchface/schema";
 it("wraps simulated time across midnight", () => {
   expect(shiftTime("23:55", 15)).toBe("00:10");
   expect(shiftTime("00:05", -15)).toBe("23:50");

@@ -1,7 +1,7 @@
-import { FONT_SIZES, TEXT_PLACEMENT } from "../../../watchface/fonts";
-import { isGraphic } from "../../../watchface/layer-catalog";
-import { presentation, type Design } from "../../../watchface/schema";
-import { renderModel, SAMPLE_DATA } from "../../../watchface/render-model";
+import { FONT_SIZES, TEXT_PLACEMENT } from "@/watchface/fonts";
+import { isGraphic } from "@/watchface/layer-catalog";
+import { presentation, type Design } from "@/watchface/schema";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 import { clampPosition, elementBounds } from "./geometry";
 
 export const RESIZE_CORNERS = ["nw", "ne", "se", "sw"] as const;

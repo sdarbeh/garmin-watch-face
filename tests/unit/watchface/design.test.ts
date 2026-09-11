@@ -4,9 +4,9 @@ import {
   parseProject,
   serializeProject,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { generateProject } from "../../../src/watchface/generator";
-import { renderModel } from "../../../src/watchface/render-model";
+} from "@/watchface/schema";
+import { generateProject } from "@/watchface/generator";
+import { renderModel } from "@/watchface/render-model";
 import {
   BuildQueue,
   preflight,

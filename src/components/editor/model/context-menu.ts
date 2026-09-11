@@ -1,4 +1,4 @@
-import { MAX_ELEMENTS, type Design } from "../../../watchface/schema";
+import { MAX_ELEMENTS, type Design } from "@/watchface/schema";
 import type { EditorPoint, EditorSelection } from "../types";
 import type { EditorAction } from "./shortcuts";
 import { layerSelectionState } from "./selection";

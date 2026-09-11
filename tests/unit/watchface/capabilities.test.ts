@@ -1,13 +1,13 @@
 import { expect, it } from "vitest";
-import { devices } from "../../../src/devices/catalog";
+import { devices } from "@/devices/catalog";
 import {
   supportedLayers,
   supportedMetrics,
   supportsLayer,
   supportsMode,
-} from "../../../src/watchface/capabilities";
-import { dataPermissions } from "../../../src/watchface/data-sources";
-import { getPreset } from "../../../src/presets/catalog";
+} from "@/watchface/capabilities";
+import { dataPermissions } from "@/watchface/data-sources";
+import { getPreset } from "@/presets/catalog";
 
 it("filters layer and progress-source menus through the same device profile", () => {
   const device = {

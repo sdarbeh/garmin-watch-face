@@ -1,14 +1,11 @@
 import { expect, it } from "vitest";
-import { getPreset } from "../../../src/presets/catalog";
-import { generateProject } from "../../../src/watchface/generator";
-import {
-  renderModel,
-  layoutWarnings,
-} from "../../../src/watchface/render-model";
+import { getPreset } from "@/presets/catalog";
+import { generateProject } from "@/watchface/generator";
+import { renderModel, layoutWarnings } from "@/watchface/render-model";
 import {
   simulationValues,
   DEFAULT_SIMULATION,
-} from "../../../src/components/editor/model/simulation";
+} from "@/components/editor/model/simulation";
 
 it("renders and generates the full simulated date including the year", () => {
   const design = getPreset("dot-matrix")!.design;

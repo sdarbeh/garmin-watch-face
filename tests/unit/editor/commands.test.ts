@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { executeEditorCommand } from "../../../src/components/editor/model/commands";
-import { defaultDesign, validateDesign } from "../../../src/watchface/schema";
+import { executeEditorCommand } from "@/components/editor/model/commands";
+import { defaultDesign, validateDesign } from "@/watchface/schema";
 
 const id = (value: string) => () => value;
 

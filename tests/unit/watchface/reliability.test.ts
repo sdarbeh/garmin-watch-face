@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createThemeStore } from "../../../src/providers/theme-store";
+import { createThemeStore } from "@/providers/theme-store";
 import { readProjectBody } from "../../../services/watchface/request-body";
 
 afterEach(() => vi.useRealTimers());

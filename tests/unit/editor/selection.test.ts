@@ -7,8 +7,8 @@ import {
   resolveModeSelection,
   selectionBounds,
   selectionRect,
-} from "../../../src/components/editor/model/selection";
-import { createElement, defaultDesign } from "../../../src/watchface/schema";
+} from "@/components/editor/model/selection";
+import { createElement, defaultDesign } from "@/watchface/schema";
 
 describe("marquee selection", () => {
   it("resolves shared group state once for every editor surface", () => {

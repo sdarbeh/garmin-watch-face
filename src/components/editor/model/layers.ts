@@ -1,11 +1,11 @@
-import { defaultMetricRules } from "../../../watchface/default-rules";
-import type { PowerMode } from "../../../watchface/power";
+import { defaultMetricRules } from "@/watchface/default-rules";
+import type { PowerMode } from "@/watchface/power";
 import {
   createElement,
   MAX_ELEMENTS,
   type Design,
   type ElementType,
-} from "../../../watchface/schema";
+} from "@/watchface/schema";
 import { clampPosition } from "./geometry";
 
 const DUPLICATE_OFFSET = 12;

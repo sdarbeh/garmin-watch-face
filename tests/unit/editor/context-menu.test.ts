@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { editorContextItems } from "../../../src/components/editor/model/context-menu";
-import { defaultDesign, MAX_ELEMENTS } from "../../../src/watchface/schema";
+import { editorContextItems } from "@/components/editor/model/context-menu";
+import { defaultDesign, MAX_ELEMENTS } from "@/watchface/schema";
 
 describe("editor context menu", () => {
   it("offers paste on the canvas background only when clipboard space exists", () => {

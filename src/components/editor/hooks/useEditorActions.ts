@@ -3,9 +3,9 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { browserLibrary } from "../../../library/store";
-import { powerLayout, type PowerMode } from "../../../watchface/power";
-import { MAX_ELEMENTS, type FaceElement } from "../../../watchface/schema";
+import { browserLibrary } from "@/library/store";
+import { powerLayout, type PowerMode } from "@/watchface/power";
+import { MAX_ELEMENTS, type FaceElement } from "@/watchface/schema";
 import type { DispatchEditorCommand } from "../model/commands";
 import { nextPastePosition } from "../model/clipboard";
 import {

@@ -2,15 +2,15 @@ import { expect, it } from "vitest";
 import {
   complicationSample,
   supportsComplication,
-} from "../../../src/watchface/complications";
+} from "@/watchface/complications";
 import {
   createElement,
   defaultDesign,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { renderModel, SAMPLE_DATA } from "../../../src/watchface/render-model";
-import { generateProject } from "../../../src/watchface/generator";
-import { complicationSources } from "../../../src/watchface/complication-runtime";
+} from "@/watchface/schema";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
+import { generateProject } from "@/watchface/generator";
+import { complicationSources } from "@/watchface/complication-runtime";
 const layer = createElement("complication", "comp");
 const design = { ...defaultDesign(), elements: [layer] };
 it("converts documented Garmin units and preserves unavailable readings", () => {

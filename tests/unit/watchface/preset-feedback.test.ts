@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
-import { getPreset } from "../../../src/presets/catalog";
-import { ruleAppearance } from "../../../src/watchface/rules";
-import { SAMPLE_DATA } from "../../../src/watchface/render-model";
+import { getPreset } from "@/presets/catalog";
+import { ruleAppearance } from "@/watchface/rules";
+import { SAMPLE_DATA } from "@/watchface/render-model";
 it("uses progressively stronger stress feedback and keeps night colors muted", () => {
   const d = getPreset("wellness")!.design;
   const stress = d.elements.find((e) => e.type === "stress")!;

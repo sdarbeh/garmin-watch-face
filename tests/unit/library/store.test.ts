@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
-import {
-  LibraryStore,
-  LIBRARY_KEY,
-  SELECTED_WATCH_KEY,
-} from "../../../src/library/store";
+import { LibraryStore, LIBRARY_KEY, SELECTED_WATCH_KEY } from "@/library/store";
 import {
   defaultDesign,
   serializeProject,
   parseProject,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { presets } from "../../../src/presets/catalog";
+} from "@/watchface/schema";
+import { presets } from "@/presets/catalog";
 function setup() {
   const data = new Map<string, string>();
   const storage = {

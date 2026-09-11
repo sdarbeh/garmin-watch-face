@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { GripIcon, LayerIcon, LockIcon, VisibilityIcon } from "@/icons";
+import { LayerIcon, LockIcon, VisibilityIcon } from "@/icons";
 import type { FaceElement } from "@/watchface/schema";
 import type { DispatchEditorCommand } from "./model/commands";
 import type { EditorContextRequest } from "./model/context-menu";
-import { defaultLayerLabel, layerLabel } from "./types";
+import { layerLabel } from "./types";
 
 interface DropTarget {
   id: string;
@@ -41,12 +41,15 @@ export function LayerListRow({
 }) {
   const selected = selectedIds.includes(item.id);
   const dragIds = selected ? selectedIds : [item.id];
-  const customName = Boolean(item.name?.trim());
 
   return (
     <div
       className="watchface-layer-row"
       data-selected={selected}
+      data-visible={item.visible}
+      data-locked={item.locked}
+      data-draggable={!dragDisabled}
+      data-dragging={draggedIds.includes(item.id)}
       data-drop={dropTarget?.id === item.id ? dropTarget.placement : undefined}
       onDragOver={(event) => {
         if (!draggedIds.length || draggedIds.includes(item.id)) return;
@@ -77,29 +80,10 @@ export function LayerListRow({
         className="watchface-layer-select"
         title={layerLabel(item)}
         aria-pressed={selected}
+        draggable={!dragDisabled}
         onClick={(event) =>
           onSelect(item.id, event.shiftKey || event.metaKey || event.ctrlKey)
         }
-      >
-        <LayerIcon type={item.type} size="sm" />
-        <span className="watchface-layer-copy">
-          <span>{layerLabel(item)}</span>
-          <small>
-            {customName ? `${defaultLayerLabel(item)} · ` : ""}X {item.x} · Y{" "}
-            {item.y}
-          </small>
-        </span>
-      </Button>
-      <span
-        className="watchface-layer-grip"
-        data-disabled={dragDisabled}
-        draggable={!dragDisabled}
-        title={
-          dragDisabled
-            ? "Unlock the selected layers to reorder"
-            : "Drag to reorder"
-        }
-        aria-hidden="true"
         onDragStart={(event) => {
           if (dragDisabled) {
             event.preventDefault();
@@ -112,12 +96,14 @@ export function LayerListRow({
         }}
         onDragEnd={onDragEnd}
       >
-        <GripIcon size="sm" />
-      </span>
+        <LayerIcon type={item.type} size="sm" />
+        <span className="watchface-layer-copy">{layerLabel(item)}</span>
+      </Button>
       <Button
         variant="ghost"
         size="xs"
         iconOnly
+        className="watchface-layer-action watchface-layer-action--visibility"
         disabled={!ready || item.locked}
         aria-label={`${item.visible ? "Hide" : "Show"} ${layerLabel(item)}`}
         aria-pressed={!item.visible}
@@ -131,6 +117,7 @@ export function LayerListRow({
         variant="ghost"
         size="xs"
         iconOnly
+        className="watchface-layer-action watchface-layer-action--lock"
         disabled={!ready}
         aria-label={`${item.locked ? "Unlock" : "Lock"} ${layerLabel(item)}`}
         aria-pressed={item.locked}

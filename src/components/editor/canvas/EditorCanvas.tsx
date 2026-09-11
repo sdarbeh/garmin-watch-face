@@ -25,6 +25,7 @@ import {
   type SelectionRect,
 } from "../model/selection";
 import type { useDesignHistory } from "../hooks/useDesignHistory";
+import { useCanvasFit } from "../hooks/useCanvasFit";
 
 import {
   simulationValues,
@@ -99,7 +100,8 @@ export function EditorCanvas({
   const space = useRef(false);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [marqueeRect, setMarqueeRect] = useState<SelectionRect | null>(null);
-  const pixels = (device.frame.presentationWidth * zoom) / 100;
+  const fittedWidth = useCanvasFit(viewport, device.frame);
+  const pixels = (fittedWidth * zoom) / 100;
   const scale = pixels / device.frame.width;
   const samples = simulationValues(simulation, displayMode);
   useLayoutEffect(() => {
@@ -110,7 +112,7 @@ export function EditorCanvas({
       0,
       (stage.scrollHeight - stage.clientHeight) / 2,
     );
-  }, [zoom, preview]);
+  }, [fittedWidth, zoom, preview]);
   function point(clientX: number, clientY: number) {
     const matrix = svg.current?.getScreenCTM();
     if (!matrix) return null;

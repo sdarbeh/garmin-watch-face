@@ -1,20 +1,16 @@
 import { expect, it } from "vitest";
-import {
-  chartLines,
-  sampleHistory,
-  CHART_SOURCES,
-} from "../../../src/watchface/charts";
+import { chartLines, sampleHistory, CHART_SOURCES } from "@/watchface/charts";
 import {
   createElement,
   defaultDesign,
   presentation,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { generateProject } from "../../../src/watchface/generator";
-import { renderModel, SAMPLE_DATA } from "../../../src/watchface/render-model";
-import { supportedMetrics } from "../../../src/watchface/capabilities";
-import { devices } from "../../../src/devices/catalog";
-import { estimateAodLuminance } from "../../../src/watchface/aod";
+} from "@/watchface/schema";
+import { generateProject } from "@/watchface/generator";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
+import { supportedMetrics } from "@/watchface/capabilities";
+import { devices } from "@/devices/catalog";
+import { estimateAodLuminance } from "@/watchface/aod";
 it("shares canonical values between complication formatting, rules and progress", () => {
   const e = createElement("runDistance", "distance");
   e.formatting = { units: "imperial", decimals: 1, prefix: "", suffix: "" };

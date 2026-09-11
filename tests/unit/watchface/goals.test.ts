@@ -1,18 +1,15 @@
 import { expect, it } from "vitest";
-import { matchesRule, ruleAppearance } from "../../../src/watchface/rules";
-import { defaultMetricRules } from "../../../src/watchface/default-rules";
+import { matchesRule, ruleAppearance } from "@/watchface/rules";
+import { defaultMetricRules } from "@/watchface/default-rules";
 import {
   defaultDesign,
   createElement,
   validateDesign,
-} from "../../../src/watchface/schema";
-import { generateProject } from "../../../src/watchface/generator";
-import { SAMPLE_DATA } from "../../../src/watchface/render-model";
-import {
-  addLayer,
-  duplicateLayer,
-} from "../../../src/components/editor/model/layers";
-import { withMetricFeedback } from "../../../src/presets/feedback";
+} from "@/watchface/schema";
+import { generateProject } from "@/watchface/generator";
+import { SAMPLE_DATA } from "@/watchface/render-model";
+import { addLayer, duplicateLayer } from "@/components/editor/model/layers";
+import { withMetricFeedback } from "@/presets/feedback";
 it("compares to the user's current goal and ignores missing or invalid goals", () => {
   const rule = defaultMetricRules("steps")[0];
   expect(matchesRule(rule, 8000, 8000)).toBe(true);

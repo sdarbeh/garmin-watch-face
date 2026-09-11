@@ -2,9 +2,9 @@ import { expect, it } from "vitest";
 import {
   NewDesignSession,
   newDesignSource,
-} from "../../../src/library/new-design-session";
-import { LibraryStore } from "../../../src/library/store";
-import { defaultDesign } from "../../../src/watchface/schema";
+} from "@/library/new-design-session";
+import { LibraryStore } from "@/library/store";
+import { defaultDesign } from "@/watchface/schema";
 function storage() {
   const data = new Map<string, string>();
   return {

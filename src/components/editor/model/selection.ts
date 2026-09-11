@@ -1,10 +1,10 @@
-import { renderModel, SAMPLE_DATA } from "../../../watchface/render-model";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 import type {
   Design,
   ElementId,
   ElementType,
   FaceElement,
-} from "../../../watchface/schema";
+} from "@/watchface/schema";
 import { elementBounds } from "./geometry";
 import type { EditorPoint, EditorSelection } from "../types";
 

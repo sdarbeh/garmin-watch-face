@@ -3,13 +3,10 @@ import {
   defaultDesign,
   createElement,
   validateDesign,
-} from "../../../src/watchface/schema";
-import {
-  ruleAppearance,
-  type AppearanceRule,
-} from "../../../src/watchface/rules";
-import { renderModel, SAMPLE_DATA } from "../../../src/watchface/render-model";
-import { generateProject } from "../../../src/watchface/generator";
+} from "@/watchface/schema";
+import { ruleAppearance, type AppearanceRule } from "@/watchface/rules";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
+import { generateProject } from "@/watchface/generator";
 const rule: AppearanceRule = {
   source: "battery",
   comparison: "lt",

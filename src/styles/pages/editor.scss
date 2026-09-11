@@ -1,8 +1,16 @@
 @use "../tokens";
 
 .watchface-studio {
-  --app-editor-columns: var(--app-layers-width) minmax(0, 1fr)
-    var(--app-inspector-width);
+  --app-editor-left-width: var(
+    --app-editor-left-width-custom,
+    var(--app-layers-width)
+  );
+  --app-editor-right-width: var(
+    --app-editor-right-width-custom,
+    var(--app-inspector-width)
+  );
+  --app-editor-columns: var(--app-editor-left-width) minmax(0, 1fr)
+    var(--app-editor-right-width);
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -16,18 +24,24 @@
   display: grid;
   grid-template-columns: var(--app-editor-columns);
 }
+.watchface-workspace:not([data-preview="true"]) > .watchface-layers {
+  grid-column: 1;
+  grid-row: 1;
+}
+.watchface-workspace:not([data-preview="true"]) > .watchface-preview {
+  grid-column: 2;
+  grid-row: 1;
+}
+.watchface-workspace:not([data-preview="true"]) > .watchface-customizer {
+  grid-column: 3;
+  grid-row: 1;
+}
 .watchface-workspace[data-preview="true"] {
   grid-template-columns: minmax(0, 1fr);
 }
 .watchface-editor-notice {
   border-bottom: var(--app-border-width) solid var(--app-color-border);
   background: var(--app-color-surface);
-}
-@media (max-width: tokens.$breakpoint-lg) {
-  .watchface-studio {
-    --app-editor-columns: var(--app-layers-width-compact) minmax(0, 1fr)
-      var(--app-panel-width-compact);
-  }
 }
 @media (max-width: tokens.$breakpoint-md) {
   .watchface-studio {
@@ -37,5 +51,11 @@
   }
   .watchface-workspace {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .watchface-workspace:not([data-preview="true"]) > .watchface-layers,
+  .watchface-workspace:not([data-preview="true"]) > .watchface-preview,
+  .watchface-workspace:not([data-preview="true"]) > .watchface-customizer {
+    grid-column: auto;
+    grid-row: auto;
   }
 }

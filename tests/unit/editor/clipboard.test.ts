@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextPastePosition } from "../../../src/components/editor/model/clipboard";
+import { nextPastePosition } from "@/components/editor/model/clipboard";
 
 describe("editor clipboard", () => {
   it("uses a visible 12 pixel offset when no canvas point is available", () => {

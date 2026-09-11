@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { compileWatchface } from "../../../src/components/editor/model/build-client";
+import { compileWatchface } from "@/components/editor/model/build-client";
 
 afterEach(() => {
   vi.useRealTimers();

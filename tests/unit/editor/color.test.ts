@@ -1,8 +1,5 @@
 import { expect, it } from "vitest";
-import {
-  hexToHsv,
-  hsvToHex,
-} from "../../../src/components/ui/color-picker/color";
+import { hexToHsv, hsvToHex } from "@/components/ui/color-picker/color";
 
 it("preserves exact RGB values when converting between hex and picker coordinates", () => {
   for (const color of [
@@ -29,7 +26,7 @@ it("maps spectrum corners and brightness endpoints to expected colors", () => {
 
 it("keeps recent colors valid, unique, newest-first and bounded", async () => {
   const { normalizeRecentColors } =
-    await import("../../../src/components/ui/color-picker/recent-colors");
+    await import("@/components/ui/color-picker/recent-colors");
   expect(
     normalizeRecentColors(["#abc123", "bad", null, "#ABC123", "#FFFFFF"]),
   ).toEqual(["#ABC123", "#FFFFFF"]);

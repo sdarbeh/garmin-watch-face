@@ -5,20 +5,20 @@ import {
   serializeProject,
   validateDesign,
   createElement,
-} from "../../../src/watchface/schema";
-import { generateProject } from "../../../src/watchface/generator";
-import { renderModel } from "../../../src/watchface/render-model";
+} from "@/watchface/schema";
+import { generateProject } from "@/watchface/generator";
+import { renderModel } from "@/watchface/render-model";
 import {
   addLayer,
   duplicateLayer,
   reorderLayer,
   reorderLayers,
   placeLayers,
-} from "../../../src/components/editor/model/layers";
+} from "@/components/editor/model/layers";
 import {
   moveElement,
   moveElementsBy,
-} from "../../../src/components/editor/model/geometry";
+} from "@/components/editor/model/geometry";
 
 it("round-trips repeated types, order, visibility, locks and literal text", () => {
   let d = duplicateLayer(defaultDesign(), "time", "second-time");

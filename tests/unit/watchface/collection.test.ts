@@ -1,17 +1,13 @@
-import { presentation } from "../../../src/watchface/schema";
+import { presentation } from "@/watchface/schema";
 import { expect, it } from "vitest";
-import {
-  presets,
-  featuredPresets,
-  getPreset,
-} from "../../../src/presets/catalog";
+import { presets, featuredPresets, getPreset } from "@/presets/catalog";
 import {
   renderModel,
   layoutWarnings,
   SAMPLE_DATA,
-} from "../../../src/watchface/render-model";
-import { generateProject } from "../../../src/watchface/generator";
-import { isGraphic } from "../../../src/watchface/layer-catalog";
+} from "@/watchface/render-model";
+import { generateProject } from "@/watchface/generator";
+import { isGraphic } from "@/watchface/layer-catalog";
 
 it("keeps the five featured faces and supplies ten distinct companion presets", () => {
   expect(featuredPresets.map((p) => p.slug)).toEqual([

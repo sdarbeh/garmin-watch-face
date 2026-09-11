@@ -1,20 +1,20 @@
 import { expect, it } from "vitest";
-import { analogLines, analogTime } from "../../../src/watchface/analog";
+import { analogLines, analogTime } from "@/watchface/analog";
 import {
   createElement,
   presentation,
   serializeProject,
   parseProject,
-} from "../../../src/watchface/schema";
-import { getPreset } from "../../../src/presets/catalog";
-import { powerLayout } from "../../../src/watchface/power";
+} from "@/watchface/schema";
+import { getPreset } from "@/presets/catalog";
+import { powerLayout } from "@/watchface/power";
 import {
   renderModel,
   SAMPLE_DATA,
   layoutWarnings,
-} from "../../../src/watchface/render-model";
-import { graphicLines } from "../../../src/watchface/graphics";
-import { generateProject } from "../../../src/watchface/generator";
+} from "@/watchface/render-model";
+import { graphicLines } from "@/watchface/graphics";
+import { generateProject } from "@/watchface/generator";
 it("rotates clockwise and advances the hour hand between hours", () => {
   const hand = analogTime(createElement("time", "hands"), 200);
   expect(analogLines(hand, "03:00")).toEqual([

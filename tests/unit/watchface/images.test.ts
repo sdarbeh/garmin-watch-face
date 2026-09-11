@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 import sharp from "sharp";
-import { validateImage, presentation } from "../../../src/watchface/schema";
-import { getPreset } from "../../../src/presets/catalog";
-import { usedImages } from "../../../src/watchface/garmin-layers";
-import { generateProject } from "../../../src/watchface/generator";
+import { validateImage, presentation } from "@/watchface/schema";
+import { getPreset } from "@/presets/catalog";
+import { usedImages } from "@/watchface/garmin-layers";
+import { generateProject } from "@/watchface/generator";
 
 it("accepts watch-resolution PNGs and rejects oversized dimensions and data", async () => {
   const image = async (width: number) =>
@@ -45,7 +45,9 @@ it("draws Panda's normal dial as primitives with a dark night dial", () => {
     true,
   );
   expect(design.elements.some((e) => e.type === "image")).toBe(false);
-  expect(design.layouts?.night?.elements.some((e) => e.type === "image")).toBe(true);
+  expect(design.layouts?.night?.elements.some((e) => e.type === "image")).toBe(
+    true,
+  );
   expect(Object.values(generateProject(design)).join("\n")).toContain(
     "dc.fillCircle(",
   );

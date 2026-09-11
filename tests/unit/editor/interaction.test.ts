@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { defaultDesign, validateDesign } from "../../../src/watchface/schema";
-import { DesignHistory } from "../../../src/components/editor/model/history";
+import { defaultDesign, validateDesign } from "@/watchface/schema";
+import { DesignHistory } from "@/components/editor/model/history";
 import {
   elementBounds,
   moveElement,
   snapPosition,
-} from "../../../src/components/editor/model/geometry";
-import { renderModel, SAMPLE_DATA } from "../../../src/watchface/render-model";
+} from "@/components/editor/model/geometry";
+import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 
 describe("design history", () => {
   it("groups an entire drag and restores coordinates with undo and redo", () => {

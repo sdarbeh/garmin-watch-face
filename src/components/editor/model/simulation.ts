@@ -1,11 +1,11 @@
-import type { StatusSource } from "../../../watchface/status-sources";
-import { SAMPLE_GOALS, type GoalSamples } from "../../../watchface/goals";
+import type { StatusSource } from "@/watchface/status-sources";
+import { SAMPLE_GOALS, type GoalSamples } from "@/watchface/goals";
 import type { ComplicationSamples } from "@/watchface/complications";
 import type { ChartPreview } from "@/watchface/charts";
-import { METRICS, type Metric } from "../../../watchface/layer-catalog";
-import { SAMPLE_DATA } from "../../../watchface/render-model";
-export type { PowerMode as DisplayMode } from "../../../watchface/power";
-import type { PowerMode as DisplayMode } from "../../../watchface/power";
+import { METRICS, type Metric } from "@/watchface/layer-catalog";
+import { SAMPLE_DATA } from "@/watchface/render-model";
+export type { PowerMode as DisplayMode } from "@/watchface/power";
+import type { PowerMode as DisplayMode } from "@/watchface/power";
 export type Simulation = Record<Metric, number> & {
   weatherCondition: number;
   weatherHumidity: number;

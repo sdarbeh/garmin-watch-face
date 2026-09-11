@@ -1,20 +1,20 @@
-import { DesignHistory } from "../../../src/components/editor/model/history";
-import { updateModeLayout } from "../../../src/watchface/power";
+import { DesignHistory } from "@/components/editor/model/history";
+import { updateModeLayout } from "@/watchface/power";
 import { expect, it } from "vitest";
-import { devices } from "../../../src/devices/catalog";
+import { devices } from "@/devices/catalog";
 import {
   defaultDesign,
   validateDesign,
   parseProject,
   serializeProject,
-} from "../../../src/watchface/schema";
+} from "@/watchface/schema";
 import {
   powerLayout,
   lowBatteryThreshold,
   resolvePowerMode,
-} from "../../../src/watchface/power";
-import { generateProject } from "../../../src/watchface/generator";
-import { estimateAodLuminance } from "../../../src/watchface/aod";
+} from "@/watchface/power";
+import { generateProject } from "@/watchface/generator";
+import { estimateAodLuminance } from "@/watchface/aod";
 it("keeps a restrained AOD fallback while allowing the full face", () => {
   const design = defaultDesign();
   const layout = powerLayout(design, "always-on");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editorShortcut } from "../../../src/components/editor/model/shortcuts";
+import { editorShortcut } from "@/components/editor/model/shortcuts";
 
 function key(
   value: string,

@@ -8,7 +8,7 @@ import {
 } from "@/watchface/power";
 import { getDeviceById } from "@/devices/catalog";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui";
 import { browserLibrary, type SavedDesign } from "@/library/store";
 import { useWatchfaceBuild } from "./hooks/useWatchfaceBuild";
@@ -35,6 +35,13 @@ import type { EditorSelection } from "./types";
 import { EditorContextMenu } from "./EditorContextMenu";
 import type { EditorContextRequest } from "./model/context-menu";
 import { useModeSelection } from "./hooks/useModeSelection";
+import {
+  EDITOR_RAILS,
+  EditorRailResizer,
+  type EditorRailSide,
+} from "./EditorRailResizer";
+
+type EditorRailWidths = Record<EditorRailSide, number>;
 
 export function EditorWorkspace({
   project,
@@ -130,6 +137,13 @@ export function EditorWorkspace({
 
   const [zoom, setZoom] = useState(100);
   const [preview, setPreview] = useState(false);
+  const [railWidths, setRailWidths] = useState<EditorRailWidths>({
+    left: EDITOR_RAILS.left.default,
+    right: EDITOR_RAILS.right.default,
+  });
+  const resizeRail = (side: EditorRailSide, width: number) => {
+    setRailWidths((current) => ({ ...current, [side]: width }));
+  };
   const canvasMode = preview
     ? resolvePowerMode(
         design,
@@ -155,6 +169,12 @@ export function EditorWorkspace({
   return (
     <section
       className="watchface-studio"
+      style={
+        {
+          "--app-editor-left-width-custom": `${railWidths.left}px`,
+          "--app-editor-right-width-custom": `${railWidths.right}px`,
+        } as CSSProperties
+      }
       aria-label="Watch face editor"
       onPointerDownCapture={() => setKeyboardGuides([])}
       onFocusCapture={(event) => {
@@ -289,16 +309,23 @@ export function EditorWorkspace({
       )}
       <div className="watchface-workspace" data-preview={preview}>
         {!preview && (
-          <EditorLayers
-            selected={selected}
-            selectedIds={selectedIds}
-            onSelect={selectLayer}
-            onOpenContextMenu={setContextMenu}
-            key={`layers-${displayMode}`}
-            design={activeDesign}
-            onCommand={dispatchCommand}
-            ready={ready}
-          />
+          <>
+            <EditorLayers
+              selected={selected}
+              selectedIds={selectedIds}
+              onSelect={selectLayer}
+              onOpenContextMenu={setContextMenu}
+              key={`layers-${displayMode}`}
+              design={activeDesign}
+              onCommand={dispatchCommand}
+              ready={ready}
+            />
+            <EditorRailResizer
+              side="left"
+              value={railWidths.left}
+              onChange={(width) => resizeRail("left", width)}
+            />
+          </>
         )}
         <EditorCanvas
           key={`canvas-${displayMode}`}
@@ -322,23 +349,30 @@ export function EditorWorkspace({
           }
         />
         {!preview && (
-          <EditorInspector
-            key={`inspector-${displayMode}`}
-            design={activeDesign}
-            simulation={simulation}
-            selectedIds={selectedIds}
-            onSimulationChange={setSimulation}
-            setDesign={setActiveDesign}
-            onCommand={dispatchCommand}
-            onReset={() =>
-              dispatchCommand({
-                type: "project.reset",
-                initialDesign: project.initialDesign,
-              })
-            }
-            mode={displayMode}
-            {...{ ready, selected }}
-          />
+          <>
+            <EditorRailResizer
+              side="right"
+              value={railWidths.right}
+              onChange={(width) => resizeRail("right", width)}
+            />
+            <EditorInspector
+              key={`inspector-${displayMode}`}
+              design={activeDesign}
+              simulation={simulation}
+              selectedIds={selectedIds}
+              onSimulationChange={setSimulation}
+              setDesign={setActiveDesign}
+              onCommand={dispatchCommand}
+              onReset={() =>
+                dispatchCommand({
+                  type: "project.reset",
+                  initialDesign: project.initialDesign,
+                })
+              }
+              mode={displayMode}
+              {...{ ready, selected }}
+            />
+          </>
         )}
       </div>
       <EditorFooter
