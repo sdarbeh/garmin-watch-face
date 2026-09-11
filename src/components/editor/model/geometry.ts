@@ -45,11 +45,13 @@ export function moveElementsBy(
 ): Design {
   const idsSet = new Set(ids);
   const requested = design.elements.filter((element) => idsSet.has(element.id));
-  if (requested.some((element) => element.locked)) return design;
-  const selected = design.elements.filter(
-    (element) => idsSet.has(element.id) && !element.locked && element.visible,
-  );
-  if (!selected.length) return design;
+  if (
+    !idsSet.size ||
+    requested.length !== idsSet.size ||
+    requested.some((element) => element.locked)
+  )
+    return design;
+  const selected = requested;
   const requestedX = Math.round(dx);
   const requestedY = Math.round(dy);
   const appliedX = Math.max(
@@ -66,11 +68,10 @@ export function moveElementsBy(
       requestedY,
     ),
   );
-  const selectedSet = new Set(selected.map((element) => element.id));
   return {
     ...design,
     elements: design.elements.map((element) =>
-      selectedSet.has(element.id)
+      idsSet.has(element.id)
         ? { ...element, x: element.x + appliedX, y: element.y + appliedY }
         : element,
     ),

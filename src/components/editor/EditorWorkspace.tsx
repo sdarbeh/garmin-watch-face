@@ -342,7 +342,7 @@ export function EditorWorkspace({
             key={`inspector-${displayMode}`}
             design={activeDesign}
             simulation={simulation}
-            selectionCount={selectedIds.length}
+            selectedIds={selectedIds}
             onSimulationChange={setSimulation}
             setDesign={setActiveDesign}
             onCommand={dispatchCommand}

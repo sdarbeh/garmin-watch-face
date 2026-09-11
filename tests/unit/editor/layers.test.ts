@@ -12,6 +12,7 @@ import {
   addLayer,
   duplicateLayer,
   reorderLayer,
+  reorderLayers,
 } from "../../../src/components/editor/model/layers";
 import {
   moveElement,
@@ -107,6 +108,22 @@ it("does not partially move a selection containing a locked layer", () => {
   };
 
   expect(moveElementsBy(locked, ids, 12, 12)).toEqual(locked);
+  expect(moveElementsBy(design, [ids[0], "missing"], 12, 12)).toEqual(design);
+});
+
+it("reorders a selected group while preserving its internal order", () => {
+  const design = defaultDesign();
+  const ids = [design.elements[0].id, design.elements[2].id];
+  const front = reorderLayers(design, ids, "front");
+  expect(front.elements.slice(-2).map((element) => element.id)).toEqual(ids);
+
+  const backward = reorderLayers(design, ids, -1);
+  expect(backward.elements.map((element) => element.id)).toEqual([
+    design.elements[0].id,
+    design.elements[2].id,
+    design.elements[1].id,
+    design.elements[3].id,
+  ]);
 });
 it("rejects duplicate IDs, malformed elements and excessive layers", () => {
   const d = defaultDesign();

@@ -60,4 +60,18 @@ describe("editor context menu", () => {
       front.find((item) => item.action === "bring-forward")?.disabled,
     ).toBe(true);
   });
+
+  it("labels actions for the complete selected group", () => {
+    const design = defaultDesign();
+    const selected = design.elements.slice(0, 2).map((element) => element.id);
+    const items = editorContextItems(design, selected[0], true, selected);
+    const labels = Object.fromEntries(
+      items.map((item) => [item.action, item.label]),
+    );
+
+    expect(labels.copy).toBe("Copy 2 layers");
+    expect(labels.duplicate).toBe("Duplicate 2 layers");
+    expect(labels["bring-forward"]).toBe("Bring group forward");
+    expect(labels.delete).toBe("Delete 2 layers");
+  });
 });

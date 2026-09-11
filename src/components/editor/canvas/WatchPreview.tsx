@@ -1,11 +1,11 @@
-import { ResizeHandles } from "./ResizeHandles";
+import { GroupResizeHandles, ResizeHandles } from "./ResizeHandles";
 import { getDeviceById } from "@/devices/catalog";
 import { DeviceFrame } from "./DeviceFrame";
 import { VisualLayer } from "./VisualLayer";
 import { useId, type PointerEventHandler, type RefObject } from "react";
 import type { Design, ElementId } from "@/watchface/schema";
 import { elementBounds } from "../model/geometry";
-import type { SelectionRect } from "../model/selection";
+import { selectionBounds, type SelectionRect } from "../model/selection";
 import { renderModel, SAMPLE_DATA } from "@/watchface/render-model";
 export function WatchPreview({
   design,
@@ -47,31 +47,14 @@ export function WatchPreview({
   const additionalSelections = elements.filter(
     (element) => selectedIds.includes(element.id) && element.id !== selected,
   );
-  const selectedElements = elements.filter((element) =>
-    selectedIds.includes(element.id),
-  );
-  const selectedBounds = selectedElements.map((element) => {
-    const bounds = elementBounds(element);
-    return {
-      left: bounds.left,
-      right: bounds.left + bounds.width,
-      top: element.y - bounds.height / 2,
-      bottom: element.y + bounds.height / 2,
-    };
-  });
   const groupBounds =
-    selectedBounds.length > 1
-      ? {
-          x: Math.min(...selectedBounds.map((bounds) => bounds.left)),
-          y: Math.min(...selectedBounds.map((bounds) => bounds.top)),
-          width:
-            Math.max(...selectedBounds.map((bounds) => bounds.right)) -
-            Math.min(...selectedBounds.map((bounds) => bounds.left)),
-          height:
-            Math.max(...selectedBounds.map((bounds) => bounds.bottom)) -
-            Math.min(...selectedBounds.map((bounds) => bounds.top)),
-        }
+    selectedIds.length > 1
+      ? selectionBounds(design, selectedIds, samples)
       : null;
+  const groupResizeDisabled = design.elements.some(
+    (element) =>
+      selectedIds.includes(element.id) && (!element.visible || element.locked),
+  );
   const clip = useId();
   const contentClip = useId();
   return (
@@ -146,11 +129,10 @@ export function WatchPreview({
         )}
       </g>
       {groupBounds && (
-        <rect
-          {...groupBounds}
-          className="watchface-selection-group"
-          vectorEffect="non-scaling-stroke"
-          pointerEvents="none"
+        <GroupResizeHandles
+          bounds={groupBounds}
+          scale={scale}
+          disabled={groupResizeDisabled}
         />
       )}
       {additionalSelections.map((element) => {
@@ -170,7 +152,9 @@ export function WatchPreview({
           />
         );
       })}
-      {selection && <ResizeHandles element={selection} scale={scale} />}
+      {selection && !groupBounds && (
+        <ResizeHandles element={selection} scale={scale} />
+      )}
     </svg>
   );
 }

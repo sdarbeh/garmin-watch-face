@@ -52,6 +52,16 @@
 .watchface-inspector-actions__buttons {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+.watchface-group-layers {
+  display: grid;
+  gap: var(--app-gap-1);
+}
+.watchface-group-layer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  padding-block: var(--app-gap-1);
+}
 
 @media (max-width: tokens.$breakpoint-lg) {
   .watchface-customizer {

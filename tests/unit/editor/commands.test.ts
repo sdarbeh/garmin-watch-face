@@ -133,6 +133,86 @@ describe("editor commands", () => {
     }
   });
 
+  it("keeps hidden layers aligned when moving a selected group", () => {
+    const initial = defaultDesign();
+    const selected = initial.elements.slice(0, 2);
+    const hiddenId = selected[1].id;
+    const design = {
+      ...initial,
+      elements: initial.elements.map((element) =>
+        element.id === hiddenId ? { ...element, visible: false } : element,
+      ),
+    };
+    const result = executeEditorCommand(design, "normal", {
+      type: "layer.move-many",
+      ids: selected.map((element) => element.id),
+      dx: 8,
+      dy: 6,
+    });
+
+    for (const element of selected) {
+      expect(
+        result.design.elements.find((item) => item.id === element.id),
+      ).toMatchObject({ x: element.x + 8, y: element.y + 6 });
+    }
+  });
+
+  it("updates shared group properties atomically", () => {
+    const initial = defaultDesign();
+    const ids = initial.elements.slice(0, 2).map((element) => element.id);
+    const result = executeEditorCommand(initial, "normal", {
+      type: "layer.update-many",
+      ids,
+      patch: { color: "#12AB34", size: 48 },
+    });
+
+    expect(
+      result.design.elements
+        .filter((element) => ids.includes(element.id))
+        .every((element) => element.color === "#12AB34" && element.size === 48),
+    ).toBe(true);
+  });
+
+  it("sets visibility and lock state for the complete group", () => {
+    const initial = defaultDesign();
+    const ids = initial.elements.slice(0, 2).map((element) => element.id);
+    const hidden = executeEditorCommand(initial, "normal", {
+      type: "layer.set-visibility",
+      ids,
+      visible: false,
+    });
+    const locked = executeEditorCommand(hidden.design, "normal", {
+      type: "layer.set-lock",
+      ids,
+      locked: true,
+    });
+
+    expect(
+      locked.design.elements
+        .filter((element) => ids.includes(element.id))
+        .every((element) => !element.visible && element.locked),
+    ).toBe(true);
+  });
+
+  it("rejects incomplete group mutations instead of editing a subset", () => {
+    const initial = defaultDesign();
+    const ids = [initial.elements[0].id, "missing"];
+
+    expect(
+      executeEditorCommand(initial, "normal", {
+        type: "layer.delete-many",
+        ids,
+      }).design,
+    ).toEqual(initial);
+    expect(
+      executeEditorCommand(initial, "normal", {
+        type: "layer.update-many",
+        ids,
+        patch: { color: "#123456" },
+      }).design,
+    ).toEqual(initial);
+  });
+
   it("duplicates a group with one shared offset at the canvas edge", () => {
     const initial = defaultDesign();
     const sources = initial.elements.slice(0, 2).map((element, index) => ({

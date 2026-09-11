@@ -78,3 +78,60 @@ export function reorderLayer(
   elements.splice(next, 0, element);
   return { ...design, elements };
 }
+
+export function reorderLayers(
+  design: Design,
+  ids: string[],
+  placement: -1 | 1 | "front" | "back",
+): Design {
+  const selected = new Set(ids);
+  if (!selected.size) return design;
+  const layers = design.elements.filter((element) => selected.has(element.id));
+  if (
+    layers.length !== selected.size ||
+    layers.some((element) => element.locked)
+  )
+    return design;
+  const elements = [...design.elements];
+  if (placement === "front" || placement === "back") {
+    const unselected = elements.filter((element) => !selected.has(element.id));
+    const reordered =
+      placement === "front"
+        ? [...unselected, ...layers]
+        : [...layers, ...unselected];
+    if (reordered.every((element, index) => element.id === elements[index].id))
+      return design;
+    return {
+      ...design,
+      elements: reordered,
+    };
+  }
+  if (placement === 1) {
+    for (let index = elements.length - 2; index >= 0; index -= 1) {
+      if (
+        selected.has(elements[index].id) &&
+        !selected.has(elements[index + 1].id)
+      )
+        [elements[index], elements[index + 1]] = [
+          elements[index + 1],
+          elements[index],
+        ];
+    }
+  } else {
+    for (let index = 1; index < elements.length; index += 1) {
+      if (
+        selected.has(elements[index].id) &&
+        !selected.has(elements[index - 1].id)
+      )
+        [elements[index], elements[index - 1]] = [
+          elements[index - 1],
+          elements[index],
+        ];
+    }
+  }
+  if (
+    elements.every((element, index) => element.id === design.elements[index].id)
+  )
+    return design;
+  return { ...design, elements };
+}

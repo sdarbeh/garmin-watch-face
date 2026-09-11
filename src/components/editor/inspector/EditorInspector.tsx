@@ -29,6 +29,7 @@ import type {
   DispatchEditorCommand,
   EditorLayerPatch,
 } from "../model/commands";
+import { GroupInspector } from "./GroupInspector";
 
 export function EditorInspector({
   design,
@@ -37,7 +38,7 @@ export function EditorInspector({
   mode = "normal",
   ready,
   selected,
-  selectionCount = 1,
+  selectedIds = [],
   setDesign,
   onCommand,
   onReset,
@@ -48,7 +49,7 @@ export function EditorInspector({
   mode?: PowerMode;
   ready: boolean;
   selected: EditorSelection;
-  selectionCount?: number;
+  selectedIds?: string[];
   setDesign: (design: Design) => void;
   onCommand: DispatchEditorCommand;
   onReset: () => void;
@@ -59,6 +60,20 @@ export function EditorInspector({
       ? null
       : design.elements.find((item) => item.id === selected);
   const warnings = layoutWarnings(design);
+  const groupIds = selectedIds.filter((id) =>
+    design.elements.some((element) => element.id === id),
+  );
+  if (selected !== "background" && groupIds.length > 1) {
+    return (
+      <GroupInspector
+        design={design}
+        selected={selected}
+        selectedIds={groupIds}
+        ready={ready}
+        onCommand={onCommand}
+      />
+    );
+  }
   function updateElement(patch: EditorLayerPatch) {
     if (!element || element.locked || selected === "background") return;
     onCommand({ type: "layer.update", id: selected, patch });
@@ -68,12 +83,6 @@ export function EditorInspector({
       <h2 className="u-font-xl u-weight-semibold mb3">
         {element ? layerLabel(element) : LAYER_LABELS.background}
       </h2>
-      {selectionCount > 1 && (
-        <p className="u-font-xs u-text-secondary mb3">
-          {selectionCount} layers selected. Properties apply to the primary
-          layer.
-        </p>
-      )}
       {mode === "always-on" && (
         <p className="u-font-xs u-text-secondary mb3">
           Estimated luminance ceiling:{" "}
@@ -322,6 +331,7 @@ export function EditorInspector({
       <LayerActions
         design={design}
         selected={selected}
+        selectedIds={selectedIds}
         ready={ready}
         onCommand={onCommand}
       />

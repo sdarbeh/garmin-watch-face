@@ -19,17 +19,18 @@ import {
 } from "./model/context-menu";
 import type { EditorAction } from "./model/shortcuts";
 import { layerLabel } from "./types";
+import {
+  layerSelectionState,
+  type LayerSelectionState,
+} from "./model/selection";
 
 function ActionIcon({
   action,
-  design,
-  request,
+  selection,
 }: {
   action: EditorAction;
-  design: Design;
-  request: EditorContextRequest;
+  selection: LayerSelectionState | null;
 }) {
-  const element = design.elements.find((item) => item.id === request.target);
   if (action === "copy") return <CopyIcon size="sm" />;
   if (action === "cut") return <CutIcon size="sm" />;
   if (action === "paste") return <PasteIcon size="sm" />;
@@ -42,10 +43,10 @@ function ActionIcon({
   if (action === "bring-front")
     return <ArrangeIcon placement="front" size="sm" />;
   if (action === "send-back") return <ArrangeIcon placement="back" size="sm" />;
-  if (action === "toggle-visibility" && element)
-    return <VisibilityIcon visible={element.visible} size="sm" />;
-  if (action === "toggle-lock" && element)
-    return <LockIcon locked={element.locked} size="sm" />;
+  if (action === "toggle-visibility" && selection)
+    return <VisibilityIcon visible={selection.allVisible} size="sm" />;
+  if (action === "toggle-lock" && selection)
+    return <LockIcon locked={selection.locked} size="sm" />;
   return null;
 }
 
@@ -71,13 +72,20 @@ export function EditorContextMenu({
   const menu = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   const shouldRestoreFocus = useRef(false);
-  const element = design.elements.find((item) => item.id === request.target);
+  const selection =
+    request.target === "background"
+      ? null
+      : layerSelectionState(design, request.target, selectedIds);
   const items = editorContextItems(
     design,
     request.target,
     canPaste,
     selectedIds,
   );
+  let menuLabel = "Canvas actions";
+  if (selection) menuLabel = `${layerLabel(selection.primary)} actions`;
+  if (selection?.multiple)
+    menuLabel = `${selection.elements.length} selected layers actions`;
 
   useLayoutEffect(() => {
     returnFocus.current = document.activeElement as HTMLElement | null;
@@ -123,7 +131,7 @@ export function EditorContextMenu({
       ref={menu}
       className="watchface-context-menu"
       role="menu"
-      aria-label={element ? `${layerLabel(element)} actions` : "Canvas actions"}
+      aria-label={menuLabel}
       style={{ left: request.x, top: request.y }}
       onContextMenu={(event) => event.preventDefault()}
       onKeyDown={(event) => {
@@ -169,11 +177,7 @@ export function EditorContextMenu({
               onClose();
             }}
           >
-            <ActionIcon
-              action={item.action}
-              design={design}
-              request={request}
-            />
+            <ActionIcon action={item.action} selection={selection} />
             <span>{item.label}</span>
             {item.shortcut && <kbd>{item.shortcut}</kbd>}
           </Button>

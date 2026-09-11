@@ -13,7 +13,12 @@ import {
 } from "../../../watchface/schema";
 import type { EditorPoint, EditorSelection } from "../types";
 import { moveElement, moveElementsBy } from "./geometry";
-import { addLayer, duplicateLayer, reorderLayer } from "./layers";
+import {
+  addLayer,
+  duplicateLayer,
+  reorderLayer,
+  reorderLayers,
+} from "./layers";
 import { nextPastePosition, placeClipboardElements } from "./clipboard";
 
 export type EditorLayerPatch = Omit<Partial<FaceElement>, "id" | "type">;
@@ -35,9 +40,17 @@ export type EditorCommand =
       id: ElementId;
       placement: "forward" | "backward" | "front" | "back";
     }
+  | {
+      type: "layer.reorder-many";
+      ids: ElementId[];
+      placement: "forward" | "backward" | "front" | "back";
+    }
   | { type: "layer.toggle-visibility"; id: ElementId }
   | { type: "layer.toggle-lock"; id: ElementId }
   | { type: "layer.update"; id: ElementId; patch: EditorLayerPatch }
+  | { type: "layer.update-many"; ids: ElementId[]; patch: EditorLayerPatch }
+  | { type: "layer.set-visibility"; ids: ElementId[]; visible: boolean }
+  | { type: "layer.set-lock"; ids: ElementId[]; locked: boolean }
   | { type: "layer.move"; id: ElementId; x: number; y: number }
   | { type: "layer.move-many"; ids: ElementId[]; dx: number; dy: number }
   | { type: "project.reset"; initialDesign: Design };
@@ -52,6 +65,25 @@ export interface EditorCommandResult {
   selections?: ElementId[];
 }
 
+const REORDER_PLACEMENT = {
+  forward: 1,
+  backward: -1,
+  front: "front",
+  back: "back",
+} as const;
+
+function resolveCommandLayers(design: Design, ids: ElementId[]) {
+  const selected = new Set(ids);
+  const elements = design.elements.filter((element) =>
+    selected.has(element.id),
+  );
+  return {
+    selected,
+    elements,
+    complete: selected.size > 0 && elements.length === selected.size,
+  };
+}
+
 function updateLayer(
   design: Design,
   id: ElementId,
@@ -64,6 +96,26 @@ function updateLayer(
     ...design,
     elements: design.elements.map((item) =>
       item.id === id ? update(item) : item,
+    ),
+  };
+}
+
+function updateLayers(
+  design: Design,
+  ids: ElementId[],
+  update: (element: FaceElement) => FaceElement,
+  allowLocked = false,
+) {
+  const selection = resolveCommandLayers(design, ids);
+  if (
+    !selection.complete ||
+    (!allowLocked && selection.elements.some((element) => element.locked))
+  )
+    return design;
+  return {
+    ...design,
+    elements: design.elements.map((element) =>
+      selection.selected.has(element.id) ? update(element) : element,
     ),
   };
 }
@@ -108,19 +160,14 @@ export function executeEditorCommand(
       break;
     }
     case "layer.duplicate-many": {
+      const group = resolveCommandLayers(active, command.ids);
       if (
-        !command.ids.length ||
-        active.elements.length + command.ids.length > MAX_ELEMENTS
+        !group.complete ||
+        active.elements.length + group.elements.length > MAX_ELEMENTS ||
+        group.elements.some((element) => element.locked)
       )
         break;
-      const sources = active.elements.filter((element) =>
-        command.ids.includes(element.id),
-      );
-      if (
-        sources.length !== command.ids.length ||
-        sources.some((element) => element.locked)
-      )
-        break;
+      const sources = group.elements;
       const anchor = {
         x:
           sources.reduce((sum, element) => sum + element.x, 0) / sources.length,
@@ -169,30 +216,32 @@ export function executeEditorCommand(
       break;
     }
     case "layer.delete-many": {
-      const ids = new Set(command.ids);
-      if (!ids.size) break;
-      if (
-        active.elements.some((element) => ids.has(element.id) && element.locked)
-      )
+      const group = resolveCommandLayers(active, command.ids);
+      if (!group.complete || group.elements.some((element) => element.locked))
         break;
       edited = {
         ...active,
-        elements: active.elements.filter((element) => !ids.has(element.id)),
+        elements: active.elements.filter(
+          (element) => !group.selected.has(element.id),
+        ),
       };
       selection = "background";
       break;
     }
     case "layer.reorder": {
-      const placements: Record<
-        typeof command.placement,
-        1 | -1 | "front" | "back"
-      > = {
-        forward: 1,
-        backward: -1,
-        front: "front",
-        back: "back",
-      };
-      edited = reorderLayer(active, command.id, placements[command.placement]);
+      edited = reorderLayer(
+        active,
+        command.id,
+        REORDER_PLACEMENT[command.placement],
+      );
+      break;
+    }
+    case "layer.reorder-many": {
+      edited = reorderLayers(
+        active,
+        command.ids,
+        REORDER_PLACEMENT[command.placement],
+      );
       break;
     }
     case "layer.toggle-visibility":
@@ -216,6 +265,29 @@ export function executeEditorCommand(
         id: element.id,
         type: element.type,
       }));
+      break;
+    case "layer.update-many": {
+      edited = updateLayers(active, command.ids, (element) => ({
+        ...element,
+        ...command.patch,
+        id: element.id,
+        type: element.type,
+      }));
+      break;
+    }
+    case "layer.set-visibility":
+      edited = updateLayers(active, command.ids, (element) => ({
+        ...element,
+        visible: command.visible,
+      }));
+      break;
+    case "layer.set-lock":
+      edited = updateLayers(
+        active,
+        command.ids,
+        (element) => ({ ...element, locked: command.locked }),
+        true,
+      );
       break;
     case "layer.move":
       edited = moveElement(active, command.id, command.x, command.y);

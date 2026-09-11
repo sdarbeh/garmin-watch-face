@@ -1,12 +1,31 @@
 import { describe, expect, it } from "vitest";
 import {
   layersInSelection,
+  layerSelectionState,
   mergeMarqueeSelection,
+  pointInsideRect,
+  selectionBounds,
   selectionRect,
 } from "../../../src/components/editor/model/selection";
 import { createElement, defaultDesign } from "../../../src/watchface/schema";
 
 describe("marquee selection", () => {
+  it("resolves shared group state once for every editor surface", () => {
+    const design = defaultDesign();
+    const ids = [design.elements[0].id, design.elements[2].id];
+    const state = layerSelectionState(design, ids[1], [...ids, "missing"]);
+
+    expect(state).toMatchObject({
+      ids,
+      multiple: true,
+      locked: false,
+      allVisible: true,
+      atFront: false,
+      atBack: false,
+    });
+    expect(state?.primary.id).toBe(ids[1]);
+  });
+
   it("normalizes rectangles dragged in either direction", () => {
     expect(selectionRect({ x: 180, y: 150 }, { x: 80, y: 90 })).toEqual({
       x: 80,
@@ -47,5 +66,16 @@ describe("marquee selection", () => {
       "a",
       "c",
     ]);
+  });
+
+  it("uses the visual group bounds for gap context clicks", () => {
+    const first = { ...createElement("text", "first"), x: 100, y: 100 };
+    const second = { ...createElement("text", "second"), x: 300, y: 300 };
+    const design = { ...defaultDesign(), elements: [first, second] };
+    const bounds = selectionBounds(design, [first.id, second.id]);
+
+    expect(bounds).not.toBeNull();
+    expect(pointInsideRect({ x: 200, y: 200 }, bounds!)).toBe(true);
+    expect(pointInsideRect({ x: 450, y: 450 }, bounds!)).toBe(false);
   });
 });

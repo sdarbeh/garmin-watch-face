@@ -14,6 +14,10 @@ import {
   type EditorShortcut,
 } from "../model/shortcuts";
 import { layerLabel, type EditorPoint, type EditorSelection } from "../types";
+import {
+  layerSelectionState,
+  type LayerSelectionState,
+} from "../model/selection";
 
 const ARRANGE_PLACEMENTS: Partial<
   Record<EditorShortcut, "forward" | "backward" | "front" | "back">
@@ -50,21 +54,14 @@ export function useEditorActions({
   const [clipboard, setClipboard] = useState<LayerClipboard | null>(null);
   const lastCanvasPoint = useRef<EditorPoint | null>(null);
 
-  function currentElement(target: EditorSelection) {
+  function currentSelection(target: EditorSelection) {
     const current = browserLibrary.find(projectId)?.design;
     if (!current || target === "background") return null;
-    return powerLayout(current, mode).elements.find(
-      (element) => element.id === target,
-    );
+    return layerSelectionState(powerLayout(current, mode), target, selectedIds);
   }
 
-  function copyElements(element: FaceElement) {
-    const current = browserLibrary.find(projectId)?.design;
-    const active = current ? powerLayout(current, mode) : null;
-    const ids = selectedIds.includes(element.id) ? selectedIds : [element.id];
-    const elements = active?.elements.filter((item) =>
-      ids.includes(item.id),
-    ) ?? [element];
+  function copyElements(selection: LayerSelectionState) {
+    const { elements, primary } = selection;
     const anchor = {
       x: elements.reduce((sum, item) => sum + item.x, 0) / elements.length,
       y: elements.reduce((sum, item) => sum + item.y, 0) / elements.length,
@@ -76,7 +73,7 @@ export function useEditorActions({
     });
     onMessage(
       elements.length === 1
-        ? `Copied ${layerLabel(element)}`
+        ? `Copied ${layerLabel(primary)}`
         : `Copied ${elements.length} layers`,
     );
   }
@@ -116,24 +113,26 @@ export function useEditorActions({
     if (preview) return false;
     if (action === "paste") return paste(pastePosition);
 
-    const element = currentElement(target);
-    if (!element) return false;
-    const targets = selectedIds.includes(element.id)
-      ? selectedIds
-      : [element.id];
+    const selection = currentSelection(target);
+    if (!selection) return false;
+    const { primary, ids: targets, elements: targetElements } = selection;
     if (action === "copy") {
-      copyElements(element);
+      copyElements(selection);
       return true;
     }
     if (action === "toggle-lock") {
-      onCommand({ type: "layer.toggle-lock", id: element.id });
+      if (targets.length === 1) {
+        onCommand({ type: "layer.toggle-lock", id: primary.id });
+      } else {
+        onCommand({
+          type: "layer.set-lock",
+          ids: targets,
+          locked: !selection.locked,
+        });
+      }
       return true;
     }
-    const current = browserLibrary.find(projectId)?.design;
-    const active = current ? powerLayout(current, mode) : null;
-    const locked = active?.elements.find(
-      (item) => targets.includes(item.id) && item.locked,
-    );
+    const locked = targetElements.find((item) => item.locked);
     if (locked) {
       onMessage(
         targets.length > 1
@@ -144,13 +143,13 @@ export function useEditorActions({
     }
 
     if (action === "cut") {
-      copyElements(element);
+      copyElements(selection);
       onCommand({ type: "layer.delete-many", ids: targets });
       return true;
     }
     if (action === "duplicate") {
       if (targets.length === 1)
-        onCommand({ type: "layer.duplicate", id: element.id });
+        onCommand({ type: "layer.duplicate", id: primary.id });
       else onCommand({ type: "layer.duplicate-many", ids: targets });
       return true;
     }
@@ -159,13 +158,23 @@ export function useEditorActions({
       return true;
     }
     if (action === "toggle-visibility") {
-      onCommand({ type: "layer.toggle-visibility", id: element.id });
+      if (targets.length === 1) {
+        onCommand({ type: "layer.toggle-visibility", id: primary.id });
+      } else {
+        onCommand({
+          type: "layer.set-visibility",
+          ids: targets,
+          visible: !selection.allVisible,
+        });
+      }
       return true;
     }
 
     const placement = ARRANGE_PLACEMENTS[action];
     if (!placement) return false;
-    onCommand({ type: "layer.reorder", id: element.id, placement });
+    if (targets.length === 1)
+      onCommand({ type: "layer.reorder", id: primary.id, placement });
+    else onCommand({ type: "layer.reorder-many", ids: targets, placement });
     return true;
   }
 
@@ -184,7 +193,7 @@ export function useEditorActions({
       return true;
     }
     if (action === "paste" && !clipboard) return false;
-    if (action !== "paste" && !currentElement(selected)) return false;
+    if (action !== "paste" && !currentSelection(selected)) return false;
     event.preventDefault();
     return run(action);
   }

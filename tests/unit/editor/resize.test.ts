@@ -12,6 +12,11 @@ import {
   cornerPoint,
   resizeLayer,
 } from "../../../src/components/editor/model/resize";
+import {
+  resizeLayers,
+  selectionCornerPoint,
+} from "../../../src/components/editor/model/group-resize";
+import { selectionBounds } from "../../../src/components/editor/model/selection";
 import { DesignHistory } from "../../../src/components/editor/model/history";
 function graphic(type: "shape" | "image" = "shape") {
   const design = defaultDesign();
@@ -69,6 +74,32 @@ it("preserves image proportions and clamps extreme drags to valid dimensions", (
   expect(validateDesign(result)).toEqual(result);
   const small = resizeLayer(design, "resizable", "se", -1000, -1000, 0).design;
   expect(presentation(small.elements[0]).height).toBe(8);
+});
+it("resizes a mixed layer group from one shared boundary", () => {
+  const design = defaultDesign();
+  const text = {
+    ...createElement("time", "group-time"),
+    x: 150,
+    y: 180,
+    size: 48 as const,
+  };
+  const shape = createElement("shape", "group-shape");
+  shape.x = 300;
+  shape.y = 280;
+  shape.presentation = { ...presentation(shape), width: 64, height: 48 };
+  design.elements = [text, shape];
+  const ids = design.elements.map((element) => element.id);
+  const beforeBounds = selectionBounds(design, ids)!;
+  const anchor = selectionCornerPoint(beforeBounds, "nw");
+  const result = resizeLayers(design, ids, "se", 60, 60, 0).design;
+  const afterBounds = selectionBounds(result, ids)!;
+
+  expect(result.elements[0].size).toBeGreaterThan(text.size);
+  expect(presentation(result.elements[1]).width).toBeGreaterThan(64);
+  const afterAnchor = selectionCornerPoint(afterBounds, "nw");
+  expect(Math.abs(afterAnchor.x - anchor.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(afterAnchor.y - anchor.y)).toBeLessThanOrEqual(1);
+  expect(validateDesign(result)).toEqual(result);
 });
 it("snaps the moving edge and displays a guide only at its actual position", () => {
   const design = graphic();

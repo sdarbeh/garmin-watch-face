@@ -3,6 +3,7 @@ import {
   resizeLayer,
   type ResizeCorner,
 } from "../model/resize";
+import { resizeLayers } from "../model/group-resize";
 import { DeviceTags } from "@/components/devices/DeviceTags";
 import { lowBatteryThreshold } from "@/watchface/power";
 import { useLayoutEffect, useRef, useState } from "react";
@@ -17,6 +18,8 @@ import { moveElement, moveElementsBy, snapPosition } from "../model/geometry";
 import {
   layersInSelection,
   mergeMarqueeSelection,
+  pointInsideRect,
+  selectionBounds,
   selectionRect,
   type MarqueeSelectionMode,
   type SelectionRect,
@@ -186,13 +189,24 @@ export function EditorCanvas({
           const elementId = (event.target as Element)
             .closest("[data-element]")
             ?.getAttribute("data-element") as ElementId | undefined;
+          const canvasPosition = point(event.clientX, event.clientY);
           let target: EditorSelection = "background";
           if (
             elementId &&
             design.elements.some((element) => element.id === elementId)
           )
             target = elementId;
-          const canvasPosition = point(event.clientX, event.clientY);
+          const groupBounds =
+            selectedIds.length > 1
+              ? selectionBounds(design, selectedIds, samples)
+              : null;
+          if (
+            target === "background" &&
+            canvasPosition &&
+            groupBounds &&
+            pointInsideRect(canvasPosition, groupBounds)
+          )
+            target = selected;
           if (target === "background" || !selectedIds.includes(target))
             onSelect(target);
           const request: EditorContextRequest = {
@@ -269,22 +283,32 @@ export function EditorCanvas({
               selected={preview || selected === "background" ? null : selected}
               svgRef={svg}
               guides={preview ? [] : [...guides, ...keyboardGuides]}
-              selectedIds={selectedIds}
-              marquee={marqueeRect}
+              selectedIds={preview ? [] : selectedIds}
+              marquee={preview ? null : marqueeRect}
               onPointerDown={(event) => {
                 if (event.button !== 0 || !ready || preview || drag.current)
                   return;
                 event.preventDefault();
                 viewport.current?.focus();
-                const id = (event.target as Element)
+                const target = event.target as Element;
+                const id = target
                   .closest("[data-element]")
                   ?.getAttribute("data-element") as ElementId | undefined;
+                const handle = target
+                  .closest("[data-resize]")
+                  ?.getAttribute("data-resize");
+                const corner = RESIZE_CORNERS.find(
+                  (candidate) => candidate === handle,
+                );
+                const resizingGroup = Boolean(
+                  corner && selectedIds.length > 1 && selected !== "background",
+                );
                 const start = point(event.clientX, event.clientY);
                 if (!start) return;
                 const additive = Boolean(
                   event.shiftKey || event.metaKey || event.ctrlKey,
                 );
-                if (!id) {
+                if (!id && !resizingGroup) {
                   const insideDisplay =
                     (start.x - 227) ** 2 + (start.y - 227) ** 2 <= 227 ** 2;
                   if (!insideDisplay) {
@@ -307,21 +331,19 @@ export function EditorCanvas({
                   event.currentTarget.setPointerCapture(event.pointerId);
                   return;
                 }
-                if (!selectedIds.includes(id) || additive)
+                if (id && (!selectedIds.includes(id) || additive))
                   onSelect(id, additive);
                 if (
+                  id &&
                   design.elements.find((element) => element.id === id)?.locked
                 )
                   return;
-                const handle = (event.target as Element)
-                  .closest("[data-resize]")
-                  ?.getAttribute("data-resize");
-                const corner = RESIZE_CORNERS.find(
-                  (corner) => corner === handle,
-                );
-                let dragId = id;
+                let dragId = resizingGroup ? selected : id;
+                if (dragId === "background" || !dragId) return;
                 let dragDesign = design;
-                let dragIds = selectedIds.includes(id) ? selectedIds : [id];
+                let dragIds = selectedIds.includes(dragId)
+                  ? selectedIds
+                  : [dragId];
                 if (
                   dragIds.some(
                     (selectedId) =>
@@ -332,7 +354,7 @@ export function EditorCanvas({
                 )
                   return;
                 history.begin();
-                if (event.altKey) {
+                if (event.altKey && !corner) {
                   const duplicate = onDuplicateForDrag(dragIds);
                   let duplicatedIds = duplicate?.selections ?? [];
                   if (!duplicatedIds.length && duplicate?.selection)
@@ -394,15 +416,28 @@ export function EditorCanvas({
                   return;
                 }
                 if (active.corner) {
-                  const resized = resizeLayer(
-                    active.start,
-                    active.id,
-                    active.corner,
-                    current.x - active.x,
-                    current.y - active.y,
-                    event.altKey ? 0 : 6 / scale,
-                    samples,
-                  );
+                  let resized;
+                  if (active.ids.length > 1) {
+                    resized = resizeLayers(
+                      active.start,
+                      active.ids,
+                      active.corner,
+                      current.x - active.x,
+                      current.y - active.y,
+                      event.altKey ? 0 : 6 / scale,
+                      samples,
+                    );
+                  } else {
+                    resized = resizeLayer(
+                      active.start,
+                      active.id,
+                      active.corner,
+                      current.x - active.x,
+                      current.y - active.y,
+                      event.altKey ? 0 : 6 / scale,
+                      samples,
+                    );
+                  }
                   setGuides(resized.guides);
                   history.update(resized.design);
                   return;
