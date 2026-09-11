@@ -130,31 +130,6 @@
   pointer-events: none;
 }
 
-.ui-button__feedback--ripple {
-  transform: translate(-50%, -50%) scale(0.12);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .ui-button__feedback--ripple {
-    animation: ui-button-ripple 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-}
-
-@keyframes ui-button-ripple {
-  from {
-    opacity: 0.46;
-  }
-
-  65% {
-    opacity: 0.2;
-  }
-
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(2.8);
-  }
-}
-
 .ui-button--danger {
   color: var(--app-color-error);
   background: color-mix(in srgb, var(--app-color-error) 10%, transparent);

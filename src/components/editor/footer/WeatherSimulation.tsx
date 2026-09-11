@@ -1,7 +1,7 @@
 import { WEATHER_CONDITIONS } from "@/watchface/weather";
-import type { Simulation } from "./model/simulation";
-import { WEATHER_SIMULATION_CONSTRAINTS } from "./model/simulation-constraints";
-import { SimulationNumberInput } from "./footer/SimulationNumberInput";
+import type { Simulation } from "@/components/editor/model/simulation";
+import { WEATHER_SIMULATION_CONSTRAINTS } from "@/components/editor/model/simulation-constraints";
+import { SimulationNumberInput } from "./SimulationNumberInput";
 
 export function WeatherSimulation({
   variant,

@@ -90,6 +90,8 @@
 .watchface-toolbar__device img {
   width: var(--app-control-xs);
   height: var(--app-control-xs);
+  border: var(--app-border-width) solid var(--app-color-border);
+  border-radius: var(--app-radius-pill);
   object-fit: contain;
 }
 .watchface-toolbar__actions {
@@ -115,50 +117,6 @@
   border-right-color: transparent;
   border-radius: var(--app-radius-pill);
 }
-.watchface-build-status {
-  appearance: none;
-  position: absolute;
-  top: calc(100% - var(--app-border-width));
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--app-gap-2);
-  padding: var(--app-gap-1) var(--app-gap-5) var(--app-gap-2) var(--app-gap-4);
-  border-top: 0;
-  border-left: var(--app-border-width) solid var(--app-color-border);
-  border-right: var(--app-border-width) solid var(--app-color-border);
-  border-bottom: var(--app-border-width) solid var(--app-color-border);
-  border-bottom-left-radius: var(--app-radius-small);
-  background: var(--app-color-surface);
-  color: var(--app-color-text-muted);
-  font-size: var(--app-font-size-xs);
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color var(--app-transition-fast);
-}
-.watchface-build-status:hover:not(:disabled) {
-  color: var(--app-color-text);
-}
-.watchface-build-status:disabled {
-  cursor: default;
-}
-.watchface-build-status > .u-icon-xxs {
-  flex-shrink: 0;
-  border-radius: var(--app-radius-pill);
-  background: var(--app-color-primary);
-}
-.watchface-build-status__label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.watchface-build-status[data-status="warning"] > .u-icon-xxs {
-  background: var(--app-color-warn);
-}
-.watchface-build-status[data-status="error"] > .u-icon-xxs {
-  background: var(--app-color-error);
-}
 .watchface-toolbar__actions .ui-button {
   min-width: var(--app-action-min-width);
   border: var(--app-border-width) solid var(--app-color-border-strong);
@@ -178,7 +136,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .watchface-build-button__spinner {
-    animation: none;
     border-right-color: currentColor;
     opacity: 0.65;
   }
@@ -216,9 +173,5 @@
   }
   .watchface-toolbar__actions .ui-button {
     min-width: 0;
-  }
-  .watchface-build-status {
-    max-width: calc(100vw - var(--app-gap-3));
-    padding-inline: var(--app-gap-3);
   }
 }

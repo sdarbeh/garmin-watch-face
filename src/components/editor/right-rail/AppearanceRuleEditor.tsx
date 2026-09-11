@@ -10,9 +10,9 @@ import {
   ruleSummary,
   type AppearanceRule,
 } from "@/watchface/rules";
-import type { Simulation } from "../model/simulation";
-import { METRIC_SIMULATION_CONSTRAINTS } from "../model/simulation-constraints";
-import { SimulationNumberInput } from "../footer/SimulationNumberInput";
+import type { Simulation } from "@/components/editor/model/simulation";
+import { METRIC_SIMULATION_CONSTRAINTS } from "@/components/editor/model/simulation-constraints";
+import { SimulationNumberInput } from "@/components/editor/footer/SimulationNumberInput";
 import { InspectorSection } from "./InspectorSection";
 import { RuleGoalPreview } from "./RuleGoalPreview";
 

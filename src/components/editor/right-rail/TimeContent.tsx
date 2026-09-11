@@ -1,6 +1,6 @@
 import { SegmentedControl, Switch } from "@/components/ui";
 import { presentation, type FaceElement } from "@/watchface/schema";
-import type { EditorLayerPatch } from "../model/commands";
+import type { EditorLayerPatch } from "@/components/editor/model/commands";
 import { InspectorSection } from "./InspectorSection";
 
 type TimeStyle = "digital" | "hours" | "minutes" | "analog";

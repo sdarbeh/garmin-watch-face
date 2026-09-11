@@ -2,8 +2,8 @@ import type { KeyboardEvent } from "react";
 import type { Device } from "@/devices/catalog";
 import { Button } from "@/components/ui";
 import { supportsMode } from "@/watchface/capabilities";
-import { EDITOR_MODE_OPTIONS } from "../model/display-modes";
-import type { DisplayMode } from "../model/simulation";
+import { EDITOR_MODE_OPTIONS } from "@/components/editor/model/display-modes";
+import type { DisplayMode } from "@/components/editor/model/simulation";
 
 const MODE_LABELS: Record<DisplayMode, string> = {
   normal: "Normal",

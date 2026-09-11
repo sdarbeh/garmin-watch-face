@@ -1,9 +1,9 @@
-import { InspectorSection } from "./inspector/InspectorSection";
+import { InspectorSection } from "./InspectorSection";
 import { DuplicateIcon, DeleteIcon } from "@/icons";
 import { Button } from "@/components/ui";
 import { MAX_ELEMENTS, type Design } from "@/watchface/schema";
-import type { DispatchEditorCommand } from "./model/commands";
-import { layerSelectionState } from "./model/selection";
+import type { DispatchEditorCommand } from "@/components/editor/model/commands";
+import { layerSelectionState } from "@/components/editor/model/selection";
 
 export function LayerActions({
   design,

@@ -12,8 +12,8 @@ import type { Design } from "@/watchface/schema";
 import { getDeviceById } from "@/devices/catalog";
 import type { DesignIssue } from "@/watchface/design-validation";
 import type { LocalSaveStatus } from "@/library/store";
-import type { WatchfaceBuildStatus } from "./hooks/useWatchfaceBuild";
-import { SaveStatus } from "./SaveStatus";
+import type { WatchfaceBuildStatus } from "@/components/editor/hooks/useWatchfaceBuild";
+import { EditorStatusNotch, saveBlocksBuild } from "./EditorStatusNotch";
 
 function BuildButtonContent({ status }: { status: WatchfaceBuildStatus }) {
   switch (status) {
@@ -51,25 +51,6 @@ function BuildButtonContent({ status }: { status: WatchfaceBuildStatus }) {
   }
 }
 
-function buildStatus(issues: DesignIssue[]) {
-  const errors = issues.filter((issue) => issue.severity === "error").length;
-  const warnings = issues.length - errors;
-
-  if (errors > 0) {
-    return {
-      state: "error" as const,
-      label: `${errors} ${errors === 1 ? "error" : "errors"} · Build blocked`,
-    };
-  }
-  if (warnings > 0) {
-    return {
-      state: "warning" as const,
-      label: `Ready with ${warnings} ${warnings === 1 ? "warning" : "warnings"}`,
-    };
-  }
-  return { state: "ready" as const, label: "Ready to build" };
-}
-
 export function EditorToolbar({
   design,
   ready,
@@ -101,12 +82,11 @@ export function EditorToolbar({
   const nameAtFocus = useRef(design.name);
   const device = getDeviceById(design.device)!;
   const projectName = nameDraft ?? design.name;
-  const status =
-    nameDraft !== null
-      ? { state: "error" as const, label: "Invalid name · Build blocked" }
-      : buildStatus(issues);
   const buildEnabled =
-    canBuild && nameDraft === null && buildState !== "building";
+    canBuild &&
+    nameDraft === null &&
+    buildState !== "building" &&
+    !saveBlocksBuild(saveStatus);
   return (
     <header className="watchface-toolbar">
       <div className="watchface-toolbar__identity">
@@ -158,11 +138,13 @@ export function EditorToolbar({
         </label>
       </div>
       <div className="watchface-toolbar__context">
-        <div className="watchface-toolbar__device" title="Design target">
+        <div className="watchface-toolbar__device">
           <Image src={device.preview} alt="" width={28} height={28} />
           <span>{device.name}</span>
+          <span className="u-text-secondary u-weight-regular u-font-xs">
+            ({device.width} × {device.height})
+          </span>
         </div>
-        <SaveStatus status={saveStatus} />
       </div>
       <div className="watchface-toolbar__actions">
         <div className="watchface-toolbar__buttons">
@@ -185,7 +167,6 @@ export function EditorToolbar({
             disabled={!buildEnabled}
             aria-busy={buildState === "building"}
             aria-keyshortcuts="Meta+Enter Control+Enter"
-            aria-describedby="watchface-build-status"
             title="Build and download (⌘/Ctrl + Enter)"
             onClick={onExport}
           >
@@ -194,20 +175,10 @@ export function EditorToolbar({
             </span>
           </Button>
         </div>
-        <button
-          type="button"
-          id="watchface-build-status"
-          className="watchface-build-status"
-          data-status={status.state}
-          aria-haspopup="dialog"
-          aria-expanded={validationOpen}
-          aria-label={`${status.label}. View design checks.`}
-          disabled={issues.length === 0}
-          onClick={onValidation}
-        >
-          <span className="u-icon-xxs" aria-hidden="true" />
-          <span className="watchface-build-status__label">{status.label}</span>
-        </button>
+        <EditorStatusNotch
+          {...{ saveStatus, issues, validationOpen, onValidation }}
+          invalidName={nameDraft !== null}
+        />
       </div>
     </header>
   );

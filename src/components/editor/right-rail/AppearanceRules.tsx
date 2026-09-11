@@ -22,7 +22,7 @@ import {
 } from "@/watchface/rule-suggestions";
 import type { Metric } from "@/watchface/layer-catalog";
 import { presentation, type FaceElement } from "@/watchface/schema";
-import type { Simulation } from "../model/simulation";
+import type { Simulation } from "@/components/editor/model/simulation";
 import { AppearanceRuleEditor } from "./AppearanceRuleEditor";
 import { InspectorSection } from "./InspectorSection";
 import { RuleSuggestions } from "./RuleSuggestions";

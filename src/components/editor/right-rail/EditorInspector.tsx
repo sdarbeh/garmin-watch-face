@@ -3,7 +3,7 @@ import { OnWatchSettings } from "./OnWatchSettings";
 import { ComplicationContent } from "./ComplicationContent";
 import { InspectorSection } from "./InspectorSection";
 import { AppearanceRules } from "./AppearanceRules";
-import type { Simulation } from "../model/simulation";
+import type { Simulation } from "@/components/editor/model/simulation";
 import { MetricFormatting } from "./MetricFormatting";
 import { getDeviceById } from "@/devices/catalog";
 import { LayerPresentation } from "./LayerPresentation";
@@ -12,7 +12,7 @@ import { presentation } from "@/watchface/schema";
 import type { PowerMode } from "@/watchface/power";
 import { PowerSettings } from "./PowerSettings";
 import { TypographyFields } from "./TypographyFields";
-import { LayerActions } from "../LayerActions";
+import { LayerActions } from "./LayerActions";
 import { PositionField } from "./PositionField";
 import { ResetProject } from "./ResetProject";
 import { ColorField, Switch } from "@/components/ui";
@@ -23,11 +23,11 @@ import {
   defaultLayerLabel,
   layerLabel,
   type EditorSelection,
-} from "../types";
+} from "@/components/editor/types";
 import type {
   DispatchEditorCommand,
   EditorLayerPatch,
-} from "../model/commands";
+} from "@/components/editor/model/commands";
 import { GroupInspector } from "./GroupInspector";
 import { ModeLayoutSettings } from "./ModeLayoutSettings";
 import { DesignChecks } from "./DesignChecks";

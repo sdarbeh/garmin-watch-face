@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui";
 import { RedoIcon, UndoIcon } from "@/icons";
-import type { useDesignHistory } from "../hooks/useDesignHistory";
+import type { useDesignHistory } from "@/components/editor/hooks/useDesignHistory";
 
 export function FooterHistoryControls({
   ready,

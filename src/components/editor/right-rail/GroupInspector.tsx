@@ -3,13 +3,13 @@ import { LayerIcon } from "@/icons";
 import { isGraphic } from "@/watchface/layer-catalog";
 import type { DesignIssue } from "@/watchface/design-validation";
 import { presentation, type Design, type ElementId } from "@/watchface/schema";
-import { LayerActions } from "../LayerActions";
+import { LayerActions } from "./LayerActions";
 import type {
   DispatchEditorCommand,
   EditorLayerPatch,
-} from "../model/commands";
-import { layerLabel } from "../types";
-import { layerSelectionState } from "../model/selection";
+} from "@/components/editor/model/commands";
+import { layerLabel } from "@/components/editor/types";
+import { layerSelectionState } from "@/components/editor/model/selection";
 import { TypographyFields } from "./TypographyFields";
 import { InspectorSection } from "./InspectorSection";
 import { DesignChecks } from "./DesignChecks";

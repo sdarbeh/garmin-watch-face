@@ -6,9 +6,15 @@ import { supportsMode } from "@/watchface/capabilities";
 import type { DesignIssue } from "@/watchface/design-validation";
 import { powerLayout } from "@/watchface/power";
 import type { Design } from "@/watchface/schema";
-import { layerLabel, type EditorSelection } from "./types";
-import { EDITOR_MODE_LABELS, EDITOR_MODE_OPTIONS } from "./model/display-modes";
-import type { DisplayMode } from "./model/simulation";
+import {
+  layerLabel,
+  type EditorSelection,
+} from "@/components/editor/types";
+import {
+  EDITOR_MODE_LABELS,
+  EDITOR_MODE_OPTIONS,
+} from "@/components/editor/model/display-modes";
+import type { DisplayMode } from "@/components/editor/model/simulation";
 import { ValidationIssueButton } from "./ValidationIssueButton";
 
 function ValidationIssueGroup({

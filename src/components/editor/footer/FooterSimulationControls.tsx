@@ -2,10 +2,13 @@ import type { ComplicationSource } from "@/watchface/complications";
 import type { Metric } from "@/watchface/layer-catalog";
 import type { ElementType } from "@/watchface/schema";
 import { STATUS_SOURCES, type StatusSource } from "@/watchface/status-sources";
-import { ComplicationSimulation } from "../ComplicationSimulation";
-import { SimulationControl } from "../SimulationControl";
-import { WeatherSimulation, hasWeatherSimulation } from "../WeatherSimulation";
-import type { DisplayMode, Simulation } from "../model/simulation";
+import { ComplicationSimulation } from "./ComplicationSimulation";
+import { SimulationControl } from "./SimulationControl";
+import { WeatherSimulation, hasWeatherSimulation } from "./WeatherSimulation";
+import type {
+  DisplayMode,
+  Simulation,
+} from "@/components/editor/model/simulation";
 
 export function FooterSimulationControls({
   ready,

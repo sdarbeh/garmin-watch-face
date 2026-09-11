@@ -2,11 +2,14 @@ import type { Device } from "@/devices/catalog";
 import type { ComplicationSource } from "@/watchface/complications";
 import type { Metric } from "@/watchface/layer-catalog";
 import type { ElementType } from "@/watchface/schema";
-import { FooterDisplayControls } from "./footer/FooterDisplayControls";
-import { FooterHistoryControls } from "./footer/FooterHistoryControls";
-import { FooterSimulationControls } from "./footer/FooterSimulationControls";
-import type { useDesignHistory } from "./hooks/useDesignHistory";
-import type { DisplayMode, Simulation } from "./model/simulation";
+import type { useDesignHistory } from "@/components/editor/hooks/useDesignHistory";
+import type {
+  DisplayMode,
+  Simulation,
+} from "@/components/editor/model/simulation";
+import { FooterDisplayControls } from "./FooterDisplayControls";
+import { FooterHistoryControls } from "./FooterHistoryControls";
+import { FooterSimulationControls } from "./FooterSimulationControls";
 
 export function EditorFooter({
   ready,

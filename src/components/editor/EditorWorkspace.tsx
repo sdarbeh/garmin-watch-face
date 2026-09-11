@@ -16,16 +16,16 @@ import {
   type SavedDesign,
 } from "@/library/store";
 import { useWatchfaceBuild } from "./hooks/useWatchfaceBuild";
-import { EditorFooter } from "./EditorFooter";
+import { EditorFooter } from "./footer/EditorFooter";
 import {
   DEFAULT_SIMULATION,
   createDefaultSimulation,
   simulationValues,
   type DisplayMode,
 } from "./model/simulation";
-import { EditorToolbar } from "./EditorToolbar";
+import { EditorToolbar } from "./header/EditorToolbar";
 import { EditorCanvas } from "./canvas/EditorCanvas";
-import { EditorInspector } from "./inspector/EditorInspector";
+import { EditorInspector } from "./right-rail/EditorInspector";
 import { EditorLeftRail } from "./left-rail";
 import { EditorExport } from "./export/EditorExport";
 import { useDesignHistory } from "./hooks/useDesignHistory";
@@ -42,7 +42,7 @@ import type { EditorContextRequest } from "./model/context-menu";
 import { baseDesignForProject } from "./model/reset";
 import { useModeSelection } from "./hooks/useModeSelection";
 import { designIssues, type DesignIssue } from "@/watchface/design-validation";
-import { DesignValidationDialog } from "./DesignValidationDialog";
+import { DesignValidationDialog } from "./validation/DesignValidationDialog";
 import {
   EDITOR_RAILS,
   EditorRailResizer,

@@ -1,5 +1,5 @@
 import type { GoalSource } from "@/watchface/goals";
-import type { Simulation } from "../model/simulation";
+import type { Simulation } from "@/components/editor/model/simulation";
 export function RuleGoalPreview({
   source,
   simulation,

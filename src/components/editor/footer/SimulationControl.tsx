@@ -3,21 +3,21 @@ import { Button } from "@/components/ui";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/icons";
 import { isMetric, type Metric } from "@/watchface/layer-catalog";
 import type { ElementType } from "@/watchface/schema";
-import { SimulationNumberInput } from "./footer/SimulationNumberInput";
-import { LAYER_LABELS } from "./types";
+import { LAYER_LABELS } from "@/components/editor/types";
 import {
   shiftDate,
   shiftTime,
   type DisplayMode,
   type Simulation,
-} from "./model/simulation";
+} from "@/components/editor/model/simulation";
 import {
   clampSimulationNumber,
   isSimulationDateValid,
   METRIC_SIMULATION_CONSTRAINTS,
   SIMULATION_DATE_MAX,
   SIMULATION_DATE_MIN,
-} from "./model/simulation-constraints";
+} from "@/components/editor/model/simulation-constraints";
+import { SimulationNumberInput } from "./SimulationNumberInput";
 
 export function SimulationControl({
   type,

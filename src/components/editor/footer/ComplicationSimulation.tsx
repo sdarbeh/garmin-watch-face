@@ -2,9 +2,9 @@ import {
   COMPLICATIONS,
   type ComplicationSource,
 } from "@/watchface/complications";
-import type { Simulation } from "./model/simulation";
-import { METRIC_SIMULATION_CONSTRAINTS } from "./model/simulation-constraints";
-import { SimulationNumberInput } from "./footer/SimulationNumberInput";
+import type { Simulation } from "@/components/editor/model/simulation";
+import { METRIC_SIMULATION_CONSTRAINTS } from "@/components/editor/model/simulation-constraints";
+import { SimulationNumberInput } from "./SimulationNumberInput";
 
 export function ComplicationSimulation({
   source,

@@ -2,14 +2,66 @@
   animation: app-spin 700ms linear infinite;
 }
 
+.u-slide-in-from-right {
+  animation: app-slide-in-from-right 320ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.u-collapse-to-top {
+  animation: app-collapse-to-top 260ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.u-ripple {
+  transform: translate(-50%, -50%) scale(0.12);
+}
+
 @keyframes app-spin {
   to {
     transform: rotate(1turn);
   }
 }
 
+@keyframes app-slide-in-from-right {
+  from {
+    transform: translateX(calc(100% + var(--app-border-width)));
+  }
+}
+
+@keyframes app-collapse-to-top {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+@keyframes app-ripple {
+  from {
+    opacity: 0.46;
+  }
+
+  65% {
+    opacity: 0.2;
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.8);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .u-ripple {
+    animation: app-ripple 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .u-spin {
+  .u-spin,
+  .u-slide-in-from-right,
+  .u-collapse-to-top {
     animation: none;
   }
 }

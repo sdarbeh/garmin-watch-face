@@ -1,9 +1,9 @@
 import type { DesignIssue } from "@/watchface/design-validation";
 import type { Design } from "@/watchface/schema";
-import { layerLabel } from "../types";
+import { layerLabel } from "@/components/editor/types";
 import { InspectorSection } from "./InspectorSection";
-import { EDITOR_MODE_LABELS } from "../model/display-modes";
-import { ValidationIssueButton } from "../ValidationIssueButton";
+import { EDITOR_MODE_LABELS } from "@/components/editor/model/display-modes";
+import { ValidationIssueButton } from "@/components/editor/validation/ValidationIssueButton";
 
 export function DesignChecks({
   design,

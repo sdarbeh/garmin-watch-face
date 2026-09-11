@@ -11,7 +11,7 @@ type ButtonFeedbackConfig = {
 
 const BUTTON_FEEDBACK_CONFIG = {
   press: { effectClassName: null },
-  ripple: { effectClassName: "ui-button__feedback--ripple" },
+  ripple: { effectClassName: "u-ripple" },
 } as const satisfies Record<ButtonHaptic, ButtonFeedbackConfig>;
 
 type UseButtonFeedbackOptions<Element extends HTMLElement> = {
