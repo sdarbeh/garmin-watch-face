@@ -25,7 +25,12 @@ import { EditorInspector } from "./inspector/EditorInspector";
 import { EditorLayers } from "./EditorLayers";
 import { EditorExport } from "./export/EditorExport";
 import { useDesignHistory } from "./hooks/useDesignHistory";
-import { moveElement, snapPosition } from "./model/geometry";
+import { snapPosition } from "./model/geometry";
+import {
+  executeEditorCommand,
+  type EditorCommand,
+  type EditorCommandResult,
+} from "./model/commands";
 import type { EditorSelection } from "./types";
 
 export function EditorWorkspace({
@@ -76,6 +81,16 @@ export function EditorWorkspace({
     return powerLayout(next, displayMode);
   };
   const activeHistory = { ...history, update: setActiveDesign };
+  const dispatchCommand = (
+    command: EditorCommand,
+  ): EditorCommandResult | null => {
+    const current = browserLibrary.find(project.id)?.design;
+    if (!current) return null;
+    const result = executeEditorCommand(current, displayMode, command);
+    setDesign(result.design);
+    if (result.selection) setSelected(result.selection);
+    return result;
+  };
 
   const [zoom, setZoom] = useState(100);
   const [preview, setPreview] = useState(false);
@@ -152,13 +167,14 @@ export function EditorWorkspace({
         const element = current.elements.find((item) => item.id === selected);
         if (!element || element.locked || !element.visible) return;
         if (!event.repeat) history.begin();
-        const next = moveElement(
-          current,
-          selected,
-          element.x + delta[0] * amount,
-          element.y + delta[1] * amount,
-        );
-        const applied = setActiveDesign(next);
+        const result = dispatchCommand({
+          type: "layer.move",
+          id: selected,
+          x: element.x + delta[0] * amount,
+          y: element.y + delta[1] * amount,
+        });
+        if (!result) return;
+        const applied = powerLayout(result.design, displayMode);
         const moved = applied.elements.find((item) => item.id === selected)!;
         // Exact alignment keeps one-pixel nudges from sticking to nearby targets.
         setKeyboardGuides(
@@ -201,12 +217,11 @@ export function EditorWorkspace({
       <div className="watchface-workspace" data-preview={preview}>
         {!preview && (
           <EditorLayers
-            mode={displayMode}
             selected={selected}
             onSelect={setSelected}
             key={`layers-${displayMode}`}
             design={activeDesign}
-            onChange={setActiveDesign}
+            onCommand={dispatchCommand}
             ready={ready}
           />
         )}
@@ -229,10 +244,15 @@ export function EditorWorkspace({
             simulation={simulation}
             onSimulationChange={setSimulation}
             setDesign={setActiveDesign}
-            onReset={() => setDesign(structuredClone(project.initialDesign))}
+            onCommand={dispatchCommand}
+            onReset={() =>
+              dispatchCommand({
+                type: "project.reset",
+                initialDesign: project.initialDesign,
+              })
+            }
             mode={displayMode}
             {...{ ready, selected }}
-            onSelect={setSelected}
           />
         )}
       </div>

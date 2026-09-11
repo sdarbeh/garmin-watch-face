@@ -22,13 +22,13 @@ import { LayerActions } from "../LayerActions";
 import { PositionField } from "./PositionField";
 import { ResetProject } from "./ResetProject";
 import { Button, ColorField } from "@/components/ui";
-import {
-  validateDesign,
-  type Design,
-  type FaceElement,
-} from "@/watchface/schema";
+import type { Design } from "@/watchface/schema";
 import { layoutWarnings } from "@/watchface/render-model";
 import { LAYER_LABELS, layerLabel, type EditorSelection } from "../types";
+import type {
+  DispatchEditorCommand,
+  EditorLayerPatch,
+} from "../model/commands";
 
 export function EditorInspector({
   design,
@@ -38,10 +38,9 @@ export function EditorInspector({
   ready,
   selected,
   setDesign,
-  onSelect,
+  onCommand,
   onReset,
 }: {
-  onSelect: (id: string) => void;
   design: Design;
   simulation: Simulation;
   onSimulationChange: (value: Simulation) => void;
@@ -49,6 +48,7 @@ export function EditorInspector({
   ready: boolean;
   selected: EditorSelection;
   setDesign: (design: Design) => void;
+  onCommand: DispatchEditorCommand;
   onReset: () => void;
 }) {
   const device = getDeviceById(design.device)!;
@@ -57,16 +57,9 @@ export function EditorInspector({
       ? null
       : design.elements.find((item) => item.id === selected);
   const warnings = layoutWarnings(design);
-  function updateElement(patch: Partial<FaceElement>) {
+  function updateElement(patch: EditorLayerPatch) {
     if (!element || element.locked || selected === "background") return;
-    setDesign(
-      validateDesign({
-        ...design,
-        elements: design.elements.map((item) =>
-          item.id === selected ? { ...item, ...patch } : item,
-        ),
-      }),
-    );
+    onCommand({ type: "layer.update", id: selected, patch });
   }
   return (
     <aside className="watchface-customizer" aria-label="Properties">
@@ -322,8 +315,7 @@ export function EditorInspector({
         design={design}
         selected={selected}
         ready={ready}
-        onChange={setDesign}
-        onSelect={onSelect}
+        onCommand={onCommand}
       />
     </aside>
   );

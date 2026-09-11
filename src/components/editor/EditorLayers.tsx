@@ -1,38 +1,27 @@
-import type { PowerMode } from "@/watchface/power";
 import { supportedLayers } from "@/watchface/capabilities";
 import { getDeviceById } from "@/devices/catalog";
 import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LayerIcon, VisibilityIcon, LockIcon, PlusIcon } from "@/icons";
 import { MAX_ELEMENTS, type Design } from "@/watchface/schema";
-import { addLayer } from "./model/layers";
+import type { DispatchEditorCommand } from "./model/commands";
 import { LAYER_LABELS, layerLabel, type EditorSelection } from "./types";
 
 export function EditorLayers({
   selected,
   onSelect,
   design,
-  onChange,
+  onCommand,
   ready,
-  mode = "normal",
 }: {
   selected: EditorSelection;
   onSelect: (selection: EditorSelection) => void;
   design: Design;
-  onChange: (design: Design) => void;
+  onCommand: DispatchEditorCommand;
   ready: boolean;
-  mode?: PowerMode;
 }) {
   const supported = supportedLayers(getDeviceById(design.device)!);
   const [adding, setAdding] = useState(false);
-  function toggle(id: string, property: "visible" | "locked") {
-    onChange({
-      ...design,
-      elements: design.elements.map((item) =>
-        item.id === id ? { ...item, [property]: !item[property] } : item,
-      ),
-    });
-  }
   return (
     <aside className="watchface-layers" aria-label="Layers">
       <div
@@ -69,9 +58,7 @@ export function EditorLayers({
                   variant="ghost"
                   disabled={!ready || design.elements.length >= MAX_ELEMENTS}
                   onClick={() => {
-                    const id = crypto.randomUUID();
-                    onChange(addLayer(design, type, id, mode));
-                    onSelect(id);
+                    onCommand({ type: "layer.add", layerType: type });
                     setAdding(false);
                   }}
                 >
@@ -114,7 +101,12 @@ export function EditorLayers({
                     disabled={!ready || item.locked}
                     aria-label={`${item.visible ? "Hide" : "Show"} ${layerLabel(item)}`}
                     aria-pressed={!item.visible}
-                    onClick={() => toggle(item.id, "visible")}
+                    onClick={() =>
+                      onCommand({
+                        type: "layer.toggle-visibility",
+                        id: item.id,
+                      })
+                    }
                   >
                     <VisibilityIcon visible={item.visible} size="sm" />
                   </Button>
@@ -125,7 +117,9 @@ export function EditorLayers({
                     disabled={!ready}
                     aria-label={`${item.locked ? "Unlock" : "Lock"} ${layerLabel(item)}`}
                     aria-pressed={item.locked}
-                    onClick={() => toggle(item.id, "locked")}
+                    onClick={() =>
+                      onCommand({ type: "layer.toggle-lock", id: item.id })
+                    }
                   >
                     <LockIcon locked={item.locked} size="sm" />
                   </Button>
