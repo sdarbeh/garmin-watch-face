@@ -26,6 +26,10 @@ import {
 } from "../model/selection";
 import type { useDesignHistory } from "../hooks/useDesignHistory";
 import { useCanvasFit } from "../hooks/useCanvasFit";
+import {
+  hasElementTemplateDrag,
+  readElementTemplateDrag,
+} from "../model/element-template-drag";
 
 import {
   simulationValues,
@@ -50,11 +54,13 @@ export function EditorCanvas({
   zoom,
   onZoomChange,
   onCanvasPoint,
+  onAddTemplate,
   onDuplicateForDrag,
 }: {
   zoom: number;
   onZoomChange: (zoom: number) => void;
   onCanvasPoint: (point: EditorPoint) => void;
+  onAddTemplate: (templateId: string, position: EditorPoint) => void;
   onDuplicateForDrag: (ids: ElementId[]) => EditorCommandResult | null;
   keyboardGuides: Guide[];
   simulation: Simulation;
@@ -100,6 +106,7 @@ export function EditorCanvas({
   const space = useRef(false);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [marqueeRect, setMarqueeRect] = useState<SelectionRect | null>(null);
+  const [templateDropActive, setTemplateDropActive] = useState(false);
   const fittedWidth = useCanvasFit(viewport, device.frame);
   const pixels = (fittedWidth * zoom) / 100;
   const scale = pixels / device.frame.width;
@@ -125,6 +132,12 @@ export function EditorCanvas({
       x: Math.max(0, Math.min(454, current.x)),
       y: Math.max(0, Math.min(454, current.y)),
     };
+  }
+  function isInsideDisplay(position: EditorPoint | null): position is EditorPoint {
+    return Boolean(
+      position &&
+        (position.x - 227) ** 2 + (position.y - 227) ** 2 <= 227 ** 2,
+    );
   }
   function finishMarquee(cancel = false) {
     const active = marquee.current;
@@ -161,6 +174,7 @@ export function EditorCanvas({
       )}
       <div
         className="watchface-preview__stage"
+        data-template-drop={templateDropActive || undefined}
         ref={viewport}
         tabIndex={0}
         aria-label="Canvas. Drag empty space to select layers. Drag elements to move; drag corner handles to resize. Arrow keys nudge. Hold Space and drag to pan."
@@ -182,6 +196,36 @@ export function EditorCanvas({
           pan.current = null;
           finish();
           finishMarquee(true);
+        }}
+        onDragOver={(event) => {
+          if (preview || !ready || !hasElementTemplateDrag(event.dataTransfer))
+            return;
+          const insideDisplay = isInsideDisplay(
+            point(event.clientX, event.clientY),
+          );
+          setTemplateDropActive(insideDisplay);
+          if (!insideDisplay) return;
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "copy";
+        }}
+        onDragLeave={(event) => {
+          const destination = event.relatedTarget;
+          if (
+            destination instanceof Node &&
+            event.currentTarget.contains(destination)
+          )
+            return;
+          setTemplateDropActive(false);
+        }}
+        onDrop={(event) => {
+          setTemplateDropActive(false);
+          if (preview || !ready) return;
+          const templateId = readElementTemplateDrag(event.dataTransfer);
+          const position = point(event.clientX, event.clientY);
+          if (!templateId || !isInsideDisplay(position)) return;
+          event.preventDefault();
+          onCanvasPoint(position);
+          onAddTemplate(templateId, position);
         }}
         onContextMenu={(event) => {
           if (!ready || preview) return;
@@ -311,9 +355,7 @@ export function EditorCanvas({
                   event.shiftKey || event.metaKey || event.ctrlKey,
                 );
                 if (!id && !resizingGroup) {
-                  const insideDisplay =
-                    (start.x - 227) ** 2 + (start.y - 227) ** 2 <= 227 ** 2;
-                  if (!insideDisplay) {
+                  if (!isInsideDisplay(start)) {
                     if (!additive) onSelect("background");
                     return;
                   }

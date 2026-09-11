@@ -23,6 +23,12 @@
 .watchface-preview__watch {
   flex-shrink: 0;
   filter: drop-shadow(var(--app-shadow-canvas));
+  transition: filter var(--app-transition-fast);
+}
+.watchface-preview__stage[data-template-drop="true"]
+  .watchface-preview__watch {
+  filter: drop-shadow(var(--app-shadow-canvas))
+    drop-shadow(0 0 var(--app-gap-2) var(--app-color-primary));
 }
 .watchface-preview__watch svg {
   display: block;

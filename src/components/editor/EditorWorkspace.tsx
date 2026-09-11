@@ -22,7 +22,7 @@ import {
 import { EditorToolbar } from "./EditorToolbar";
 import { EditorCanvas } from "./canvas/EditorCanvas";
 import { EditorInspector } from "./inspector/EditorInspector";
-import { EditorLayers } from "./EditorLayers";
+import { EditorLeftRail } from "./left-rail";
 import { EditorExport } from "./export/EditorExport";
 import { useDesignHistory } from "./hooks/useDesignHistory";
 import { useEditorActions } from "./hooks/useEditorActions";
@@ -367,7 +367,7 @@ export function EditorWorkspace({
       <div className="watchface-workspace" data-preview={preview}>
         {!preview && (
           <>
-            <EditorLayers
+            <EditorLeftRail
               selected={selected}
               selectedIds={selectedIds}
               onSelect={selectLayer}
@@ -399,6 +399,13 @@ export function EditorWorkspace({
           zoom={zoom}
           onZoomChange={setZoom}
           onCanvasPoint={editorActions.rememberCanvasPoint}
+          onAddTemplate={(templateId, position) =>
+            dispatchCommand({
+              type: "layer.add-template",
+              templateId,
+              position,
+            })
+          }
           onDuplicateForDrag={(ids) =>
             ids.length > 1
               ? dispatchCommand({ type: "layer.duplicate-many", ids })

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 export const EDITOR_RAILS = {
-  left: { default: 208, min: 160, max: 320 },
+  left: { default: 260, min: 208, max: 320 },
   right: { default: 272, min: 240, max: 480 },
 } as const;
 

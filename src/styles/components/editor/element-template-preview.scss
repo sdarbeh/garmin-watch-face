@@ -1,0 +1,29 @@
+.watchface-element-preview {
+  display: grid;
+  place-items: center;
+  width: var(--app-control-lg);
+  height: var(--app-control-md);
+  color: var(--app-color-text);
+  font-size: var(--app-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--app-font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.watchface-element-preview [data-scale="large"] {
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-bold);
+}
+
+.watchface-element-preview svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+}
+
+.watchface-element-preview__track {
+  opacity: 0.25;
+}

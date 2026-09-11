@@ -1,0 +1,34 @@
+@use "../../tokens";
+
+.watchface-left-rail,
+.watchface-left-rail__screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.watchface-left-rail {
+  padding: var(--app-gap-4);
+  border-right: var(--app-border-width) solid var(--app-color-border);
+}
+
+.watchface-left-rail__screen {
+  flex: 1;
+}
+
+.watchface-left-rail__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: tokens.$breakpoint-md) {
+  .watchface-left-rail {
+    border-right: 0;
+    border-bottom: var(--app-border-width) solid var(--app-color-border);
+  }
+
+  .watchface-left-rail__scroll {
+    max-height: var(--app-panel-width-compact);
+  }
+}

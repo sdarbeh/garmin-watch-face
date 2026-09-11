@@ -1,7 +1,12 @@
 @use "./toolbar";
 @use "./canvas";
 @use "./inspector";
-@use "./layers";
+@use "./editor-left-rail";
+@use "./layers-screen";
+@use "./add-elements-screen";
+@use "./element-template-preview";
+@use "./layer-list-item";
+@use "./editor-rail-resizer";
 @use "./export";
 @use "./context-menu";
 

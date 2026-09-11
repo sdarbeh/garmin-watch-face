@@ -1,0 +1,34 @@
+.watchface-add-elements__header {
+  min-height: var(--app-control-md);
+  margin-bottom: var(--app-gap-3);
+}
+
+.watchface-add-elements__content {
+  align-content: start;
+}
+
+.watchface-add-elements__category {
+  min-width: 0;
+}
+
+.watchface-add-elements__template {
+  display: grid;
+  grid-template-columns: var(--app-control-lg) minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+}
+
+.watchface-add-elements__template-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.watchface-add-elements__template[draggable="true"] {
+  cursor: grab;
+}
+
+.watchface-add-elements__template[draggable="true"]:active {
+  cursor: grabbing;
+}

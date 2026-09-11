@@ -37,11 +37,22 @@ export function defaultLayerLabel(
 ) {
   if (element.complication)
     return COMPLICATIONS[element.complication.source].label;
+  if (element.type === "progress")
+    return `${METRICS[element.presentation?.source ?? "steps"].label} progress`;
   if (
     element.type === "weather" &&
     element.presentation?.variant === "condition-icon"
   )
     return "Weather icon";
+  if (element.type === "icon" && element.presentation?.variant)
+    return `${sentenceCase(element.presentation.variant)} icon`;
+  if (element.type === "shape" && element.presentation?.variant)
+    return sentenceCase(element.presentation.variant);
   if (element.type === "text") return element.text || "Empty text";
   return LAYER_LABELS[element.type];
+}
+
+function sentenceCase(value: string) {
+  const words = value.replaceAll("-", " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }

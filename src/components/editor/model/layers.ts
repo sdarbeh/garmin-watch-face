@@ -5,7 +5,9 @@ import {
   MAX_ELEMENTS,
   type Design,
   type ElementType,
+  type FaceElement,
 } from "@/watchface/schema";
+import type { ElementTemplatePatch } from "./element-templates";
 import { clampPosition } from "./geometry";
 
 const DUPLICATE_OFFSET = 12;
@@ -21,6 +23,7 @@ export function addLayer(
   type: ElementType,
   id: string,
   mode: PowerMode = "normal",
+  patch: ElementTemplatePatch = {},
 ): Design {
   if (design.elements.length >= MAX_ELEMENTS) return design;
   // The panel reverses draw order; inserting first places the layer above Background.
@@ -31,9 +34,12 @@ export function addLayer(
           type === "progress" ? "steps" : type,
           mode === "night",
         );
-  const element = {
+  const element: FaceElement = {
     ...createElement(type, id),
     ...(rules.length ? { rules } : {}),
+    ...patch,
+    id,
+    type,
   };
   return { ...design, elements: [element, ...design.elements] };
 }

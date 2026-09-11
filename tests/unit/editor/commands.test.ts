@@ -10,7 +10,7 @@ describe("editor commands", () => {
     const added = executeEditorCommand(
       initial,
       "normal",
-      { type: "layer.add", layerType: "weather" },
+      { type: "layer.add-template", templateId: "weather-temperature" },
       id("weather-layer"),
     );
 
@@ -40,6 +40,42 @@ describe("editor commands", () => {
     expect(
       deleted.design.elements.some((item) => item.id === "weather-copy"),
     ).toBe(false);
+  });
+
+  it("adds configured element templates in one undoable command", () => {
+    const result = executeEditorCommand(
+      defaultDesign(),
+      "normal",
+      { type: "layer.add-template", templateId: "analog-hands" },
+      id("analog-time"),
+    );
+
+    expect(result.selection).toBe("analog-time");
+    expect(result.design.elements[0]).toMatchObject({
+      id: "analog-time",
+      name: "Analog hands",
+      type: "time",
+      presentation: { variant: "analog", width: 280, height: 280 },
+    });
+  });
+
+  it("places a dragged template at its canvas drop position", () => {
+    const result = executeEditorCommand(
+      defaultDesign(),
+      "normal",
+      {
+        type: "layer.add-template",
+        templateId: "large-digital-time",
+        position: { x: 140, y: 310 },
+      },
+      id("placed-time"),
+    );
+
+    expect(result.design.elements[0]).toMatchObject({
+      id: "placed-time",
+      x: 140,
+      y: 310,
+    });
   });
 
   it("applies lock rules consistently to every command surface", () => {

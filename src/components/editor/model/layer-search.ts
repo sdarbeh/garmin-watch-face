@@ -35,7 +35,7 @@ const LAYER_ALIASES: Record<ElementType, readonly string[]> = {
   image: ["photo", "picture", "png", "pixel", "artwork"],
 };
 
-function normalize(value: string) {
+export function normalizeSearchText(value: string) {
   return value
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .normalize("NFKD")
@@ -57,13 +57,13 @@ function scoreLayer(
   query: string,
   extraTerms: string[] = [],
 ) {
-  const normalizedQuery = normalize(query);
+  const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) return 1;
-  const name = normalize(
+  const name = normalizeSearchText(
     `${LAYER_LABELS[type]} ${type} ${extraTerms.join(" ")}`,
   );
   const words = name.split(/\s+/);
-  const aliases = LAYER_ALIASES[type].map(normalize);
+  const aliases = LAYER_ALIASES[type].map(normalizeSearchText);
   const scores = normalizedQuery
     .split(/\s+/)
     .map((token) => tokenScore(token, words, aliases));
@@ -81,16 +81,4 @@ export function matchesLayerQuery(
   extraTerms: string[] = [],
 ) {
   return scoreLayer(type, query, extraTerms) > 0;
-}
-
-/** Ranks supported layers while requiring every search term to match. */
-export function searchLayerTypes(types: ElementType[], query: string) {
-  if (!normalize(query)) return types;
-  return types
-    .map((type, index) => {
-      return { type, index, score: scoreLayer(type, query) };
-    })
-    .filter((result) => result.score > 0)
-    .sort((a, b) => b.score - a.score || a.index - b.index)
-    .map((result) => result.type);
 }

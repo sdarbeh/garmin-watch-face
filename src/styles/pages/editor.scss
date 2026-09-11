@@ -24,7 +24,7 @@
   display: grid;
   grid-template-columns: var(--app-editor-columns);
 }
-.watchface-workspace:not([data-preview="true"]) > .watchface-layers {
+.watchface-workspace:not([data-preview="true"]) > .watchface-left-rail {
   grid-column: 1;
   grid-row: 1;
 }
@@ -52,7 +52,7 @@
   .watchface-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
-  .watchface-workspace:not([data-preview="true"]) > .watchface-layers,
+  .watchface-workspace:not([data-preview="true"]) > .watchface-left-rail,
   .watchface-workspace:not([data-preview="true"]) > .watchface-preview,
   .watchface-workspace:not([data-preview="true"]) > .watchface-customizer {
     grid-column: auto;

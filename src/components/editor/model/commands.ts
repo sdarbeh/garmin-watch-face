@@ -9,7 +9,6 @@ import {
   MAX_ELEMENTS,
   type Design,
   type ElementId,
-  type ElementType,
   type FaceElement,
 } from "@/watchface/schema";
 import type { EditorPoint, EditorSelection } from "../types";
@@ -22,11 +21,19 @@ import {
   reorderLayers,
 } from "./layers";
 import { nextPastePosition, placeClipboardElements } from "./clipboard";
+import {
+  elementTemplate,
+  type ElementTemplatePatch,
+} from "./element-templates";
 
-export type EditorLayerPatch = Omit<Partial<FaceElement>, "id" | "type">;
+export type EditorLayerPatch = ElementTemplatePatch;
 
 export type EditorCommand =
-  | { type: "layer.add"; layerType: ElementType }
+  | {
+      type: "layer.add-template";
+      templateId: string;
+      position?: EditorPoint;
+    }
   | { type: "layer.duplicate"; id: ElementId }
   | { type: "layer.duplicate-many"; ids: ElementId[] }
   | {
@@ -163,9 +170,22 @@ export function executeEditorCommand(
   let selections: ElementId[] | undefined;
 
   switch (command.type) {
-    case "layer.add": {
+    case "layer.add-template": {
+      const template = elementTemplate(command.templateId);
+      if (!template) break;
       const id = createId();
-      edited = addLayer(active, command.layerType, id, mode);
+      edited = addLayer(active, template.layerType, id, mode, {
+        name: template.label,
+        ...template.patch,
+      });
+      if (command.position) {
+        edited = moveElement(
+          edited,
+          id,
+          command.position.x,
+          command.position.y,
+        );
+      }
       if (edited !== active) selection = id;
       break;
     }

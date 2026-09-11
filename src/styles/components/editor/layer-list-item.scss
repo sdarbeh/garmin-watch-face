@@ -1,0 +1,97 @@
+.watchface-layer-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--app-control-md);
+  padding-inline: var(--app-gap-1);
+  border-bottom: var(--app-border-width) solid var(--app-color-border);
+}
+
+.watchface-layer-item--background {
+  justify-content: flex-start;
+  gap: var(--app-gap-3);
+  padding: var(--app-gap-2);
+  text-align: left;
+  border-bottom: none;
+}
+
+.watchface-layer-item[data-draggable="true"] {
+  cursor: grab;
+}
+
+.watchface-layer-item[data-draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.watchface-layer-item[data-dragging="true"] {
+  opacity: 0.55;
+}
+
+.watchface-layer-item[data-drop="above"]::before,
+.watchface-layer-item[data-drop="below"]::after {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  left: 0;
+  height: calc(var(--app-border-width) * 2);
+  border-radius: var(--app-border-width);
+  content: "";
+  background: var(--app-color-primary);
+}
+
+.watchface-layer-item[data-drop="above"]::before {
+  top: calc(var(--app-border-width) * -2);
+}
+
+.watchface-layer-item[data-drop="below"]::after {
+  bottom: calc(var(--app-border-width) * -2);
+}
+
+.watchface-layer-item[data-selected="true"],
+.watchface-layer-item[aria-pressed="true"] {
+  border-bottom-color: transparent;
+  border-radius: var(--app-radius-small);
+  color: var(--app-color-text);
+  background: color-mix(in srgb, var(--app-color-primary) 24%, transparent);
+  box-shadow: inset 0 0 0 var(--app-border-width) var(--app-color-primary);
+}
+
+.watchface-layer-item__select {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  padding-inline: var(--app-gap-1);
+  text-align: left;
+  cursor: inherit;
+}
+
+.watchface-layer-item__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watchface-layer-item__action {
+  flex-shrink: 0;
+  color: var(--app-color-text-muted);
+}
+
+.watchface-layer-item[data-visible="false"] .watchface-layer-item__label,
+.watchface-layer-item[data-visible="false"]
+  .watchface-layer-item__select
+  > svg {
+  opacity: 0.48;
+}
+
+.watchface-layer-item[data-locked="true"]
+  .watchface-layer-item__select
+  > svg {
+  color: var(--app-color-text-muted);
+}
+
+.watchface-layer-item__select > svg,
+.watchface-layer-item--background svg {
+  flex-shrink: 0;
+}

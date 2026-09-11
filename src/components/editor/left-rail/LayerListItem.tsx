@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { LayerIcon, LockIcon, VisibilityIcon } from "@/icons";
+import { GripIcon, LockIcon, VisibilityIcon } from "@/icons";
 import type { FaceElement } from "@/watchface/schema";
-import type { DispatchEditorCommand } from "./model/commands";
-import type { EditorContextRequest } from "./model/context-menu";
-import { layerLabel } from "./types";
+import type { DispatchEditorCommand } from "@/components/editor/model/commands";
+import type { EditorContextRequest } from "@/components/editor/model/context-menu";
+import { layerLabel } from "@/components/editor/types";
 
-interface DropTarget {
+export interface LayerDropTarget {
   id: string;
   placement: "above" | "below";
 }
 
-export function LayerListRow({
+export function LayerListItem({
   item,
   selectedIds,
   ready,
@@ -30,21 +30,22 @@ export function LayerListRow({
   ready: boolean;
   draggedIds: string[];
   dragDisabled: boolean;
-  dropTarget: DropTarget | null;
+  dropTarget: LayerDropTarget | null;
   onSelect: (id: string, additive?: boolean) => void;
   onCommand: DispatchEditorCommand;
   onOpenContextMenu: (request: EditorContextRequest) => void;
   onDragStart: (ids: string[]) => void;
-  onDragOver: (target: DropTarget) => void;
+  onDragOver: (target: LayerDropTarget) => void;
   onDrop: () => void;
   onDragEnd: () => void;
 }) {
   const selected = selectedIds.includes(item.id);
   const dragIds = selected ? selectedIds : [item.id];
+  const label = layerLabel(item);
 
   return (
     <div
-      className="watchface-layer-row"
+      className="watchface-layer-item"
       data-selected={selected}
       data-visible={item.visible}
       data-locked={item.locked}
@@ -77,8 +78,7 @@ export function LayerListRow({
     >
       <Button
         variant="ghost"
-        className="watchface-layer-select"
-        title={layerLabel(item)}
+        className="watchface-layer-item__select"
         aria-pressed={selected}
         draggable={!dragDisabled}
         onClick={(event) =>
@@ -96,16 +96,16 @@ export function LayerListRow({
         }}
         onDragEnd={onDragEnd}
       >
-        <LayerIcon type={item.type} size="sm" />
-        <span className="watchface-layer-copy">{layerLabel(item)}</span>
+        <GripIcon size="sm" />
+        <span className="watchface-layer-item__label">{label}</span>
       </Button>
       <Button
         variant="ghost"
         size="xs"
         iconOnly
-        className="watchface-layer-action watchface-layer-action--visibility"
+        className="watchface-layer-item__action"
         disabled={!ready || item.locked}
-        aria-label={`${item.visible ? "Hide" : "Show"} ${layerLabel(item)}`}
+        aria-label={`${item.visible ? "Hide" : "Show"} ${label}`}
         aria-pressed={!item.visible}
         onClick={() =>
           onCommand({ type: "layer.toggle-visibility", id: item.id })
@@ -117,9 +117,9 @@ export function LayerListRow({
         variant="ghost"
         size="xs"
         iconOnly
-        className="watchface-layer-action watchface-layer-action--lock"
+        className="watchface-layer-item__action"
         disabled={!ready}
-        aria-label={`${item.locked ? "Unlock" : "Lock"} ${layerLabel(item)}`}
+        aria-label={`${item.locked ? "Unlock" : "Lock"} ${label}`}
         aria-pressed={item.locked}
         onClick={() => onCommand({ type: "layer.toggle-lock", id: item.id })}
       >

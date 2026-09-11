@@ -1,0 +1,18 @@
+.watchface-left-rail__toolbar {
+  grid-template-columns: minmax(0, 1fr) var(--app-control-md);
+  margin-bottom: var(--app-gap-3);
+}
+
+.watchface-left-rail__active {
+  min-width: 0;
+  color: var(--app-color-text);
+}
+
+.watchface-left-rail__add-tab {
+  width: var(--app-control-md);
+}
+
+.watchface-left-rail__add-button {
+  width: 100%;
+  margin-top: var(--app-gap-3);
+}
