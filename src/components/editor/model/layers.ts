@@ -46,18 +46,23 @@ export function duplicateLayer(
 export function reorderLayer(
   design: Design,
   id: string,
-  direction: -1 | 1,
+  placement: -1 | 1 | "front" | "back",
 ): Design {
   const elements = [...design.elements];
   const index = elements.findIndex((item) => item.id === id);
-  const next = index + direction;
+  let next = index;
+  if (placement === "front") next = elements.length - 1;
+  else if (placement === "back") next = 0;
+  else next = index + placement;
   if (
     index < 0 ||
     elements[index].locked ||
+    next === index ||
     next < 0 ||
     next >= elements.length
   )
     return design;
-  [elements[index], elements[next]] = [elements[next], elements[index]];
+  const [element] = elements.splice(index, 1);
+  elements.splice(next, 0, element);
   return { ...design, elements };
 }

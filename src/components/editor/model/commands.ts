@@ -5,13 +5,14 @@ import {
 } from "../../../watchface/power";
 import {
   validateDesign,
+  MAX_ELEMENTS,
   type Design,
   type ElementId,
   type ElementType,
   type FaceElement,
 } from "../../../watchface/schema";
 import type { EditorSelection } from "../types";
-import { moveElement } from "./geometry";
+import { clampPosition, moveElement } from "./geometry";
 import { addLayer, duplicateLayer, reorderLayer } from "./layers";
 
 export type EditorLayerPatch = Omit<Partial<FaceElement>, "id" | "type">;
@@ -19,8 +20,13 @@ export type EditorLayerPatch = Omit<Partial<FaceElement>, "id" | "type">;
 export type EditorCommand =
   | { type: "layer.add"; layerType: ElementType }
   | { type: "layer.duplicate"; id: ElementId }
+  | { type: "layer.paste"; element: FaceElement; offset: number }
   | { type: "layer.delete"; id: ElementId }
-  | { type: "layer.reorder"; id: ElementId; direction: -1 | 1 }
+  | {
+      type: "layer.reorder";
+      id: ElementId;
+      placement: "forward" | "backward" | "front" | "back";
+    }
   | { type: "layer.toggle-visibility"; id: ElementId }
   | { type: "layer.toggle-lock"; id: ElementId }
   | { type: "layer.update"; id: ElementId; patch: EditorLayerPatch }
@@ -87,6 +93,20 @@ export function executeEditorCommand(
       if (edited !== active) selection = id;
       break;
     }
+    case "layer.paste": {
+      if (active.elements.length >= MAX_ELEMENTS) break;
+      const id = createId();
+      const element = {
+        ...command.element,
+        id,
+        locked: false,
+        x: clampPosition(command.element.x + command.offset),
+        y: clampPosition(command.element.y + command.offset),
+      };
+      edited = { ...active, elements: [...active.elements, element] };
+      selection = id;
+      break;
+    }
     case "layer.delete": {
       const element = active.elements.find((item) => item.id === command.id);
       if (!element || element.locked) break;
@@ -97,9 +117,19 @@ export function executeEditorCommand(
       selection = "background";
       break;
     }
-    case "layer.reorder":
-      edited = reorderLayer(active, command.id, command.direction);
+    case "layer.reorder": {
+      const placements: Record<
+        typeof command.placement,
+        1 | -1 | "front" | "back"
+      > = {
+        forward: 1,
+        backward: -1,
+        front: "front",
+        back: "back",
+      };
+      edited = reorderLayer(active, command.id, placements[command.placement]);
       break;
+    }
     case "layer.toggle-visibility":
       edited = updateLayer(active, command.id, (element) => ({
         ...element,

@@ -27,11 +27,13 @@ export function LayerActions({
             disabled={
               !ready || element.locked || index === design.elements.length - 1
             }
+            title="Bring forward (⌘/Ctrl + ])"
+            aria-keyshortcuts="Meta+] Control+]"
             onClick={() =>
               onCommand({
                 type: "layer.reorder",
                 id: selected,
-                direction: 1,
+                placement: "forward",
               })
             }
           >
@@ -40,11 +42,13 @@ export function LayerActions({
           <Button
             size="sm"
             disabled={!ready || element.locked || index === 0}
+            title="Send backward (⌘/Ctrl + [)"
+            aria-keyshortcuts="Meta+[ Control+["
             onClick={() =>
               onCommand({
                 type: "layer.reorder",
                 id: selected,
-                direction: -1,
+                placement: "backward",
               })
             }
           >
@@ -58,6 +62,8 @@ export function LayerActions({
           disabled={
             !ready || element.locked || design.elements.length >= MAX_ELEMENTS
           }
+          title="Duplicate (⌘/Ctrl + D)"
+          aria-keyshortcuts="Meta+D Control+D"
           onClick={() => onCommand({ type: "layer.duplicate", id: selected })}
         >
           <DuplicateIcon size="sm" />
@@ -67,6 +73,8 @@ export function LayerActions({
           variant="danger"
           size="sm"
           disabled={!ready || element.locked}
+          title="Delete (Delete/Backspace)"
+          aria-keyshortcuts="Delete Backspace"
           onClick={() => onCommand({ type: "layer.delete", id: selected })}
         >
           <DeleteIcon size="sm" />

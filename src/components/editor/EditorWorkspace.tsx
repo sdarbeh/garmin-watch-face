@@ -25,6 +25,7 @@ import { EditorInspector } from "./inspector/EditorInspector";
 import { EditorLayers } from "./EditorLayers";
 import { EditorExport } from "./export/EditorExport";
 import { useDesignHistory } from "./hooks/useDesignHistory";
+import { useEditorShortcuts } from "./hooks/useEditorShortcuts";
 import { snapPosition } from "./model/geometry";
 import {
   executeEditorCommand,
@@ -44,6 +45,7 @@ export function EditorWorkspace({
 }) {
   const { design } = project;
   const ready = true;
+  const [message, setMessage] = useState("");
   const history = useDesignHistory(project.id);
   const setDesign = history.update;
   const [selection, setSelected] = useState<EditorSelection>("time");
@@ -86,10 +88,17 @@ export function EditorWorkspace({
   ): EditorCommandResult | null => {
     const current = browserLibrary.find(project.id)?.design;
     if (!current) return null;
-    const result = executeEditorCommand(current, displayMode, command);
-    setDesign(result.design);
-    if (result.selection) setSelected(result.selection);
-    return result;
+    try {
+      const result = executeEditorCommand(current, displayMode, command);
+      setDesign(result.design);
+      if (result.selection) setSelected(result.selection);
+      return result;
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Could not edit this layer.",
+      );
+      return null;
+    }
   };
 
   const [zoom, setZoom] = useState(100);
@@ -105,8 +114,15 @@ export function EditorWorkspace({
       )
     : displayMode;
   const [exportOpen, setExportOpen] = useState(false);
-  const [message, setMessage] = useState("");
   const build = useWatchfaceBuild(design, setMessage);
+  const handleEditorShortcut = useEditorShortcuts({
+    projectId: project.id,
+    mode: displayMode,
+    selected,
+    preview,
+    onCommand: dispatchCommand,
+    onMessage: setMessage,
+  });
 
   return (
     <section
@@ -143,6 +159,7 @@ export function EditorWorkspace({
           else history.undo();
           return;
         }
+        if (handleEditorShortcut(event)) return;
         if (
           preview ||
           selected === "background" ||
