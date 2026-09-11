@@ -72,7 +72,6 @@
   );
 }
 .device-picker__empty {
-  border: var(--app-border-width) dashed var(--app-color-border-strong);
   border-radius: var(--app-radius-medium);
 }
 @media (max-width: tokens.$breakpoint-xl) {

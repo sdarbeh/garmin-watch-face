@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { SavedDesign } from "@/library/store";
 import { getDeviceById } from "@/devices/catalog";
 import { WatchPreview } from "@/components/editor/canvas/WatchPreview";
-import { ArrowRightIcon } from "@/icons";
 import { DesignDates } from "./DesignDates";
 import { DesignCardMenu } from "./DesignCardMenu";
 export function DesignCard({
@@ -23,9 +22,6 @@ export function DesignCard({
           className="design-card__face"
         >
           <WatchPreview design={project.design} selected={null} />
-          <span className="design-card__continue ui-button ui-button--primary ui-button--sm">
-            Continue <ArrowRightIcon size="sm" />
-          </span>
         </Link>
         <DesignCardMenu
           name={project.design.name}

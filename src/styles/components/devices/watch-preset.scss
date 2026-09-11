@@ -12,10 +12,8 @@
   aspect-ratio: 1;
   padding: var(--app-gap-2);
   overflow: hidden;
-  border: var(--app-border-width) solid var(--app-color-border);
   border-radius: var(--app-radius-small);
   background: var(--app-color-surface);
-  transition: border-color var(--app-transition-fast);
 }
 .watch-preset__preview > svg {
   display: block;
@@ -34,10 +32,6 @@
   transition:
     opacity var(--app-transition-fast),
     translate var(--app-transition-fast);
-}
-.watch-preset:hover .watch-preset__preview,
-.watch-preset:focus-visible .watch-preset__preview {
-  border-color: var(--app-color-primary);
 }
 .watch-preset:hover .watch-preset__action,
 .watch-preset:focus-visible .watch-preset__action {
