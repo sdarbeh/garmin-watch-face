@@ -33,7 +33,7 @@ export function MetricFormatting({
         "pressure",
       ].includes(type) &&
         variant !== "humidity" && (
-          <label className="watchface-property-row ui-field u-font-xs mb2">
+          <label className="watchface-property-row ui-field">
             Units
             <select
               disabled={disabled}
@@ -47,7 +47,7 @@ export function MetricFormatting({
             </select>
           </label>
         )}
-      <label className="watchface-property-row ui-field u-font-xs mb2">
+      <label className="watchface-property-row ui-field">
         Decimals
         <select
           disabled={disabled}
@@ -62,10 +62,7 @@ export function MetricFormatting({
         </select>
       </label>
       {(["prefix", "suffix"] as const).map((key) => (
-        <label
-          key={key}
-          className="watchface-property-row ui-field u-font-xs mb2"
-        >
+        <label key={key} className="watchface-property-row ui-field">
           {key === "prefix" ? "Prefix" : "Suffix"}
           <input
             disabled={disabled}

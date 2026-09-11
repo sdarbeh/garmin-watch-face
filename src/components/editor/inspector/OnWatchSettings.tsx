@@ -1,4 +1,5 @@
 import type { Design } from "@/watchface/schema";
+import { Switch } from "@/components/ui";
 import { InspectorSection } from "./InspectorSection";
 export function OnWatchSettings({
   design,
@@ -11,15 +12,12 @@ export function OnWatchSettings({
 }) {
   return (
     <InspectorSection title="On-watch customization">
-      <label className="watchface-property-row u-font-xs mb2">
-        Enable customization
-        <input
-          type="checkbox"
-          disabled={disabled}
-          checked={design.onWatch ?? false}
-          onChange={(e) => onChange({ ...design, onWatch: e.target.checked })}
-        />
-      </label>
+      <Switch
+        label="Enable customization"
+        disabled={disabled}
+        checked={design.onWatch ?? false}
+        onCheckedChange={(onWatch) => onChange({ ...design, onWatch })}
+      />
       <p className="u-font-xs u-text-secondary">
         Customize text complication sources and colors in Garmin’s watch-face
         settings after installation. Choose Custom colors to override the

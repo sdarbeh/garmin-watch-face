@@ -32,14 +32,18 @@ export function LayerPresentation({
   const p = presentation(element);
   const variants = layerVariants(element.type);
   const graphic = isGraphic(element.type, p.variant);
+  const hasContentSection =
+    element.type === "time" ||
+    element.type === "text" ||
+    Boolean(element.complication);
   const update = (patch: Partial<typeof p>) =>
     onChange({ presentation: { ...p, ...patch } });
   if (element.type === "text" || (element.type === "time" && !graphic))
     return null;
   return (
-    <InspectorSection title="Appearance" defaultOpen>
+    <InspectorSection title="Appearance" defaultOpen={!hasContentSection}>
       {variants.length > 1 && element.type !== "time" && (
-        <label className="watchface-property-row ui-field u-font-xs mb2">
+        <label className="watchface-property-row ui-field">
           Variant
           <select
             disabled={disabled}
@@ -60,7 +64,7 @@ export function LayerPresentation({
       )}
       {element.type === "chart" && (
         <>
-          <label className="watchface-property-row ui-field u-font-xs mb2">
+          <label className="watchface-property-row ui-field">
             History source
             <select
               disabled={disabled}
@@ -86,7 +90,7 @@ export function LayerPresentation({
                 ))}
             </select>
           </label>
-          <label className="watchface-property-row ui-field u-font-xs mb2">
+          <label className="watchface-property-row ui-field">
             Time range
             <select
               disabled={disabled}
@@ -117,7 +121,7 @@ export function LayerPresentation({
         </>
       )}
       {element.type === "progress" && (
-        <label className="watchface-property-row ui-field u-font-xs mb2">
+        <label className="watchface-property-row ui-field">
           Source
           <select
             disabled={disabled}
@@ -142,32 +146,33 @@ export function LayerPresentation({
         <>
           {(
             [
-              "width",
-              "height",
               ...(element.type !== "image" ? ["stroke"] : []),
               ...(["ring", "bar"].includes(p.variant) &&
               element.type !== "chart"
                 ? ["goal"]
                 : []),
-            ] as ("width" | "height" | "stroke" | "goal")[]
+            ] as ("stroke" | "goal")[]
           ).map((key) => (
             <DimensionField
               key={key}
               label={key.charAt(0).toUpperCase() + key.slice(1)}
               value={p[key]}
               disabled={disabled}
-              min={key === "width" || key === "height" ? 8 : 1}
-              max={{ stroke: 24, goal: 999999, width: 454, height: 454 }[key]}
+              min={1}
+              max={{ stroke: 24, goal: 999999 }[key]}
               onChange={(value) => update({ [key]: value })}
             />
           ))}
           {element.type !== "image" && (
-            <ColorField
-              label="Color"
-              value={element.color}
-              disabled={disabled}
-              onChange={(color) => onChange({ color })}
-            />
+            <div className="watchface-property-row">
+              <span>Color</span>
+              <ColorField
+                label="Color"
+                value={element.color}
+                disabled={disabled}
+                onChange={(color) => onChange({ color })}
+              />
+            </div>
           )}
         </>
       )}

@@ -1,5 +1,6 @@
 import { InspectorSection } from "./InspectorSection";
 import { useState } from "react";
+import { Switch } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
 import { getDeviceById } from "@/devices/catalog";
 
@@ -34,18 +35,15 @@ export function NightSettings({
   }
   return (
     <InspectorSection title="Night layout">
-      <label className="watchface-property-row u-font-xs mb3">
-        Enable night layout
-        <input
-          type="checkbox"
-          disabled={disabled}
-          checked={settings.enabled}
-          onChange={(event) => update({ enabled: event.target.checked })}
-        />
-      </label>
+      <Switch
+        label="Enable night layout"
+        disabled={disabled}
+        checked={settings.enabled}
+        onCheckedChange={(enabled) => update({ enabled })}
+      />
       {settings.enabled && (
         <>
-          <label className="watchface-property-row ui-field u-font-xs mb3">
+          <label className="watchface-property-row ui-field">
             Trigger
             <select
               disabled={disabled}
@@ -62,10 +60,7 @@ export function NightSettings({
           </label>
           {settings.trigger === "schedule" &&
             (["start", "end"] as const).map((key) => (
-              <label
-                key={key}
-                className="watchface-property-row ui-field u-font-xs mb2"
-              >
+              <label key={key} className="watchface-property-row ui-field">
                 {key === "start" ? "Starts" : "Ends"}
                 <input
                   type="time"

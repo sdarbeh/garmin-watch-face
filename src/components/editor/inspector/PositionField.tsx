@@ -24,8 +24,8 @@ export function PositionField({
     setDraft(null);
   }
   return (
-    <label className="watchface-position-field ui-field u-flex u-items-center gap2 u-font-xs">
-      <span className="u-text-secondary">{axis.toUpperCase()}</span>
+    <label className="watchface-position-field ui-field">
+      <span>{axis.toUpperCase()}</span>
       <input
         type="number"
         aria-label={

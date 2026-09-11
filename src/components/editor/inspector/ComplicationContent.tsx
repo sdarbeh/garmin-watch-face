@@ -5,6 +5,7 @@ import {
 } from "@/watchface/complications";
 import type { Device } from "@/devices/catalog";
 import type { FaceElement } from "@/watchface/schema";
+import { Switch } from "@/components/ui";
 import { InspectorSection } from "./InspectorSection";
 export function ComplicationContent({
   element,
@@ -23,7 +24,7 @@ export function ComplicationContent({
     onChange({ complication: { ...settings, ...patch } });
   return (
     <InspectorSection title="Content" defaultOpen>
-      <label className="watchface-property-row ui-field u-font-xs mb2">
+      <label className="watchface-property-row ui-field">
         Source
         <select
           value={settings.source}
@@ -42,26 +43,20 @@ export function ComplicationContent({
         </select>
       </label>
       {COMPLICATIONS[settings.source].unit && (
-        <label className="watchface-property-row u-font-xs mb2">
-          Show unit
-          <input
-            type="checkbox"
-            disabled={disabled}
-            checked={settings.showUnit}
-            onChange={(event) => update({ showUnit: event.target.checked })}
-          />
-        </label>
+        <Switch
+          label="Show unit"
+          disabled={disabled}
+          checked={settings.showUnit}
+          onCheckedChange={(showUnit) => update({ showUnit })}
+        />
       )}
       {device.capabilities.complicationHold && (
-        <label className="watchface-property-row u-font-xs mb2">
-          Hold to open
-          <input
-            type="checkbox"
-            disabled={disabled}
-            checked={settings.openOnHold}
-            onChange={(event) => update({ openOnHold: event.target.checked })}
-          />
-        </label>
+        <Switch
+          label="Hold to open"
+          disabled={disabled}
+          checked={settings.openOnHold}
+          onCheckedChange={(openOnHold) => update({ openOnHold })}
+        />
       )}
       <p className="u-font-xs u-text-secondary">
         Updates from Garmin on your watch. Missing readings show --. Hold to

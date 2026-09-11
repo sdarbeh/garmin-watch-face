@@ -3,13 +3,54 @@
 .watchface-customizer {
   display: flex;
   flex-direction: column;
-  padding: var(--app-gap-6) var(--app-gap-4) var(--app-gap-4);
+  padding: var(--app-gap-4);
   border-left: var(--app-border-width) solid var(--app-color-border);
   min-width: 0;
   overflow-y: auto;
 }
+
+.watchface-inspector-header {
+  padding-bottom: var(--app-gap-4);
+}
+
+.watchface-inspector-header__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-gap-3);
+}
+
+.watchface-inspector-header h2 {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--app-font-size-xl);
+  font-weight: var(--app-font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watchface-inspector-header__badge {
+  padding: var(--app-gap-1) var(--app-gap-3);
+  border-radius: var(--app-radius-pill);
+  color: var(--app-color-text-muted);
+  background: var(--app-color-fill-subtle);
+  font-size: var(--app-font-size-xs);
+  white-space: nowrap;
+}
+
+.watchface-inspector-header__description,
+.watchface-inspector-lock-notice {
+  margin-top: var(--app-gap-2);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+}
+
+.watchface-inspector-lock-notice {
+  margin-bottom: var(--app-gap-3);
+}
+
 .watchface-property-section {
-  padding-block: var(--app-gap-3);
+  padding-block: var(--app-gap-4);
   border-top: var(--app-border-width) solid var(--app-color-border);
 }
 .watchface-property-section .ui-color-swatches {
@@ -24,9 +65,26 @@
 
 .watchface-property-row {
   display: grid;
-  grid-template-columns: var(--app-inspector-label-width) minmax(0, 1fr);
+  grid-template-columns: minmax(var(--app-inspector-label-width), 0.8fr) minmax(
+      0,
+      1.6fr
+    );
   align-items: center;
-  gap: var(--app-gap-2);
+  gap: var(--app-gap-3);
+  min-height: var(--app-control-sm);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+}
+
+.watchface-property-row + .watchface-property-row,
+.watchface-property-row + .ui-switch,
+.ui-switch + .watchface-property-row,
+.ui-switch + .ui-switch {
+  margin-top: var(--app-gap-3);
+}
+
+.watchface-property-section__body > p:not(:first-child) {
+  margin-top: var(--app-gap-3);
 }
 .watchface-position-fields {
   display: grid;
@@ -35,26 +93,35 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .watchface-position-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--app-gap-2);
   min-width: 0;
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
 }
 .watchface-customizer .ui-field input,
 .watchface-customizer .ui-field select {
   min-height: var(--app-control-sm);
   font-size: var(--app-font-size-sm);
 }
+
+.watchface-customizer .ui-color-field {
+  justify-content: flex-start;
+  width: 100%;
+}
 .watchface-customizer > * {
   flex-shrink: 0;
-}
-.watchface-inspector-actions {
-  margin-top: var(--app-gap-3);
-  padding-top: var(--app-gap-3);
 }
 .watchface-reset-project-actions {
   display: grid;
   justify-items: start;
   gap: var(--app-gap-1);
 }
-.watchface-inspector-actions__buttons {
+.watchface-layer-action-buttons {
+  display: grid;
+  gap: var(--app-gap-2);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .watchface-group-layers {
@@ -76,20 +143,10 @@
     padding: var(--app-gap-4);
   }
 }
-.watchface-property-row > span:first-child,
-.watchface-property-row {
-  color: var(--app-color-text-muted);
-}
-.watchface-segments {
-  display: flex;
-  padding: var(--app-gap-0);
-  border: var(--app-border-width) solid var(--app-color-border);
-  border-radius: var(--app-radius-small);
-  background: var(--app-color-fill-subtle);
-}
-.watchface-segments .ui-button {
-  flex: 1;
-  min-width: 0;
+.watchface-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-gap-2);
 }
 
 .watchface-image-thumbnail {
@@ -190,15 +247,21 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  min-height: var(--app-control-xs);
   gap: var(--app-gap-2);
   padding: 0;
   border: 0;
-  color: inherit;
+  color: var(--app-color-text);
   background: transparent;
   text-align: left;
   font-size: var(--app-font-size-sm);
-  font-weight: var(--app-font-weight-medium);
+  font-weight: var(--app-font-weight-bold);
   cursor: pointer;
+  transition: color var(--app-transition-fast);
+}
+
+.watchface-property-section__summary:hover {
+  color: var(--app-color-text);
 }
 
 .watchface-property-section__summary > span {
@@ -206,6 +269,7 @@
 }
 .watchface-property-section__summary > svg {
   flex: 0 0 auto;
+  color: var(--app-color-text-muted);
   transition: transform var(--app-transition-fast);
 }
 

@@ -11,16 +11,11 @@ import { isGraphic } from "@/watchface/layer-catalog";
 import { presentation } from "@/watchface/schema";
 import type { PowerMode } from "@/watchface/power";
 import { PowerSettings } from "./PowerSettings";
-import { FontSizeField, TypographyAppearance } from "./TypographyFields";
-import {
-  FONT_FAMILIES,
-  type FontFamily,
-  type FontWeight,
-} from "@/watchface/fonts";
+import { TypographyFields } from "./TypographyFields";
 import { LayerActions } from "../LayerActions";
 import { PositionField } from "./PositionField";
 import { ResetProject } from "./ResetProject";
-import { Button, ColorField } from "@/components/ui";
+import { ColorField, Switch } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
 import type { DesignIssue } from "@/watchface/design-validation";
 import {
@@ -37,6 +32,10 @@ import { GroupInspector } from "./GroupInspector";
 import { ModeLayoutSettings } from "./ModeLayoutSettings";
 import { DesignChecks } from "./DesignChecks";
 import { useMemo, type ReactNode } from "react";
+import { InspectorHeader } from "./InspectorHeader";
+import { TimeContent } from "./TimeContent";
+import { LayerStateSettings } from "./LayerStateSettings";
+import { DimensionField } from "./DimensionField";
 
 export function EditorInspector({
   design,
@@ -111,17 +110,18 @@ export function EditorInspector({
   }
   return (
     <aside className="watchface-customizer" aria-label="Properties">
-      <h2 className="u-font-xl u-weight-semibold mb3">
-        {element ? layerLabel(element) : LAYER_LABELS.background}
-      </h2>
+      <InspectorHeader
+        title={element ? layerLabel(element) : LAYER_LABELS.background}
+        badge={element ? `${LAYER_LABELS[element.type]} layer` : "Canvas"}
+      />
       {element?.locked && (
-        <p className="u-font-sm u-text-secondary mb3">
+        <p className="watchface-inspector-lock-notice">
           Unlock this layer to edit its properties.
         </p>
       )}
       {element && (
-        <InspectorSection title="Layer" defaultOpen>
-          <label className="watchface-property-row ui-field u-font-xs">
+        <InspectorSection title="Layer">
+          <label className="watchface-property-row ui-field">
             Name
             <input
               disabled={!ready || element.locked}
@@ -138,56 +138,15 @@ export function EditorInspector({
         </InspectorSection>
       )}
       {element?.type === "time" && (
-        <InspectorSection title="Content" defaultOpen>
-          <div className="watchface-property-row u-font-xs">
-            <span>Time format</span>
-            <div
-              className="watchface-segments"
-              role="group"
-              aria-label="Time format"
-            >
-              {(["12", "24"] as const).map((format) => (
-                <Button
-                  key={format}
-                  size="sm"
-                  variant="ghost"
-                  disabled={!ready || element.locked}
-                  active={element.timeFormat === format}
-                  aria-pressed={element.timeFormat === format}
-                  onClick={() => updateElement({ timeFormat: format })}
-                >
-                  {format} hour
-                </Button>
-              ))}
-            </div>
-          </div>
-          <label className="watchface-property-row ui-field u-font-xs mt2">
-            Display
-            <select
-              disabled={!ready || element.locked}
-              value={presentation(element).variant}
-              onChange={(event) =>
-                updateElement({
-                  presentation: {
-                    ...presentation(element),
-                    variant: event.target.value,
-                  },
-                })
-              }
-            >
-              <option value="labeled">Hours &amp; minutes</option>
-              <option value="seconds">Include seconds</option>
-              <option value="hours">Hours only</option>
-              <option value="minutes">Minutes only</option>
-              <option value="analog">Analog hands</option>
-              <option value="analog-seconds">Analog with seconds</option>
-            </select>
-          </label>
-        </InspectorSection>
+        <TimeContent
+          element={element}
+          disabled={!ready || element.locked}
+          onChange={updateElement}
+        />
       )}
       {element?.type === "text" && (
         <InspectorSection title="Content" defaultOpen>
-          <label className="ui-field u-grid gap2 u-font-xs">
+          <label className="watchface-property-row ui-field">
             Text
             <input
               disabled={!ready || element.locked}
@@ -219,17 +178,12 @@ export function EditorInspector({
           />
           {isComplicationSource(element.type) && (
             <InspectorSection title="Interaction">
-              <label className="watchface-property-row u-font-xs">
-                Hold to open
-                <input
-                  type="checkbox"
-                  disabled={!ready || element.locked}
-                  checked={element.openOnHold ?? false}
-                  onChange={(e) =>
-                    updateElement({ openOnHold: e.target.checked })
-                  }
-                />
-              </label>
+              <Switch
+                label="Hold to open"
+                disabled={!ready || element.locked}
+                checked={element.openOnHold ?? false}
+                onCheckedChange={(openOnHold) => updateElement({ openOnHold })}
+              />
             </InspectorSection>
           )}
           <AppearanceRules
@@ -248,61 +202,9 @@ export function EditorInspector({
             onChange={updateElement}
           />
           {!isGraphic(element.type, presentation(element).variant) && (
-            <InspectorSection title="Typography" defaultOpen>
-              <label className="watchface-property-row ui-field u-font-xs mb2">
-                Font
-                <select
-                  disabled={!ready || element.locked}
-                  value={element.family}
-                  onChange={(event) => {
-                    const family = event.target.value as FontFamily;
-                    const weights: readonly number[] =
-                      FONT_FAMILIES[family].weights;
-                    updateElement({
-                      family,
-                      weight: weights.includes(element.weight)
-                        ? element.weight
-                        : 400,
-                    });
-                  }}
-                >
-                  {Object.entries(FONT_FAMILIES).map(([key, font]) => (
-                    <option key={key} value={key}>
-                      {font.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="watchface-property-row ui-field u-font-xs mb2">
-                Weight
-                <select
-                  disabled={
-                    !ready ||
-                    element.locked ||
-                    FONT_FAMILIES[element.family].weights.length === 1
-                  }
-                  value={element.weight}
-                  onChange={(event) =>
-                    updateElement({
-                      weight: Number(event.target.value) as FontWeight,
-                    })
-                  }
-                >
-                  {FONT_FAMILIES[element.family].weights.map((weight) => (
-                    <option key={weight} value={weight}>
-                      {weight === 400 ? "Regular" : "Bold"}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <FontSizeField
+            <InspectorSection title="Style">
+              <TypographyFields
                 key={selected}
-                value={element.size}
-                disabled={!ready || element.locked}
-                onChange={(size) => updateElement({ size })}
-              />
-              <TypographyAppearance
-                key={selected + "-appearance"}
                 element={element}
                 disabled={!ready || element.locked}
                 onChange={updateElement}
@@ -317,9 +219,31 @@ export function EditorInspector({
                   axis={axis}
                   value={element[axis]}
                   disabled={!ready || Boolean(element?.locked)}
+                  min={0}
+                  max={axis === "x" ? device.width : device.height}
                   onChange={(value) => updateElement({ [axis]: value })}
                 />
               ))}
+              {isGraphic(element.type, presentation(element).variant) &&
+                (["width", "height"] as const).map((dimension) => (
+                  <DimensionField
+                    key={`${selected}-${dimension}`}
+                    compact
+                    label={dimension === "width" ? "W" : "H"}
+                    value={presentation(element)[dimension]}
+                    disabled={!ready || element.locked}
+                    min={8}
+                    max={dimension === "width" ? device.width : device.height}
+                    onChange={(value) =>
+                      updateElement({
+                        presentation: {
+                          ...presentation(element),
+                          [dimension]: value,
+                        },
+                      })
+                    }
+                  />
+                ))}
             </div>
             <p className="u-font-xs u-text-secondary">
               {isGraphic(element.type, presentation(element).variant)
@@ -327,16 +251,38 @@ export function EditorInspector({
                 : "X is the reference point; text sits left, centered, or right of it. Y is the vertical center."}
             </p>
           </InspectorSection>
+          <LayerStateSettings
+            visible={element.visible}
+            locked={element.locked}
+            ready={ready}
+            onVisibilityChange={(visible) =>
+              onCommand({
+                type: "layer.set-visibility",
+                ids: [element.id],
+                visible,
+              })
+            }
+            onLockChange={(locked) =>
+              onCommand({
+                type: "layer.set-lock",
+                ids: [element.id],
+                locked,
+              })
+            }
+          />
         </>
       ) : (
         <>
           <InspectorSection title="Appearance" defaultOpen>
-            <ColorField
-              label="Face color"
-              value={design.background}
-              disabled={!ready || mode === "always-on"}
-              onChange={(background) => setDesign({ ...design, background })}
-            />
+            <div className="watchface-property-row">
+              <span>Face color</span>
+              <ColorField
+                label="Face color"
+                value={design.background}
+                disabled={!ready || mode === "always-on"}
+                onChange={(background) => setDesign({ ...design, background })}
+              />
+            </div>
           </InspectorSection>
           <InspectorSection title="Canvas">
             <p className="u-font-sm u-text-secondary">

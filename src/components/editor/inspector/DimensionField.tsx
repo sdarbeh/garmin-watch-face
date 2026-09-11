@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cx } from "@/utils/css";
 /** Keep incomplete typing local while committing valid values immediately. */
 export function DimensionField({
   label,
@@ -6,6 +7,7 @@ export function DimensionField({
   min,
   max,
   disabled,
+  compact = false,
   onChange,
 }: {
   label: string;
@@ -13,12 +15,18 @@ export function DimensionField({
   min: number;
   max: number;
   disabled: boolean;
+  compact?: boolean;
   onChange: (value: number) => void;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
   return (
-    <label className="watchface-property-row ui-field u-font-xs mb2">
-      {label}
+    <label
+      className={cx(
+        compact ? "watchface-position-field" : "watchface-property-row",
+        "ui-field",
+      )}
+    >
+      <span>{label}</span>
       <input
         type="number"
         min={min}

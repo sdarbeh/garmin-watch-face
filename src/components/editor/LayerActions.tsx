@@ -26,7 +26,7 @@ export function LayerActions({
     else onCommand({ type: "layer.reorder", id: selected, placement });
   }
   return (
-    <div className="watchface-inspector-actions">
+    <>
       <InspectorSection title="Arrange">
         <div className="u-flex gap2">
           <Button
@@ -49,7 +49,7 @@ export function LayerActions({
           </Button>
         </div>
       </InspectorSection>
-      <div className="u-grid gap2 watchface-inspector-actions__buttons">
+      <div className="watchface-layer-action-buttons">
         <Button
           size="sm"
           disabled={
@@ -84,6 +84,6 @@ export function LayerActions({
           Delete
         </Button>
       </div>
-    </div>
+    </>
   );
 }

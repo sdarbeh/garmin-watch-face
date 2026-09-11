@@ -12,7 +12,7 @@ export function RuleGoalPreview({
   const goal = simulation.goals?.[source];
   return (
     <>
-      <label className="watchface-property-row u-font-xs mb2">
+      <label className="watchface-property-row">
         Preview daily goal
         <input
           type="number"

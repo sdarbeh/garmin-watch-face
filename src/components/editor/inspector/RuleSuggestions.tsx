@@ -34,11 +34,7 @@ export function RuleSuggestions({
           </div>
           <div className="watchface-rule-suggestion__action">
             <span className="watchface-rule-suggestion__color u-font-xs u-text-secondary">
-              <svg
-                className="u-icon-sm"
-                aria-hidden="true"
-                viewBox="0 0 16 16"
-              >
+              <svg className="u-icon-sm" aria-hidden="true" viewBox="0 0 16 16">
                 <circle cx="8" cy="8" r="6" fill={suggestion.rule.color} />
               </svg>
               {suggestion.rule.color}

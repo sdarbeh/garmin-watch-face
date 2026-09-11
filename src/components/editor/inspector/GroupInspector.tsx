@@ -1,10 +1,5 @@
-import { Button, ColorField } from "@/components/ui";
-import { LayerIcon, LockIcon, VisibilityIcon } from "@/icons";
-import {
-  FONT_FAMILIES,
-  type FontFamily,
-  type FontWeight,
-} from "@/watchface/fonts";
+import { ColorField } from "@/components/ui";
+import { LayerIcon } from "@/icons";
 import { isGraphic } from "@/watchface/layer-catalog";
 import type { DesignIssue } from "@/watchface/design-validation";
 import { presentation, type Design, type ElementId } from "@/watchface/schema";
@@ -15,11 +10,14 @@ import type {
 } from "../model/commands";
 import { layerLabel } from "../types";
 import { layerSelectionState } from "../model/selection";
-import { FontSizeField, TypographyAppearance } from "./TypographyFields";
+import { TypographyFields } from "./TypographyFields";
 import { InspectorSection } from "./InspectorSection";
 import { DesignChecks } from "./DesignChecks";
 import { PositionField } from "./PositionField";
 import type { ReactNode } from "react";
+import { InspectorHeader } from "./InspectorHeader";
+import { LayerStateSettings } from "./LayerStateSettings";
+import { getDeviceById } from "@/devices/catalog";
 
 export function GroupInspector({
   design,
@@ -42,8 +40,11 @@ export function GroupInspector({
 }) {
   const selection = layerSelectionState(design, selected, selectedIds);
   if (!selection || !selection.multiple) return null;
+  const device = getDeviceById(design.device)!;
   const elements = [...selection.elements].reverse();
   const { primary, ids, locked, allVisible } = selection;
+  const allLocked = elements.every((element) => element.locked);
+  const someVisible = elements.some((element) => element.visible);
   const allTypographic = elements.every(
     (element) => !isGraphic(element.type, presentation(element).variant),
   );
@@ -64,12 +65,11 @@ export function GroupInspector({
 
   return (
     <aside className="watchface-customizer" aria-label="Group properties">
-      <h2 className="u-font-xl u-weight-semibold mb1">
-        {elements.length} layers
-      </h2>
-      <p className="u-font-xs u-text-secondary mb3">
-        Changes apply to every selected layer.
-      </p>
+      <InspectorHeader
+        title={`${elements.length} layers`}
+        badge="Multi-select"
+        description="Changes apply to every selected layer."
+      />
       <InspectorSection title="Selected layers" defaultOpen>
         <div className="watchface-group-layers" role="list">
           {elements.map((element) => (
@@ -88,64 +88,14 @@ export function GroupInspector({
         </div>
       </InspectorSection>
       {locked && (
-        <p className="u-font-xs u-text-secondary mb3">
+        <p className="watchface-inspector-lock-notice">
           Unlock the group to edit shared properties.
         </p>
       )}
       {allTypographic && (
-        <InspectorSection title="Typography" defaultOpen>
-          <label className="watchface-property-row ui-field u-font-xs mb2">
-            Font
-            <select
-              disabled={disabled}
-              value={primary.family}
-              onChange={(event) => {
-                const family = event.target.value as FontFamily;
-                const weights: readonly number[] =
-                  FONT_FAMILIES[family].weights;
-                updateElements({
-                  family,
-                  weight: weights.includes(primary.weight)
-                    ? primary.weight
-                    : 400,
-                });
-              }}
-            >
-              {Object.entries(FONT_FAMILIES).map(([key, font]) => (
-                <option key={key} value={key}>
-                  {font.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="watchface-property-row ui-field u-font-xs mb2">
-            Weight
-            <select
-              disabled={
-                disabled || FONT_FAMILIES[primary.family].weights.length === 1
-              }
-              value={primary.weight}
-              onChange={(event) =>
-                updateElements({
-                  weight: Number(event.target.value) as FontWeight,
-                })
-              }
-            >
-              {FONT_FAMILIES[primary.family].weights.map((weight) => (
-                <option key={weight} value={weight}>
-                  {weight === 400 ? "Regular" : "Bold"}
-                </option>
-              ))}
-            </select>
-          </label>
-          <FontSizeField
-            key={`${primary.id}-group-size`}
-            value={primary.size}
-            disabled={disabled}
-            onChange={(size) => updateElements({ size })}
-          />
-          <TypographyAppearance
-            key={`${primary.id}-group-appearance`}
+        <InspectorSection title="Style">
+          <TypographyFields
+            key={`${primary.id}-group-typography`}
             element={primary}
             disabled={disabled}
             onChange={updateElements}
@@ -153,8 +103,8 @@ export function GroupInspector({
         </InspectorSection>
       )}
       {!allTypographic && allColorable && (
-        <InspectorSection title="Appearance" defaultOpen>
-          <div className="watchface-property-row u-font-xs">
+        <InspectorSection title="Appearance">
+          <div className="watchface-property-row">
             <span>Color</span>
             <ColorField
               label="Group color"
@@ -165,7 +115,7 @@ export function GroupInspector({
           </div>
         </InspectorSection>
       )}
-      <InspectorSection title="Position" defaultOpen>
+      <InspectorSection title="Position">
         <div className="watchface-position-fields">
           {(["x", "y"] as const).map((axis) => (
             <PositionField
@@ -173,6 +123,8 @@ export function GroupInspector({
               axis={axis}
               value={center[axis]}
               disabled={disabled}
+              min={0}
+              max={axis === "x" ? device.width : device.height}
               onChange={(value) =>
                 onCommand({
                   type: "layer.move-many",
@@ -188,38 +140,19 @@ export function GroupInspector({
           X and Y position the center of the group while preserving spacing.
         </p>
       </InspectorSection>
-      <InspectorSection title="Layer state">
-        <div className="u-grid gap2 watchface-inspector-actions__buttons">
-          <Button
-            size="sm"
-            disabled={disabled}
-            onClick={() =>
-              onCommand({
-                type: "layer.set-visibility",
-                ids,
-                visible: !allVisible,
-              })
-            }
-          >
-            <VisibilityIcon visible={allVisible} size="sm" />
-            {allVisible ? "Hide all" : "Show all"}
-          </Button>
-          <Button
-            size="sm"
-            disabled={!ready}
-            onClick={() =>
-              onCommand({
-                type: "layer.set-lock",
-                ids,
-                locked: !locked,
-              })
-            }
-          >
-            <LockIcon locked={locked} size="sm" />
-            {locked ? "Unlock all" : "Lock all"}
-          </Button>
-        </div>
-      </InspectorSection>
+      <LayerStateSettings
+        visible={allVisible}
+        visibilityMixed={someVisible && !allVisible}
+        locked={allLocked}
+        lockMixed={locked && !allLocked}
+        ready={ready}
+        onVisibilityChange={(visible) =>
+          onCommand({ type: "layer.set-visibility", ids, visible })
+        }
+        onLockChange={(nextLocked) =>
+          onCommand({ type: "layer.set-lock", ids, locked: nextLocked })
+        }
+      />
       <DesignChecks
         design={design}
         issues={issues}

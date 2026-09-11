@@ -30,7 +30,7 @@ export function PowerSettings({
         )}
         {device.capabilities.lowBattery && (
           <>
-            <label className="ui-field u-grid gap2 u-font-xs mb2">
+            <label className="watchface-property-row ui-field">
               Low battery threshold (%)
               <input
                 type="number"

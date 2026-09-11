@@ -105,7 +105,7 @@ export function AppearanceRuleEditor({
             </Button>
           </div>
         </div>
-        <label className="watchface-property-row u-font-xs mb2">
+        <label className="watchface-property-row">
           When
           <select
             value={rule.source}
@@ -127,7 +127,7 @@ export function AppearanceRuleEditor({
             ))}
           </select>
         </label>
-        <label className="watchface-property-row u-font-xs mb2">
+        <label className="watchface-property-row">
           Comparison
           <select
             value={rule.comparison}
@@ -145,7 +145,7 @@ export function AppearanceRuleEditor({
           </select>
         </label>
         {hasUserGoal(rule.source) && (
-          <label className="watchface-property-row u-font-xs mb2">
+          <label className="watchface-property-row">
             Compare to
             <select
               value={rule.target ?? "value"}
@@ -164,7 +164,7 @@ export function AppearanceRuleEditor({
             </select>
           </label>
         )}
-        <label className="watchface-property-row u-font-xs mb2">
+        <label className="watchface-property-row">
           {rule.target === "goal" ? "Goal percentage" : "Threshold"}
           <input
             type="number"
@@ -184,7 +184,7 @@ export function AppearanceRuleEditor({
             }}
           />
         </label>
-        <label className="watchface-property-row u-font-xs mb2">
+        <label className="watchface-property-row">
           Then
           <select
             value={rule.effect}
@@ -197,14 +197,17 @@ export function AppearanceRuleEditor({
           </select>
         </label>
         {rule.effect === "color" && (
-          <ColorField
-            label="Rule color"
-            value={rule.color}
-            disabled={disabled}
-            onChange={(color) => update({ color })}
-          />
+          <div className="watchface-property-row">
+            <span>Color</span>
+            <ColorField
+              label="Rule color"
+              value={rule.color}
+              disabled={disabled}
+              onChange={(color) => update({ color })}
+            />
+          </div>
         )}
-        <label className="watchface-property-row u-font-xs mb2">
+        <label className="watchface-property-row">
           Preview value
           <input
             type="number"
