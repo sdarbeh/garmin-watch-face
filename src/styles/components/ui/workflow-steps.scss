@@ -1,4 +1,6 @@
 .workflow-steps {
+  --workflow-step-size: var(--app-gap-6);
+
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
@@ -17,7 +19,7 @@
 .workflow-steps li:not(:first-child)::before {
   content: "";
   position: absolute;
-  top: calc(var(--app-workflow-step-size) / 2);
+  top: calc(var(--workflow-step-size) / 2);
   left: -50%;
   width: 100%;
   height: var(--app-border-width);
@@ -31,8 +33,8 @@
   z-index: 1;
   display: grid;
   place-items: center;
-  width: var(--app-workflow-step-size);
-  height: var(--app-workflow-step-size);
+  width: var(--workflow-step-size);
+  height: var(--workflow-step-size);
   border: var(--app-border-width) solid var(--app-color-border-strong);
   border-radius: var(--app-radius-pill);
   background: var(--app-color-surface);
@@ -54,5 +56,5 @@
 }
 
 .workflow-steps[data-size="sm"] {
-  --app-workflow-step-size: var(--app-gap-5);
+  --workflow-step-size: var(--app-gap-5);
 }

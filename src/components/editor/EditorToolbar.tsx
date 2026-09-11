@@ -1,10 +1,47 @@
 import Image from "next/image";
-import { ChevronLeftIcon, EditIcon } from "@/icons";
-import { useState } from "react";
+import {
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  EditIcon,
+  WarningIcon,
+} from "@/icons";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import type { Design } from "@/watchface/schema";
 import { getDeviceById } from "@/devices/catalog";
 import type { DesignIssue } from "@/watchface/design-validation";
+import type { WatchfaceBuildStatus } from "./hooks/useWatchfaceBuild";
+
+function BuildButtonContent({ status }: { status: WatchfaceBuildStatus }) {
+  switch (status) {
+    case "building":
+      return (
+        <>
+          <span
+            className="watchface-build-button__spinner"
+            aria-hidden="true"
+          />
+          Building…
+        </>
+      );
+    case "success":
+      return (
+        <>
+          <CheckCircleIcon size="sm" />
+          Built
+        </>
+      );
+    case "failure":
+      return (
+        <>
+          <WarningIcon size="sm" />
+          Try again
+        </>
+      );
+    case "idle":
+      return <>Build</>;
+  }
+}
 
 function buildStatus(issues: DesignIssue[]) {
   const errors = issues.filter((issue) => issue.severity === "error").length;
@@ -30,6 +67,7 @@ export function EditorToolbar({
   ready,
   saved,
   canBuild,
+  buildState,
   issues,
   setDesign,
   preview,
@@ -42,6 +80,7 @@ export function EditorToolbar({
   ready: boolean;
   saved: string;
   canBuild: boolean;
+  buildState: WatchfaceBuildStatus;
   issues: DesignIssue[];
   setDesign: (design: Design) => void;
   preview: boolean;
@@ -51,13 +90,15 @@ export function EditorToolbar({
   onExport: () => void;
 }) {
   const [nameDraft, setNameDraft] = useState<string | null>(null);
+  const nameAtFocus = useRef(design.name);
   const device = getDeviceById(design.device)!;
   const projectName = nameDraft ?? design.name;
   const status =
     nameDraft !== null
       ? { state: "error" as const, label: "Invalid name · Build blocked" }
       : buildStatus(issues);
-  const buildEnabled = canBuild && nameDraft === null;
+  const buildEnabled =
+    canBuild && nameDraft === null && buildState !== "building";
   return (
     <header className="watchface-toolbar">
       <div className="watchface-toolbar__identity">
@@ -77,7 +118,20 @@ export function EditorToolbar({
             aria-describedby={
               nameDraft !== null ? "project-name-help" : undefined
             }
+            onFocus={() => {
+              nameAtFocus.current = design.name;
+            }}
             onBlur={() => setNameDraft(null)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.currentTarget.blur();
+              if (event.key === "Escape") {
+                if (design.name !== nameAtFocus.current) {
+                  setDesign({ ...design, name: nameAtFocus.current });
+                }
+                setNameDraft(null);
+                event.currentTarget.blur();
+              }
+            }}
             onChange={(event) => {
               const name = event.target.value;
               if (/^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$/.test(name)) {
@@ -111,17 +165,25 @@ export function EditorToolbar({
             variant="ghost"
             active={preview}
             aria-pressed={preview}
+            aria-keyshortcuts={preview ? "Escape" : undefined}
+            title={preview ? "Back to editor (Esc)" : "Preview"}
             onClick={onPreview}
           >
             {preview ? "Back to editor" : "Preview"}
           </Button>
           <Button
             variant="primary"
+            className="watchface-build-button"
             disabled={!buildEnabled}
+            aria-busy={buildState === "building"}
+            aria-keyshortcuts="Meta+Enter Control+Enter"
             aria-describedby="watchface-build-status"
+            title="Build (⌘/Ctrl + Enter)"
             onClick={onExport}
           >
-            Build
+            <span className="watchface-build-button__label" aria-live="polite">
+              <BuildButtonContent status={buildState} />
+            </span>
           </Button>
         </div>
         <button
@@ -136,7 +198,7 @@ export function EditorToolbar({
           onClick={onValidation}
         >
           <span className="u-icon-xxs" aria-hidden="true" />
-          {status.label}
+          <span className="watchface-build-status__label">{status.label}</span>
         </button>
       </div>
     </header>

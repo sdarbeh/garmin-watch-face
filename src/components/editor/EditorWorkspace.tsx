@@ -215,16 +215,34 @@ export function EditorWorkspace({
           history.commit();
       }}
       onKeyDown={(event) => {
-        if (
-          !ready ||
-          exportOpen ||
-          validationOpen ||
-          (event.target as Element).closest(
-            "input, select, textarea, [contenteditable=true], dialog, footer, [role=menu]",
-          )
-        )
-          return;
+        if (!ready || exportOpen || validationOpen) return;
+        const target = event.target as Element;
+        const textInput = target.closest(
+          "input, select, textarea, [contenteditable=true]",
+        );
+        const overlay = target.closest("dialog, [role=menu]");
         const key = event.key.toLowerCase();
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          event.key === "Enter" &&
+          !textInput &&
+          !overlay
+        ) {
+          event.preventDefault();
+          setContextMenu(null);
+          if (canBuild && build.status !== "building") setExportOpen(true);
+          else if (issues.length > 0) {
+            setValidationMode(displayMode);
+            setValidationOpen(true);
+          }
+          return;
+        }
+        if (event.key === "Escape" && preview && !textInput && !overlay) {
+          event.preventDefault();
+          setPreview(false);
+          return;
+        }
+        if (textInput || overlay || target.closest("footer")) return;
         if ((event.metaKey || event.ctrlKey) && (key === "z" || key === "y")) {
           event.preventDefault();
           if (key === "y" || event.shiftKey) history.redo();
@@ -317,6 +335,7 @@ export function EditorWorkspace({
           validationOpen,
         }}
         canBuild={canBuild}
+        buildState={build.status}
         issues={issues}
         onPreview={() => {
           setContextMenu(null);

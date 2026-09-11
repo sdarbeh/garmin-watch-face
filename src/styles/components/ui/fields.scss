@@ -31,8 +31,8 @@
 .ui-color-swatches__option {
   min-height: 0;
   padding: 0;
-  width: var(--app-swatch-size);
-  height: var(--app-swatch-size);
+  width: var(--app-control-sm);
+  height: var(--app-control-sm);
   border: var(--app-border-width) solid var(--app-color-border-strong);
   cursor: pointer;
   color: var(--app-color-on-light);

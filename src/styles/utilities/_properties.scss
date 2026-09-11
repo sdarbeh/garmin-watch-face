@@ -209,6 +209,15 @@ $utility-properties: (
     ),
   ),
   (
+    property: margin-left,
+    classes: (
+      (
+        classname: u-ml-auto,
+        value: auto,
+      )
+    ),
+  ),
+  (
     property: border-radius,
     classes: (
       (

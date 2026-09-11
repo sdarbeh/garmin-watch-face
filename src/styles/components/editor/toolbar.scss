@@ -104,7 +104,22 @@
 }
 .watchface-toolbar__buttons {
   display: flex;
+  align-items: center;
   gap: var(--app-gap-2);
+}
+.watchface-build-button__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-gap-2);
+}
+.watchface-build-button__spinner {
+  width: var(--app-gap-3);
+  height: var(--app-gap-3);
+  border: calc(var(--app-border-width) * 2) solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--app-radius-pill);
+  animation: watchface-build-spin 700ms linear infinite;
 }
 .watchface-build-status {
   appearance: none;
@@ -134,16 +149,47 @@
 .watchface-build-status:disabled {
   cursor: default;
 }
-.watchface-build-status > span {
+.watchface-build-status > .u-icon-xxs {
   flex-shrink: 0;
   border-radius: var(--app-radius-pill);
   background: var(--app-color-primary);
 }
-.watchface-build-status[data-status="warning"] > span {
+.watchface-build-status__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.watchface-build-status[data-status="warning"] > .u-icon-xxs {
   background: var(--app-color-warn);
 }
-.watchface-build-status[data-status="error"] > span {
+.watchface-build-status[data-status="error"] > .u-icon-xxs {
   background: var(--app-color-error);
+}
+.watchface-toolbar__actions .ui-button {
+  min-width: var(--app-action-min-width);
+  border: var(--app-border-width) solid var(--app-color-border-strong);
+  min-height: var(--app-control-xs);
+}
+.watchface-toolbar__actions .ui-button--primary {
+  border-color: var(--app-color-primary);
+}
+.watchface-toolbar__divider {
+  width: var(--app-border-width);
+  height: var(--app-gap-5);
+  flex-shrink: 0;
+  background: var(--app-color-border-strong);
+}
+@keyframes watchface-build-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .watchface-build-button__spinner {
+    animation: none;
+    border-right-color: currentColor;
+    opacity: 0.65;
+  }
 }
 @media (max-width: tokens.$breakpoint-lg) {
   .watchface-toolbar {
@@ -167,18 +213,21 @@
     display: none;
   }
 }
-
-.watchface-toolbar__actions .ui-button {
-  min-width: var(--app-action-min-width);
-  border: var(--app-border-width) solid var(--app-color-border-strong);
-  min-height: var(--app-control-xs);
-}
-.watchface-toolbar__actions .ui-button--primary {
-  border-color: var(--app-color-primary);
-}
-.watchface-toolbar__divider {
-  width: var(--app-border-width);
-  height: var(--app-gap-5);
-  flex-shrink: 0;
-  background: var(--app-color-border-strong);
+@media (max-width: tokens.$breakpoint-sm) {
+  .watchface-toolbar {
+    padding-inline: var(--app-gap-2);
+  }
+  .watchface-toolbar__identity {
+    gap: var(--app-gap-1);
+  }
+  .watchface-toolbar__divider {
+    display: none;
+  }
+  .watchface-toolbar__actions .ui-button {
+    min-width: 0;
+  }
+  .watchface-build-status {
+    max-width: calc(100vw - var(--app-gap-3));
+    padding-inline: var(--app-gap-3);
+  }
 }

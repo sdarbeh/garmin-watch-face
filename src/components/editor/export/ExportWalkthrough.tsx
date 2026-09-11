@@ -54,7 +54,9 @@ export function ExportWalkthrough({
   const step = currentBuild ? requestedStep : 0;
   const busy = controller.busy || downloading;
   let continueLabel = step === 0 ? "Continue" : "I’ve copied the file";
-  if (busy) continueLabel = "Building…";
+  if (step === 0 && currentBuild) continueLabel = "Download file";
+  if (controller.busy) continueLabel = "Building…";
+  else if (downloading) continueLabel = "Downloading…";
   const heading = useRef<HTMLDivElement>(null);
   function goToStep(next: number) {
     setStep(next);
@@ -116,9 +118,12 @@ export function ExportWalkthrough({
         className="watchface-export__content"
         aria-label={`Step ${step + 1} of 3`}
       >
-        {message && (
-          <p className="ui-notice u-font-sm mb3" role="status">
-            {message}
+        {(controller.error || message) && (
+          <p
+            className="ui-notice u-font-sm mb3"
+            role={controller.error ? "alert" : "status"}
+          >
+            {controller.error || message}
           </p>
         )}
         {step === 0 && (
@@ -158,16 +163,18 @@ export function ExportWalkthrough({
           </>
         )}
       </div>
-      <footer className="watchface-export__navigation">
-        <Button
-          variant="ghost"
-          disabled={step === 0 || busy}
-          onClick={() => goToStep(step - 1)}
-        >
-          <ChevronLeftIcon />
-          Back
-        </Button>
-        <div className="u-flex u-flex-wrap u-items-center gap2">
+      <footer className="u-flex u-flex-none u-flex-wrap u-items-center u-justify-between gap3">
+        {step > 0 && (
+          <Button
+            variant="ghost"
+            disabled={busy}
+            onClick={() => goToStep(step - 1)}
+          >
+            <ChevronLeftIcon />
+            Back
+          </Button>
+        )}
+        <div className="u-flex u-flex-wrap u-items-center u-ml-auto gap2">
           {step === 0 &&
             currentBuild &&
             downloadedBuildId === controller.build?.id && (
@@ -188,7 +195,7 @@ export function ExportWalkthrough({
                 !ready || busy || (step === 0 ? !platform : !currentBuild)
               }
               onClick={() =>
-                step === 0 ? void buildAndDownload() : goToStep(2)
+                step === 0 ? void buildAndDownload(currentBuild) : goToStep(2)
               }
             >
               {continueLabel}

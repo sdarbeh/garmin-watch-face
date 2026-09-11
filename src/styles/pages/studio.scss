@@ -147,7 +147,7 @@
 }
 .studio-recent > svg {
   display: block;
-  width: var(--app-home-recent-size);
+  width: var(--app-control-lg);
   height: auto;
   flex-shrink: 0;
   margin: 0;
@@ -230,8 +230,8 @@
   gap: var(--app-gap-4);
 }
 .preset-detail__watch-image {
-  width: var(--app-selected-watch-size);
-  height: var(--app-selected-watch-size);
+  width: var(--app-gap-9);
+  height: var(--app-gap-9);
   object-fit: contain;
 }
 .preset-detail__compatibility {

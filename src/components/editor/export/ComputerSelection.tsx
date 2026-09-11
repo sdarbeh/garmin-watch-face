@@ -43,7 +43,7 @@ export function ComputerSelection({
               aria-pressed={platform === value}
               onClick={() => onChange(value)}
             >
-              <Icon className="watchface-export__computer-icon" />
+              <Icon size="md" />
               {value === "mac" ? "Mac" : "Windows"}
               {platform === value && (
                 <CheckCircleIcon

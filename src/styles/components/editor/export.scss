@@ -58,14 +58,6 @@
   scrollbar-gutter: stable;
   outline: none;
 }
-.watchface-export__navigation {
-  flex-shrink: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--app-gap-3);
-}
 .watchface-export__instructions {
   display: grid;
   gap: var(--app-gap-4);
@@ -82,9 +74,9 @@
 .watchface-export__computer {
   position: relative;
   flex-direction: column;
-  gap: var(--app-gap-4);
-  min-height: var(--app-export-computer-height);
-  padding: var(--app-gap-5);
+  gap: var(--app-gap-3);
+  min-height: var(--app-gap-10);
+  padding: var(--app-gap-4);
   font-size: var(--app-font-size-md);
   border: var(--app-border-width) solid var(--app-color-border-strong);
   border-radius: var(--app-radius-medium);
@@ -92,10 +84,6 @@
 .watchface-export__computer[aria-pressed="true"] {
   border-color: var(--app-color-primary);
   color: var(--app-color-primary);
-}
-.watchface-export__computer-icon {
-  width: var(--app-export-computer-icon);
-  height: var(--app-export-computer-icon);
 }
 .watchface-export__computer-check {
   position: absolute;

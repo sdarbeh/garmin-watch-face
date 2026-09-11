@@ -93,8 +93,8 @@
 }
 
 .watchface-image-thumbnail {
-  width: var(--app-image-thumbnail-size);
-  height: var(--app-image-thumbnail-size);
+  width: var(--app-gap-8);
+  height: var(--app-gap-8);
   flex-shrink: 0;
   object-fit: contain;
   padding: var(--app-gap-1);
