@@ -10,6 +10,7 @@ export const SELECTED_WATCH_KEY = "watchface.selectedWatch";
 export interface SavedDesign {
   id: string;
   design: Design;
+  initialDesign: Design;
   selectedWatch: string;
   createdAt: string;
   updatedAt: string;
@@ -33,6 +34,11 @@ export const LIBRARY_SERVER: LibrarySnapshot = {
   saved: "Loading local designs…",
 };
 type StoragePort = Pick<Storage, "getItem" | "setItem">;
+
+function copyDesign(design: Design) {
+  return parseProject(serializeProject(design));
+}
+
 export class LibraryStore {
   private snapshot = LIBRARY_SERVER;
   private listeners = new Set<() => void>();
@@ -75,7 +81,11 @@ export class LibraryStore {
           throw new Error("Invalid saved project.");
         ids.add(project.id);
         const design = validateDesign(project.design);
-        if (project.selectedWatch !== design.device)
+        const initialDesign = validateDesign(project.initialDesign);
+        if (
+          project.selectedWatch !== design.device ||
+          initialDesign.device !== design.device
+        )
           throw new Error("Saved watch does not match the design target.");
         return {
           id: project.id,
@@ -86,6 +96,7 @@ export class LibraryStore {
             : {}),
           ...(project.presetSlug ? { presetSlug: project.presetSlug } : {}),
           design,
+          initialDesign,
           selectedWatch: design.device,
         };
       });
@@ -131,9 +142,11 @@ export class LibraryStore {
   openDraft(id: string, design: Design, presetSlug?: string) {
     if (this.find(id)) return;
     const now = new Date().toISOString();
+    const initialDesign = copyDesign(design);
     const draft: SavedDesign = {
       id,
-      design: parseProject(serializeProject(design)),
+      design: copyDesign(initialDesign),
+      initialDesign,
       selectedWatch: design.device,
       createdAt: now,
       updatedAt: now,
@@ -156,9 +169,11 @@ export class LibraryStore {
   create(design: Design, presetSlug?: string) {
     const current = this.getSnapshot();
     const now = new Date().toISOString();
+    const initialDesign = copyDesign(design);
     const project: SavedDesign = {
       id: crypto.randomUUID(),
-      design: parseProject(serializeProject(design)),
+      design: copyDesign(initialDesign),
+      initialDesign,
       selectedWatch: design.device,
       createdAt: now,
       updatedAt: now,
@@ -175,7 +190,7 @@ export class LibraryStore {
       throw new Error(
         "This design no longer exists. Open My designs to continue.",
       );
-    const valid = parseProject(serializeProject(design));
+    const valid = copyDesign(design);
     if (serializeProject(existing.design) === serializeProject(valid)) return;
     if (current.drafts.some((project) => project.id === id)) {
       const now = new Date().toISOString();
@@ -228,6 +243,7 @@ export class LibraryStore {
       : {
           id: options.id ?? crypto.randomUUID(),
           design: valid,
+          initialDesign: copyDesign(valid),
           selectedWatch: valid.device,
           createdAt: now,
           updatedAt: now,
@@ -250,15 +266,24 @@ export class LibraryStore {
     );
   }
   restore(project: SavedDesign) {
-    if (!this.find(project.id))
+    if (!this.find(project.id)) {
+      const design = copyDesign(project.design);
+      const initialDesign = copyDesign(project.initialDesign);
+      if (
+        project.selectedWatch !== design.device ||
+        initialDesign.device !== design.device
+      )
+        throw new Error("Saved watch does not match the design target.");
       this.write([
         ...this.getSnapshot().projects,
         {
           ...project,
-          design: validateDesign(project.design),
-          selectedWatch: project.design.device,
+          design,
+          initialDesign,
+          selectedWatch: design.device,
         },
       ]);
+    }
   }
   loadSelectedWatch = () => {
     try {

@@ -42,7 +42,32 @@ describe("local design library", () => {
       store.update(project.id, { ...project.design, name: "My copy" });
       expect(preset.design.name).toBe(preset.name);
       expect(store.find(project.id)?.presetSlug).toBe(preset.slug);
+      expect(store.find(project.id)?.initialDesign).toEqual(preset.design);
     }
+  });
+  it("keeps the exact initial design after edits and reloads", () => {
+    const { store, storage } = setup();
+    const preset = presets.find((item) => item.slug === "weather-desk")!;
+    const project = store.create(preset.design, preset.slug);
+    const edited = {
+      ...project.design,
+      name: "Storm layout",
+      background: "#123456",
+      layouts: {
+        ...project.design.layouts,
+        night: {
+          background: "#010203",
+          elements: project.design.layouts?.night?.elements ?? [],
+        },
+      },
+    };
+
+    store.update(project.id, edited);
+
+    const saved = new LibraryStore(() => storage).find(project.id)!;
+    expect(saved.design).toEqual(validateDesign(edited));
+    expect(saved.initialDesign).toEqual(preset.design);
+    expect(saved.initialDesign.layouts).toEqual(preset.design.layouts);
   });
   it("remembers watch selection without changing existing projects", () => {
     const { store, storage } = setup();
@@ -124,13 +149,22 @@ it("stores global selection separately and attaches a fixed watch to each projec
   store.update("new-draft", { ...defaultDesign(), name: "Edited draft" });
   expect(JSON.parse(data.get(LIBRARY_KEY)!)[1].selectedWatch).toBe("fr970");
 });
-it("rejects old library envelopes and records missing their selected watch", () => {
+it("rejects old library envelopes and records missing required project state", () => {
   for (const raw of [
     JSON.stringify({ projects: [], selectedWatch: "fr970" }),
     JSON.stringify([
       {
         id: "old",
         design: defaultDesign(),
+        createdAt: "2026-09-09T12:00:00Z",
+        updatedAt: "2026-09-09T12:00:00Z",
+      },
+    ]),
+    JSON.stringify([
+      {
+        id: "old-with-watch",
+        design: defaultDesign(),
+        selectedWatch: "fr970",
         createdAt: "2026-09-09T12:00:00Z",
         updatedAt: "2026-09-09T12:00:00Z",
       },

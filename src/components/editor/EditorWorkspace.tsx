@@ -229,6 +229,7 @@ export function EditorWorkspace({
             simulation={simulation}
             onSimulationChange={setSimulation}
             setDesign={setActiveDesign}
+            onReset={() => setDesign(structuredClone(project.initialDesign))}
             mode={displayMode}
             {...{ ready, selected }}
             onSelect={setSelected}

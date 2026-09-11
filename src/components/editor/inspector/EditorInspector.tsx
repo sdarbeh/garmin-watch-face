@@ -23,7 +23,6 @@ import { PositionField } from "./PositionField";
 import { ResetProject } from "./ResetProject";
 import { Button, ColorField } from "@/components/ui";
 import {
-  defaultDesign,
   validateDesign,
   type Design,
   type FaceElement,
@@ -40,6 +39,7 @@ export function EditorInspector({
   selected,
   setDesign,
   onSelect,
+  onReset,
 }: {
   onSelect: (id: string) => void;
   design: Design;
@@ -49,7 +49,9 @@ export function EditorInspector({
   ready: boolean;
   selected: EditorSelection;
   setDesign: (design: Design) => void;
+  onReset: () => void;
 }) {
+  const device = getDeviceById(design.device)!;
   const element =
     selected === "background"
       ? null
@@ -153,14 +155,14 @@ export function EditorInspector({
         <>
           <ComplicationContent
             element={element}
-            device={getDeviceById(design.device)!}
+            device={device}
             disabled={!ready || element.locked}
             onChange={updateElement}
           />
           <LayerPresentation
             key={selected}
             element={element}
-            device={getDeviceById(design.device)!}
+            device={device}
             disabled={!ready || element.locked}
             onChange={updateElement}
           />
@@ -181,7 +183,7 @@ export function EditorInspector({
           )}
           <AppearanceRules
             element={element}
-            device={getDeviceById(design.device)!}
+            device={device}
             disabled={!ready || element.locked}
             onChange={updateElement}
             simulation={simulation}
@@ -285,16 +287,18 @@ export function EditorInspector({
           </InspectorSection>
           <InspectorSection title="Canvas">
             <p className="u-font-sm u-text-secondary">
-              Forerunner 970
+              {device.name}
               <br />
-              454 × 454 pixels · AMOLED
+              {device.width} × {device.height} pixels · {device.display}
             </p>
           </InspectorSection>
-          <OnWatchSettings
-            design={design}
-            disabled={!ready}
-            onChange={setDesign}
-          />
+          {device.capabilities.onWatchSettings && (
+            <OnWatchSettings
+              design={design}
+              disabled={!ready}
+              onChange={setDesign}
+            />
+          )}
           <PowerSettings
             design={design}
             disabled={!ready}
@@ -302,10 +306,7 @@ export function EditorInspector({
           />
           {mode === "normal" && (
             <InspectorSection title="Project settings">
-              <ResetProject
-                disabled={!ready}
-                onConfirm={() => setDesign(defaultDesign())}
-              />
+              <ResetProject disabled={!ready} onConfirm={onReset} />
             </InspectorSection>
           )}
         </>

@@ -20,7 +20,7 @@ export function ResetProject({
         aria-haspopup="dialog"
         onClick={() => dialog.current?.showModal()}
       >
-        Reset to starter design
+        Reset to initial design
       </Button>
       <dialog
         ref={dialog}
@@ -36,8 +36,9 @@ export function ResetProject({
             Reset this project?
           </h2>
           <p id={description} className="u-font-sm u-text-secondary mb5">
-            Replace your design and all display-mode layouts with the starter
-            design. You can undo this after resetting.
+            Discard every edit and restore the design exactly as it was when
+            this project was created, including all display-mode layouts. You
+            can undo this after resetting.
           </p>
           <div className="u-flex u-flex-wrap u-justify-end gap2">
             <Button

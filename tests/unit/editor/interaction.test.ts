@@ -41,6 +41,31 @@ describe("design history", () => {
     expect(h.cancel()).toEqual(start);
     expect(h.canUndo).toBe(false);
   });
+  it("restores an entire multi-mode reset as one undoable edit", () => {
+    const h = new DesignHistory();
+    const initial = defaultDesign();
+    const edited = validateDesign({
+      ...initial,
+      name: "Edited face",
+      layouts: {
+        ...initial.layouts,
+        "low-battery": {
+          background: "#000000",
+          elements: [],
+        },
+        night: {
+          background: "#010101",
+          elements: [],
+        },
+      },
+    });
+
+    h.record(edited, initial);
+
+    expect(h.undo(initial)).toEqual(edited);
+    expect(h.canUndo).toBe(false);
+    expect(h.redo(edited)).toEqual(initial);
+  });
 });
 describe("positioning", () => {
   it("clamps and rounds to schema-valid pixels without altering other elements", () => {
